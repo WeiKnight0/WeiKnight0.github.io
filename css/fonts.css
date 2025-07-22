@@ -1,0 +1,10 @@
+@font-face {
+    font-family: 'JetBrainsMono-Regular';
+    /* font-display: swap; */
+    src: url('/fonts/JetBrainsMono-Regular.ttf') format("opentype");
+}
+
+@font-face {
+    font-family: 'SourceHanSansSC-Regular';
+    src: url('/fonts/SourceHanSansSC-Regular-2.otf') format("truetype");
+}
