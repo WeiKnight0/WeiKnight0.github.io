@@ -122,8 +122,9 @@ body {
 .title-section {
     background-color: var(--primary-color);
     color: white;
-    padding: 4rem 0;
+    padding: 2rem 0;
     margin-bottom: 2rem;
+    /* max-height: 20%; */
 }
 
 .title-container {
@@ -318,7 +319,7 @@ body {
 /* 页脚样式 */
 .footer {
     background-color: var(--white);
-    padding: 2rem 0;
+    padding: 1rem 0;
     text-align: center;
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
     transition: var(--transition);

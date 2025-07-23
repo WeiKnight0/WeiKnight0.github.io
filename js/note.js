@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (currentTheme === 'dark') {
         document.body.setAttribute('data-theme', 'dark');
-        toggleDarkBtn.innerHTML = '<i class="fas fa-sun"></i><span>明亮模式</span>';
+        toggleDarkBtn.innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
     }
 
     toggleDarkBtn.addEventListener('click', function () {
@@ -17,43 +17,40 @@ document.addEventListener('DOMContentLoaded', function () {
         if (document.body.getAttribute('data-theme') === 'dark') {
             document.body.removeAttribute('data-theme');
             theme = 'light';
-            toggleDarkBtn.innerHTML = '<i class="fas fa-moon"></i><span>暗黑模式</span>';
+            toggleDarkBtn.innerHTML = '<i class="fas fa-moon"></i><span>Dark Mode</span>';
         } else {
             document.body.setAttribute('data-theme', 'dark');
             theme = 'dark';
-            toggleDarkBtn.innerHTML = '<i class="fas fa-sun"></i><span>明亮模式</span>';
+            toggleDarkBtn.innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
         }
         localStorage.setItem('theme', theme);
     });
 
-    // 字体大小调整
-    const content = document.querySelector('.chapter-content');
-    const fontSizeIncrease = document.getElementById('font-increase');
-    const fontSizeDecrease = document.getElementById('font-decrease');
-
-    // 初始化字体大小
-    let fontSize = localStorage.getItem('fontSize') || 100;
-    content.style.fontSize = fontSize + '%';
-
-    fontSizeIncrease.addEventListener('click', function () {
-        if (fontSize < 150) {
-            fontSize += 10;
-            content.style.fontSize = fontSize + '%';
-            localStorage.setItem('fontSize', fontSize);
-        }
-    });
-
-    fontSizeDecrease.addEventListener('click', function () {
-        if (fontSize > 70) {
-            fontSize -= 10;
-            content.style.fontSize = fontSize + '%';
-            localStorage.setItem('fontSize', fontSize);
-        }
-    });
-
     // 打印功能
     document.getElementById('print-note').addEventListener('click', function () {
-        window.print();
+        const content = document.querySelector('.chapter-content').innerHTML;
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Printing...</title>
+            </head>
+            <body>${content}</body>
+            </html>
+        `;
+
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const printWindow = window.open(url, '_blank');
+
+        printWindow.onload = () => {
+            printWindow.print();
+            setTimeout(() => {
+                printWindow.close(); // 打印后立即关闭
+                URL.revokeObjectURL(url);
+            }, 0); // 短暂延迟确保打印对话框弹出
+        };
     });
 
     // 图片点击放大
