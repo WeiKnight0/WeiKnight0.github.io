@@ -1,3 +1,8 @@
+@font-face {
+    font-family: 'JetBrainsMono-Regular';
+    src: url('/fonts/JetBrainsMono-Regular.ttf') format('truetype');
+}
+
 :root {
     --primary-color: #4a6fa5;
     --secondary-color: #6c757d;
@@ -7,6 +12,32 @@
     --border-radius: 8px;
     --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
+    --code-font: 'JetBrainsMono-Regular', monospace;
+
+    /* 代码高亮特定颜色 */
+    --code-bg: #2d333b;
+    --code-text: #333333;
+    --code-border: #444c56;
+    --code-line-number: #768390;
+    --code-line-highlight: rgba(99, 110, 123, 0.4);
+
+    /* 语法高亮颜色 */
+    --code-keyword: #0077aa;
+    --code-type: #0077aa;
+    --code-string: #dd1144;
+    --code-number: #990073;
+    --code-comment: #999999;
+    --code-function: #0086b3;
+    --code-constant: #990073;
+    --code-tag: #22863a;
+    --code-attribute: #6f42c1;
+    --code-regex: #d16965;
+    --code-title: #6f42c1;
+    --code-section: #005cc5;
+    --code-builtin: #d73a49;
+    --code-meta: #555555;
+    --code-addition: #22863a;
+    --code-deletion: #b31d28;
 }
 
 /* 暗黑模式变量 */
@@ -16,6 +47,31 @@
     --text-color: #f8f9fa;
     --light-bg: #212529;
     --white: #343a40;
+
+    /* 代码高亮特定颜色 */
+    --code-background: #282c34;
+    --code-text: #abb2bf;
+    --code-border: #444c56;
+    --code-line-number: #768390;
+    --code-line-highlight: rgba(99, 110, 123, 0.4);
+
+    /* 语法高亮颜色 */
+    --code-keyword: #c678dd;
+    --code-type: #e5c07b;
+    --code-string: #98c379;
+    --code-number: #d19a66;
+    --code-comment: #5c6370;
+    --code-function: #61afef;
+    --code-constant: #56b6c2;
+    --code-tag: #e06c75;
+    --code-attribute: #d19a66;
+    --code-regex: #f69d50;
+    --code-title: #e5c07b;
+    --code-section: #e06c75;
+    --code-builtin: #56b6c2;
+    --code-meta: #7f848e;
+    --code-addition: #98c379;
+    --code-deletion: #e06c75;
 }
 
 * {
@@ -24,7 +80,16 @@
     box-sizing: border-box;
 }
 
+html,
 body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    min-height: 100vh;
     font-family: 'Noto Sans SC', 'Roboto', sans-serif;
     color: var(--text-color);
     background-color: var(--light-bg);
@@ -34,6 +99,7 @@ body {
 
 /* 导航栏样式 */
 .navbar {
+    grid-row: 1;
     background-color: var(--white);
     box-shadow: var(--box-shadow);
     position: sticky;
@@ -120,11 +186,12 @@ body {
 
 /* 标题区域 */
 .title-section {
+    grid-row: 2;
     background-color: var(--primary-color);
     color: white;
     padding: 2rem 0;
     margin-bottom: 2rem;
-    /* max-height: 20%; */
+    height: auto;
 }
 
 .title-container {
@@ -168,7 +235,10 @@ body {
 
 /* 内容区域 */
 .content-section {
-    max-width: 900px;
+    grid-row: 3;
+    grid-column: 1;
+    max-width: 80vw;
+    min-width: 70vw;
     margin: 0 auto 3rem;
     padding: 0 2rem;
 }
@@ -179,6 +249,13 @@ body {
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     transition: var(--transition);
+    min-width: 90%;
+    min-height: 0;
+    line-break: strict;
+    /* 严格的换行规则 */
+    word-break: normal;
+    hyphens: manual;
+    overflow-wrap: break-word;
 }
 
 /* 内容样式 */
@@ -202,6 +279,15 @@ body {
     line-height: 1.8;
 }
 
+.chapter-content p:lang(zh) {
+    line-break: normal;
+    /* 中文使用更宽松的换行规则 */
+    text-spacing: trim-start;
+    /* 避免标点出现在行首 */
+    hanging-punctuation: none;
+    /* 禁用悬挂标点 */
+}
+
 .chapter-content a {
     color: var(--primary-color);
     text-decoration: none;
@@ -223,66 +309,275 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.chapter-content pre {
-    background-color: #f5f5f5;
-    padding: 1.5rem;
+.content-section code,
+.content-section pre {
+    font-family: var(--code-font);
+}
+
+.content-section code {
+    white-space: pre-wrap;
+    /* 保留空白符，但允许必要时的换行 */
+    word-break: normal;
+    display: inline-block;
+    /* 防止代码片段被分割 */
+    color: #245bad;
+}
+
+[data-theme="dark"] .content-section code {
+    white-space: pre-wrap;
+    /* 保留空白符，但允许必要时的换行 */
+    word-break: normal;
+    display: inline-block;
+    /* 防止代码片段被分割 */
+    color: #6d8cc7;
+}
+
+/* ===== 代码块核心样式 ===== */
+.content-section .chapter-content figure.highlight {
+    background: var(--light-bg);
+    color: var(--text-color);
     border-radius: var(--border-radius);
-    overflow-x: auto;
-    margin: 1.5rem 0;
-    font-family: 'Courier New', monospace;
-    font-size: 0.95rem;
-    line-height: 1.5;
+    box-shadow: var(--box-shadow);
+    margin: 1.5em 0;
+    overflow: hidden;
+    transition: var(--transition);
 }
 
-[data-theme="dark"] .chapter-content pre {
-    background-color: #2d3748;
+/* ===== 表格布局 ===== */
+.content-section .chapter-content figure.highlight table {
+    width: 100%;
+    border-collapse: collapse;
+    background: inherit;
 }
 
-.chapter-content code {
-    background-color: #f5f5f5;
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.95rem;
-}
-
-[data-theme="dark"] .chapter-content code {
-    background-color: #2d3748;
-}
-
-.chapter-content blockquote {
-    border-left: 4px solid var(--primary-color);
-    padding-left: 1.5rem;
-    margin: 1.5rem 0;
+/* ===== 行号列 ===== */
+.content-section .chapter-content figure.highlight .gutter {
+    width: 2.5em;
+    padding: 1em 0.5em;
+    text-align: right;
     color: var(--secondary-color);
+    background: rgba(0, 0, 0, 0.03);
+    border-right: 1px solid;
+    border-color: color-mix(in srgb, var(--secondary-color) 15%, transparent);
+    user-select: none;
+}
+
+[data-theme="dark"] .content-section .chapter-content figure.highlight .gutter {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* ===== 代码列 ===== */
+.content-section .chapter-content figure.highlight .code {
+    padding: 1em;
+    vertical-align: top;
+}
+
+.content-section .chapter-content figure.highlight br {
+    content: "";
+    /* 清除默认换行行为 */
+    display: none;
+    /* 完全隐藏 */
+    line-height: 0;
+    /* 或设置高度为0 */
+}
+
+/* ===== 代码行 ===== */
+.content-section .chapter-content figure.highlight .line {
+    line-height: auto;
+    font-size: 14px;
+    display: block;
+    /* min-height: 1.2em; */
+}
+
+figure.highlight table {
+    margin: 0;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+figure.highlight tr {
+    background: transparent !important;
+}
+
+figure.highlight td {
+    padding: 0;
+    border: none;
+}
+
+figure.highlight td.gutter {
+    width: 2.5em;
+    padding: 0.75em 1em;
+    text-align: right;
+    color: var(--code-line-number);
+    background-color: var(--code-bg);
+    border-right: 1px solid var(--code-border);
+    user-select: none;
+}
+
+figure.highlight td.code {
+    padding: 0.75em 1em;
+    vertical-align: top;
+}
+
+figure.highlight pre {
+    margin: 0;
+    overflow: auto;
+}
+
+/* 行高亮样式 */
+figure.highlight .line.marked {
+    background-color: var(--code-line-highlight);
+}
+
+/* ===== 语法高亮样式 ===== */
+figure.highlight .keyword,
+figure.highlight .keyword.function {
+    color: var(--code-keyword);
+    font-weight: bold;
+}
+
+figure.highlight .type {
+    color: var(--code-type);
+}
+
+figure.highlight .string,
+figure.highlight .string .value {
+    color: var(--code-string);
+}
+
+figure.highlight .number {
+    color: var(--code-number);
+}
+
+figure.highlight .comment {
+    color: var(--code-comment);
     font-style: italic;
 }
 
-.chapter-content table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1.5rem 0;
+figure.highlight .function {
+    color: var(--code-function);
 }
 
-.chapter-content th,
-.chapter-content td {
-    border: 1px solid #ddd;
-    padding: 0.8rem;
-    text-align: left;
+figure.highlight .title.function {
+    color: var(--code-function);
 }
 
-.chapter-content th {
-    background-color: var(--primary-color);
-    color: white;
+figure.highlight .params {
+    color: var(--code-text);
 }
 
-.chapter-content tr:nth-child(even) {
-    background-color: #f2f2f2;
+figure.highlight .built_in {
+    color: var(--code-builtin);
 }
 
-[data-theme="dark"] .chapter-content tr:nth-child(even) {
-    background-color: #495057;
+figure.highlight .literal {
+    color: var(--code-constant);
 }
+
+figure.highlight .tag,
+figure.highlight .selector-tag {
+    color: var(--code-tag);
+}
+
+figure.highlight .attribute {
+    color: var(--code-attribute);
+}
+
+figure.highlight .regexp {
+    color: var(--code-regex);
+}
+
+figure.highlight .title.class_ {
+    color: var(--code-title);
+}
+
+figure.highlight .section {
+    color: var(--code-section);
+}
+
+figure.highlight .meta {
+    color: var(--code-meta);
+}
+
+figure.highlight .addition {
+    color: var(--code-addition);
+    background-color: rgba(70, 149, 74, 0.15);
+}
+
+figure.highlight .deletion {
+    color: var(--code-deletion);
+    background-color: rgba(203, 36, 49, 0.15);
+}
+
+/* ===== Katex 相关样式调整 ===== */
+.katex {
+    font-size: 1.05em !important;
+}
+
+.katex-display {
+    overflow: auto hidden;
+    padding: 0.5em 0;
+}
+
+/* 确保代码块和 Katex 公式在暗黑模式下协调 */
+[data-theme="dark"] .katex {
+    color: var(--text-color);
+}
+
+/* ===== 行内代码样式 ===== */
+code:not([class*="language-"]) {
+    padding: 0.2em 0.4em;
+    margin: 0;
+    font-size: 0.85em;
+    /* background-color: var(--code-bg); */
+    border-radius: 3px;
+    color: var(--code-text);
+    font-family: var(--code-font);
+    /* border: 1px solid var(--code-border); */
+}
+
+/* ===== 代码块标题样式 ===== */
+figure.highlight figcaption {
+    padding: 0.5em 1em;
+    background-color: var(--code-border);
+    color: var(--code-line-number);
+    font-family: var(--code-font);
+    font-size: 0.85em;
+    border-bottom: 1px solid var(--code-border);
+}
+
+figure.highlight figcaption a {
+    color: inherit;
+    text-decoration: none;
+}
+
+figure.highlight figcaption a:hover {
+    text-decoration: underline;
+}
+
+/* ===== 滚动条样式 ===== */
+figure.highlight pre::-webkit-scrollbar {
+    height: 6px;
+}
+
+figure.highlight pre::-webkit-scrollbar-thumb {
+    background-color: var(--code-line-number);
+    border-radius: 3px;
+}
+
+figure.highlight pre::-webkit-scrollbar-track {
+    background-color: var(--code-border);
+}
+
+/* ===== 响应式优化 ===== */
+@media (max-width: 768px) {
+    .content-section .chapter-content figure.highlight {
+        border-radius: calc(var(--border-radius) / 2);
+        font-size: 0.85em;
+    }
+}
+
+
 
 /* 笔记工具条 */
 .note-tools {
@@ -318,6 +613,7 @@ body {
 
 /* 页脚样式 */
 .footer {
+    grid-row: 4;
     background-color: var(--white);
     padding: 1rem 0;
     text-align: center;

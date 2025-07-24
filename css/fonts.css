@@ -2,9 +2,19 @@
     font-family: 'JetBrainsMono-Regular';
     /* font-display: swap; */
     src: url('/fonts/JetBrainsMono-Regular.ttf') format("opentype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+    font-feature-settings: "liga" 0;
 }
 
 @font-face {
     font-family: 'SourceHanSansSC-Regular';
     src: url('/fonts/SourceHanSansSC-Regular-2.otf') format("truetype");
+}
+
+code,
+.code {
+    font-feature-settings: normal !important;
+    font-variant-ligatures: none !important;
 }
