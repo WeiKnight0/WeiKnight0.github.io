@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 打印功能
     document.getElementById('print-note').addEventListener('click', function () {
+        // window.alert("The print page will open soon...");
+        const title1 = document.querySelector('.title-container').innerHTML;
         const content = document.querySelector('.chapter-content').innerHTML;
         const html = `
             <!DOCTYPE html>
@@ -36,7 +38,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 <meta charset="UTF-8">
                 <title>Printing...</title>
             </head>
-            <body>${content}</body>
+            <body>
+                <div align="center">${title1}</div>
+                ${content}
+            </body>
             </html>
         `;
 
@@ -49,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
                 printWindow.close(); // 打印后立即关闭
                 URL.revokeObjectURL(url);
-            }, 0); // 短暂延迟确保打印对话框弹出
+            }, 1); // 短暂延迟确保打印对话框弹出
         };
     });
 
