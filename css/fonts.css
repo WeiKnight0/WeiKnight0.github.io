@@ -1,11 +1,14 @@
+/* 防止code连字 */
+code,
+.code {
+    font-feature-settings: normal !important;
+    font-variant-ligatures: none !important;
+}
+
 @font-face {
     font-family: 'JetBrainsMono-Regular';
     /* font-display: swap; */
     src: url('/fonts/JetBrainsMono-Regular.ttf') format("opentype");
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-    font-feature-settings: "liga" 0;
 }
 
 @font-face {
@@ -13,8 +16,116 @@
     src: url('/fonts/SourceHanSansSC-Regular-2.otf') format("truetype");
 }
 
-code,
-.code {
-    font-feature-settings: normal !important;
-    font-variant-ligatures: none !important;
+/* MapleMono-NF-CN */
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-ExtraLight.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}
+
+/* 斜体变体 */
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-ThinItalic.ttf') format('truetype');
+    font-weight: 100;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-ExtraLightItalic.ttf') format('truetype');
+    font-weight: 200;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-LightItalic.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-Italic.ttf') format('truetype');
+    font-weight: 400;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-MediumItalic.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-SemiBoldItalic.ttf') format('truetype');
+    font-weight: 600;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-BoldItalic.ttf') format('truetype');
+    font-weight: 700;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'MapleMono-NF-CN';
+    src: url('/fonts/MapleMono-NF-CN/MapleMono-NF-CN-ExtraBoldItalic.ttf') format('truetype');
+    font-weight: 800;
+    font-style: italic;
 }

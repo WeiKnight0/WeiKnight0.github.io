@@ -1668,7 +1668,7 @@ figure.highlight pre .javascript .function {
 .container pre,
 .container code {
   font-size: var(--global-font-size);
-  font-family: JetBrainsMono-Regular !important;
+  font-family: MapleMono-NF-CN !important;
   border-radius: 6px;
 }
 .container code {
