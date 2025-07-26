@@ -28,34 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 打印功能
     document.getElementById('print-note').addEventListener('click', function () {
-        // window.alert("The print page will open soon...");
-        const title1 = document.querySelector('.title-container').innerHTML;
-        const content = document.querySelector('.chapter-content').innerHTML;
-        const html = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>Printing...</title>
-            </head>
-            <body>
-                <div align="center">${title1}</div>
-                ${content}
-            </body>
-            </html>
-        `;
-
-        const blob = new Blob([html], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const printWindow = window.open(url, '_blank');
-
-        printWindow.onload = () => {
-            printWindow.print();
-            setTimeout(() => {
-                printWindow.close(); // 打印后立即关闭
-                URL.revokeObjectURL(url);
-            }, 1); // 短暂延迟确保打印对话框弹出
-        };
+        window.print(); // 触发浏览器打印对话框
     });
 
     // 图片点击放大
