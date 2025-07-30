@@ -7,7 +7,7 @@
     --border-radius: 8px;
     --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
-    --code-font: 'MapleMono-NF-CN';
+    --code-font: 'MapleMono';
 
     /* 代码高亮特定颜色 */
     --code-bg: #000a2008;
@@ -85,7 +85,7 @@ body {
     display: grid;
     grid-template-rows: auto auto 1fr auto;
     min-height: 100vh;
-    font-family: 'Noto Sans SC', 'Roboto', sans-serif;
+    font-family: 'SourceHanSansSC-Regular';
     color: var(--text-color);
     background-color: var(--light-bg);
     line-height: 1.6;
@@ -429,13 +429,14 @@ table tr:last-child td {
 /* ===== 行号列 ===== */
 figure.highlight .gutter {
     width: 2.5em;
-    padding: 1em 0.5em;
+    padding: 0.75em 0.5em;
     text-align: right;
     color: var(--secondary-color);
     background: rgba(0, 0, 0, 0.03);
     border-right: 1px solid;
     border-color: color-mix(in srgb, var(--secondary-color) 15%, transparent);
     user-select: none;
+    vertical-align: top;
 }
 
 [data-theme="dark"] figure.highlight .gutter {
@@ -444,7 +445,7 @@ figure.highlight .gutter {
 
 /* ===== 代码列 ===== */
 figure.highlight .code {
-    padding: 1em;
+    padding: 0.75em 1em;
     vertical-align: top;
 }
 
