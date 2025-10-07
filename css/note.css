@@ -201,6 +201,7 @@ body {
     font-weight: 700;
     margin-bottom: 1rem;
     line-height: 1.3;
+    white-space: pre-line;
 }
 
 .chapter-meta {
@@ -257,7 +258,6 @@ body {
 .chapter-content h1 {
     color: var(--primary-color);
     margin: 2.5rem 0 1.5rem;
-    font-size: 2.2rem;
     border-bottom: 2px solid var(--primary-color);
     padding-bottom: 0.7rem;
 }
@@ -266,7 +266,6 @@ body {
 .chapter-content h2 {
     color: var(--primary-color);
     margin: 2rem 0 1rem;
-    font-size: 1.8rem;
     border-bottom: 2px solid var(--primary-color);
     padding-bottom: 0.5rem;
 }
@@ -274,20 +273,31 @@ body {
 .chapter-content h3 {
     color: var(--primary-color);
     margin: 1.5rem 0 0.8rem;
-    font-size: 1.5rem;
+}
+
+.chapter-content h4 {
+    color: var(--primary-color);
+    margin: 1.2rem 0 0.6rem;
+}
+
+.chapter-content h5 {
+    color: var(--primary-color);
+    margin: 1rem 0 0.5rem;
+}
+
+.chapter-content h6 {
+    color: var(--primary-color);
+    margin: 0.8rem 0 0.4rem;
 }
 
 .chapter-content p {
-    margin-bottom: 1.2rem;
-    font-size: 1.1rem;
+    margin-bottom: 1em;
     line-height: 1.8;
 }
 
 .chapter-content p:lang(zh) {
     line-break: normal;
     /* 中文使用更宽松的换行规则 */
-    text-spacing: trim-start;
-    /* 避免标点出现在行首 */
     hanging-punctuation: none;
     /* 禁用悬挂标点 */
 }
@@ -311,6 +321,11 @@ body {
     margin: 2rem auto;
     border-radius: var(--border-radius);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chapter-content ul,ol{
+    margin-left: 1.2em;
+    margin-bottom: 1.2em;
 }
 
 code,
@@ -343,10 +358,11 @@ figure.highlight {
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     /* margin: 1.5em 0; */
-    overflow: hidden;
+    /* overflow: hidden; */
     transition: var(--transition);
     margin: 1em 0;
-    /* 预留语言标签位置 */
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 /* figure.highlight::before {
@@ -456,6 +472,9 @@ figure.highlight .gutter {
 figure.highlight .code {
     padding: 0.75em 1em;
     vertical-align: top;
+    overflow-x: auto;
+    max-width: 100%;
+    white-space: pre;
 }
 
 figure.highlight br {
