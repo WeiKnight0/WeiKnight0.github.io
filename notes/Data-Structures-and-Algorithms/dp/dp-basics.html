@@ -50,15 +50,16 @@
 <p>无论使用哪种实现方式，动态规划均需要遵循以下四个步骤：</p>
 <ol>
 <li><strong>定义状态</strong>：确定问题的动态规划表示，通常使用dp数组的元素来表示子问题的解（这一步往往很难！）</li>
-<li><strong>状态转移方程</strong>：找出状态之间的关系，通过递推方程来表示，包含解析式和相应的变量取值范围</li>
-<li><strong>初始条件</strong>：确定初始状态的值，通常是最小子问题的解</li>
-<li><strong>答案的表示</strong>：确定最终答案的位置，如dp数组的最后一个元素或特定的位置的值</li>
+<li><strong>状态转移方程</strong>：找出状态之间的关系，通过递推方程来表示，包含解析式和相应的变量取值范围（这一步往往很难！）</li>
+<li><strong>边界条件</strong>：确定初始状态的值，通常是最小子问题的解</li>
+<li><strong>答案的表示</strong>：确定最终答案的位置，如dp数组的最后一个元素或特定的位置的值<br>
+注意：动态规划题的原始数据下标一般从1开始，更方便边界条件。</li>
 </ol>
 <p>例如，计算斐波那契数列第<code>n</code>个数的四个步骤如下：</p>
 <ol>
 <li><strong>定义状态</strong>：令 <code>dp[i]</code> 表示第 <code>i</code> 个斐波那契数</li>
 <li><strong>状态转移方程</strong>：<code>dp[i] = dp[i-1] + dp[i-2]</code>，其中 <code>i &gt;= 2</code></li>
-<li><strong>初始条件</strong>：<code>dp[0] = 0</code>，<code>dp[1] = 1</code></li>
+<li><strong>边界条件</strong>：<code>dp[0] = 0</code>，<code>dp[1] = 1</code></li>
 <li><strong>答案的表示</strong>：最终答案为 <code>dp[n]</code></li>
 </ol>
 <h1 id="经典例题-但很重要">经典例题（但很重要！）</h1>
@@ -77,7 +78,7 @@
 <li>否则，<code>dp[i][j] = max(dp[i-1][j], dp[i][j-1])</code></li>
 </ul>
 </li>
-<li><strong>初始条件</strong>：
+<li><strong>边界条件</strong>：
 <ul>
 <li><code>dp[0][j] = 0</code>，表示当 <code>A</code> 为空时，最长公共子序列长度为 <code>0</code></li>
 <li><code>dp[i][0] = 0</code>，表示当 <code>B</code> 为空时，最长公共子序列长度为 <code>0</code></li>
@@ -101,7 +102,7 @@
 令 <code>dp[i]</code> 表示以 <code>a[i]</code> 结尾的最长非降子序列的长度。</li>
 <li><strong>状态转移方程</strong>：<br>
 对于每个 <code>i</code>，遍历 <code>j</code> 从 <code>0</code> 到 <code>i-1</code>：如果 <code>a[j] &lt;= a[i]</code>，则 <code>dp[i] = max(dp[i], dp[j] + 1)</code>。</li>
-<li><strong>初始条件</strong>：<br>
+<li><strong>边界条件</strong>：<br>
 <code>dp[i] = 1</code>，表示每个元素自身可以作为一个长度为 <code>1</code> 的非降子序列</li>
 <li><strong>答案的表示</strong>：<br>
 最终答案为 <code>max(dp[i])</code>，其中 <code>0 &lt;= i &lt; n</code>。</li>

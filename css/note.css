@@ -291,8 +291,8 @@ body {
 }
 
 .chapter-content p {
-    margin-bottom: 1em;
     line-height: 1.8;
+    display: block;
 }
 
 .chapter-content p:lang(zh) {
@@ -325,7 +325,6 @@ body {
 
 .chapter-content ul,ol{
     margin-left: 1.2em;
-    margin-bottom: 1.2em;
 }
 
 code,

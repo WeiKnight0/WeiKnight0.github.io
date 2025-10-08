@@ -72,16 +72,49 @@
 <p>此外，还有 <code>std::binary_search</code> 函数，用于判断一个元素是否存在于有序范围内。</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">bool</span> <span class="title">is_exist</span><span class="params">(<span class="type">int</span> arr[], <span class="type">int</span> n, <span class="type">int</span> target)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> std::<span class="built_in">binary_search</span>(arr, arr + n, target);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h1 id="二分答案">二分答案</h1>
-<p>当问题的答案具有<strong>单调性</strong>、有明确的<code>check()</code>函数、答案范围明确时，就可以尝试二分答案。<br>
-如果答案<code>X</code>可行，那么：</p>
+<p>当问题的答案具有<strong>单调性</strong>、有明确的<code>check()</code>函数、答案范围明确（一般是闭区间<code>[left, right]</code>）时，就可以尝试二分答案。</p>
+<p>主要分为以下两种情况：</p>
 <ul>
-<li>对于“最大值最小化”问题：所有大于<code>X</code>的值都可行</li>
+<li>找最大值的<code>true</code>，<code>check()</code>随<code>x</code>增大从<code>true</code>变为<code>false</code><br>
+代码示例：</li>
 </ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 寻找最大的最小值</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">binary_search_max_min</span><span class="params">(<span class="type">int</span> min_val, <span class="type">int</span> max_val)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 答案在[min_val, max_val]中</span></span><br><span class="line">    <span class="type">int</span> left = min_val, right = max_val;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span> (left &lt; right) &#123;</span><br><span class="line">        <span class="comment">// 关键：mid要+1，防止死循环</span></span><br><span class="line">        <span class="type">int</span> mid = left + (right - left + <span class="number">1</span>) / <span class="number">2</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">check</span>(mid)) &#123;</span><br><span class="line">            <span class="comment">// mid可行，说明答案在[mid, right]中，尝试更大的值</span></span><br><span class="line">            left = mid;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// mid不可行，说明答案在[left, mid)中，必须减小</span></span><br><span class="line">            right = mid - <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> left;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">binary_search_max</span><span class="params">(<span class="type">int</span> left, <span class="type">int</span> right)</span> </span>&#123; <span class="comment">// [left, right]</span></span><br><span class="line">    <span class="keyword">while</span> (left &lt;= right) &#123;</span><br><span class="line">        <span class="type">int</span> mid = left + (right - left + <span class="number">1</span>) / <span class="number">2</span>; <span class="comment">// 向上取整</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">check</span>(mid)) &#123; <span class="comment">// check()随x增大从true变为false</span></span><br><span class="line">            left = mid + <span class="number">1</span>; <span class="comment">// [mid, right]</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            right = mid - <span class="number">1</span>; <span class="comment">// [left, mid-1]</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> right;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ul>
-<li>对于“最小值最大化”问题：所有小于<code>X</code>的值都可行</li>
-<li>对于“是否可行”问题：所有与<code>X</code>同类的值都可行</li>
+<li>找最小值，<code>check()</code>随<code>x</code>增大从<code>false</code>变为<code>true</code><br>
+代码示例：</li>
 </ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">binary_search_min</span><span class="params">(<span class="type">int</span> left, <span class="type">int</span> right)</span> </span>&#123; <span class="comment">// [left, right]</span></span><br><span class="line">    <span class="keyword">while</span> (left &lt;= right) &#123;</span><br><span class="line">        <span class="type">int</span> mid = left + (right - left) / <span class="number">2</span>; <span class="comment">// 向下取整</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">check</span>(mid)) &#123; <span class="comment">// check()随x增大从false变为true</span></span><br><span class="line">            right = mid - <span class="number">1</span>; <span class="comment">// [left, mid]</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            left = mid + <span class="number">1</span>; <span class="comment">// [mid+1, right]</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> left;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>总结表格：</p>
+<table>
+<thead>
+<tr>
+<th>问题类型</th>
+<th>check(x) 单调性</th>
+<th>目标答案</th>
+<th>状态更新</th>
+<th>循环结束时状态</th>
+<th>返回值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>最大化问题</strong><br>(找最大的可行x)</td>
+<td><code>[T, T, ..., T, F, F, ..., F]</code><br>x增大从true变false</td>
+<td>最后一个true</td>
+<td><code>if(check(mid)) l=mid+1;</code><br><code>else r=mid-1;</code></td>
+<td><code>l</code> → 第一个false<br><code>r</code> → 最后一个true</td>
+<td><strong><code>r</code></strong></td>
+</tr>
+<tr>
+<td><strong>最小化问题</strong><br>(找最小的可行x)</td>
+<td><code>[F, F, ..., F, T, T, ..., T]</code><br>x增大从false变true</td>
+<td>第一个true</td>
+<td><code>if(check(mid)) r=mid-1;</code><br><code>else l=mid+1;</code></td>
+<td><code>l</code> → 第一个true<br><code>r</code> → 最后一个false</td>
+<td><strong><code>l</code></strong></td>
+</tr>
+</tbody>
+</table>
 </article><!-- 笔记工具条--><div class="note-tools"><button class="tool-btn" id="toggle-dark"><i class="fas fa-moon"></i><span>Dark Mode</span></button><button class="tool-btn" id="print-note"><i class="fas fa-print"></i><span>Print This Note</span></button></div></main><!-- 页脚--><footer class="footer"><div class="footer-content"><p>© 2025 WeiKnight. All Rights Reserved. </p><div class="footer-links"><a href="/notes/about" target="_blank">About</a><a href="/notes/terms" target="_blank">Terms of Use</a><a href="/notes/privacy" target="_blank">Privacy Policy</a></div></div></footer><script src="/js/note.js"></script><script>document.querySelectorAll('figure.highlight').forEach((figure) => {
   const langClass = Array.from(figure.classList).find(cls => cls !== 'highlight');
   if (!langClass) return;
