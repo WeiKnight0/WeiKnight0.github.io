@@ -1,0 +1,744 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 12: File-System Implementation | WeiKnight's Personnal Blogs</title><link rel="icon" href="https://avatars.githubusercontent.com/WeiKnight0"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><link rel="stylesheet" href="/css/note.css"><meta name="generator" content="Hexo 7.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head><body><!-- 导航栏--><header class="navbar"><div class="navbar-container"><div class="navbar-brand"><a class="avatar-link" target="_blank" rel="noopener" href="https://github.com/WeiKnight0"><img class="avatar" src="https://avatars.githubusercontent.com/WeiKnight0" alt="WeiKnight"></a><div class="navbar-info"><a class="name" target="_blank" rel="noopener" href="https://github.com/WeiKnight0">WeiKnight</a><div class="subject">Study Notes</div></div></div><div class="navbar-actions"><a class="nav-link" href="../" title="Return to Operating System"><i class="fas fa-arrow-left"></i><span>Return to Operating System</span></a><a class="nav-link" href="/"><i class="fas fa-home"></i><span>Return to Home Page</span></a></div></div></header><!-- 标题区域--><section class="title-section"><div class="title-container"><h1 class="chapter-title">Chapter 12: File-System Implementation</h1><div class="chapter-meta"><span class="chapter-date"><i class="far fa-calendar-alt"></i>2025-07-24</span><span class="chapter-lang"><p>Language: English</p></span></div></div></section><!-- 内容区域--><main class="content-section"><article class="chapter-content"><hr>
+<h4 id="1-warm-up"><strong>1. Warm-up</strong></h4>
+<p><strong>1.1 文件系统测量总结（File System Measurement Summary）</strong></p>
+<ul>
+<li><strong>Most files are small</strong>
+<ul>
+<li>大多数文件很小（常见大小为2KB）。</li>
+</ul>
+</li>
+<li><strong>Average file size is growing</strong>
+<ul>
+<li>平均文件大小增长（约200KB）。</li>
+</ul>
+</li>
+<li><strong>Most bytes are stored in large files</strong>
+<ul>
+<li>大部分存储空间被少数大文件占用。</li>
+</ul>
+</li>
+<li><strong>File systems contain lots of files</strong>
+<ul>
+<li>文件系统平均包含约10万个文件。</li>
+</ul>
+</li>
+<li><strong>File systems are roughly half full</strong>
+<ul>
+<li>磁盘利用率通常为50%。</li>
+</ul>
+</li>
+<li><strong>Directories are typically small</strong>
+<ul>
+<li>目录通常很小（多数条目≤20个）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>1.2 文件大小与空间占用（Size of A File）</strong></p>
+<table>
+<thead>
+<tr>
+<th>文件名</th>
+<th>内容（重复行）</th>
+<th>实际大小</th>
+<th>占用空间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test1</code></td>
+<td>-</td>
+<td>0字节</td>
+<td>0字节</td>
+</tr>
+<tr>
+<td><code>test2</code></td>
+<td>1行</td>
+<td>22字节</td>
+<td>0字节</td>
+</tr>
+<tr>
+<td><code>test3</code></td>
+<td>40行</td>
+<td>878字节</td>
+<td>4KB</td>
+</tr>
+<tr>
+<td><code>test4</code></td>
+<td>1行</td>
+<td>22字节</td>
+<td>4KB</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>关键点</strong>：文件系统按块（如4KB）分配空间，导致小文件可能浪费空间（内部碎片）。</li>
+</ul>
+<hr>
+<h4 id="2-typical-file-system"><strong>2. Typical File System</strong></h4>
+<p><strong>2.1 极简文件系统（VSFS: Very Simple File System）</strong></p>
+<ul>
+<li><strong>磁盘组织（Overall Organization）</strong>
+<ul>
+<li>磁盘分为固定大小的块（如4KB），假设总块数为64。</li>
+<li><img src="pictures/12-1.png" alt=""></li>
+<li><strong>数据区域（Data Region）</strong>：占用最后56块（如块8-63）。</li>
+<li><img src="pictures/12-2.png" alt=""></li>
+<li><strong>Inode表</strong>：占用5块（如块2-6）</li>
+<li><img src="pictures/12-3.png" alt=""></li>
+<li>如果每个Inode 256字节，最多存储 <code>(5×4KB)/256B = 80</code> 个Inode。
+<ul>
+<li>This number represents the maximum number of files we can have in our file system.</li>
+</ul>
+</li>
+<li><strong>位图（Bitmap）</strong>：
+<ul>
+<li>位图是由一系列二进制位（bit）组成的数组，每个位代表一个特定资源（如磁盘块或inode）的分配状态。</li>
+<li>Inode位图（inode bitmap）：标记Inode是否空闲（1块）。</li>
+<li>数据位图（data bitmap）：标记数据块是否空闲（1块）。</li>
+</ul>
+</li>
+<li><strong>超级块（Superblock）</strong>
+<ul>
+<li>它包含有关此特定文件系统的信息，例如，文件系统中有多少索引节点（inode）和数据块、索引节点表从何处开始等等。</li>
+<li>挂载文件系统时，操作系统会首先读取超级块（superblock）。</li>
+</ul>
+</li>
+<li><img src="pictures/12-4.png" alt=""></li>
+</ul>
+</li>
+</ul>
+<p><strong>2.2 Inode结构（File Organization: the Inode）</strong><br>
+<img src="pictures/12-5.png" alt=""></p>
+<ul>
+<li><strong>多级索引（Multi-Level Index）</strong>：
+<ul>
+<li><strong>直接指针</strong>：每个指针指向属于该文件的一个磁盘块。</li>
+<li><strong>间接指针</strong>：Instead of pointing to a block that contains user data, it points to a block that contains more pointers, each of which point to user data.</li>
+<li>To support even larger files, by adding a
+<ul>
+<li>double indirect pointer
+<ul>
+<li>What is the maximum size, with 12 direct pointers, 1 indirect pointer, 1 double indirect pointer</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Max Size</mtext><mo>=</mo><mn>12</mn><mo>×</mo><mn>4</mn><mtext>KB</mtext><mo>+</mo><mfrac><mrow><mn>4</mn><mtext>KB</mtext></mrow><mrow><mn>4</mn><mtext>B</mtext></mrow></mfrac><mo>×</mo><mn>4</mn><mtext>KB</mtext><mo>+</mo><msup><mrow><mo fence="true">(</mo><mfrac><mrow><mn>4</mn><mtext>KB</mtext></mrow><mrow><mn>4</mn><mtext>B</mtext></mrow></mfrac><mo fence="true">)</mo></mrow><mn>2</mn></msup><mo>×</mo><mn>4</mn><mtext>KB</mtext></mrow><annotation encoding="application/x-tex">\text{Max Size} = 12 \times 4\text{KB} + \frac{4\text{KB}}{4\text{B}} \times 4\text{KB} + \left(\frac{4\text{KB}}{4\text{B}}\right)^2 \times 4\text{KB} 
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord text"><span class="mord">Max Size</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:2.04633em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">B</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:2.604038em;vertical-align:-0.95003em;"></span><span class="minner"><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">B</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:1.6540080000000001em;"><span style="top:-3.9029000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span></span></span></span></span></p>
+<ul>
+<li>triple indirect pointer
+<ul>
+<li>What is the maximum size, with 12 direct pointers, 1 indirect pointer, 1 double indirect pointer, 1 triple indirect pointer</li>
+</ul>
+</li>
+</ul>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Max Size</mtext><mo>=</mo><mn>12</mn><mo>×</mo><mn>4</mn><mtext>KB</mtext><mo>+</mo><mfrac><mrow><mn>4</mn><mtext>KB</mtext></mrow><mrow><mn>4</mn><mtext>B</mtext></mrow></mfrac><mo>×</mo><mn>4</mn><mtext>KB</mtext><mo>+</mo><msup><mrow><mo fence="true">(</mo><mfrac><mrow><mn>4</mn><mtext>KB</mtext></mrow><mrow><mn>4</mn><mtext>B</mtext></mrow></mfrac><mo fence="true">)</mo></mrow><mn>2</mn></msup><mo>×</mo><mn>4</mn><mtext>KB</mtext><mo>+</mo><msup><mrow><mo fence="true">(</mo><mfrac><mrow><mn>4</mn><mtext>KB</mtext></mrow><mrow><mn>4</mn><mtext>B</mtext></mrow></mfrac><mo fence="true">)</mo></mrow><mn>3</mn></msup><mo>×</mo><mn>4</mn><mtext>KB</mtext></mrow><annotation encoding="application/x-tex">\text{Max Size} = 12 \times 4\text{KB} + \frac{4\text{KB}}{4\text{B}} \times 4\text{KB} + \left(\frac{4\text{KB}}{4\text{B}}\right)^2 \times 4\text{KB} + \left(\frac{4\text{KB}}{4\text{B}}\right)^3 \times 4\text{KB}  
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord text"><span class="mord">Max Size</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:2.04633em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">B</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:2.604038em;vertical-align:-0.95003em;"></span><span class="minner"><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">B</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:1.6540080000000001em;"><span style="top:-3.9029000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:2.604038em;vertical-align:-0.95003em;"></span><span class="minner"><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">B</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:1.6540080000000001em;"><span style="top:-3.9029000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span></span></span></span></span></p>
+</li>
+<li>或者，通过使用盘区（extent）而非指针（如 ext4 文件系统）。
+<ul>
+<li>一个盘区仅包含一个磁盘指针和一个长度（以块为单位），用于指定文件在磁盘上的存储位置。</li>
+<li>基于盘区的文件系统通常允许存在多个盘区。</li>
+<li>灵活性较低，但更紧凑。</li>
+</ul>
+</li>
+</ul>
+<p><strong>2.3 分配方法（Allocation Method）</strong><br>
+<strong>FAT (File-Allocation Table)</strong><br>
+<img src="pictures/12-6.png" alt=""><br>
+<strong>NTFS</strong><br>
+<img src="pictures/12-7.png" alt=""><br>
+<strong>分配方法（重要！）</strong></p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>描述</th>
+<th>示例文件系统</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>连续分配 Contiguous allocation</strong></td>
+<td>文件占用连续的磁盘块</td>
+<td>ext4, NTFS</td>
+</tr>
+<tr>
+<td><strong>链式分配 Linked allocation</strong></td>
+<td>文件通过链表链接分散的块</td>
+<td>FAT</td>
+</tr>
+<tr>
+<td><strong>索引分配 Indexed allocation</strong></td>
+<td>使用索引块集中管理指针</td>
+<td>ext2/ext3</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li><strong>连续分配（Contiguous Allocation）</strong>
+<ul>
+<li><strong>原理</strong>：文件的所有数据块在磁盘上<strong>物理连续存储</strong>（如一个文件占用块5-9）。
+<ul>
+<li>文件元数据只需记录<strong>起始块地址</strong>和<strong>长度</strong>即可定位全部数据。</li>
+</ul>
+</li>
+<li><strong>优点</strong>：
+<ul>
+<li><strong>读写性能高</strong>：连续存储减少磁头移动（适合HDD）。</li>
+<li><strong>实现简单</strong>：只需维护起始位置和长度。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：
+<ul>
+<li><strong>外部碎片</strong>：频繁创建/删除文件会导致空闲块分散，难以分配大文件。</li>
+<li><strong>扩容困难</strong>：文件增长时可能需要整体移动。</li>
+</ul>
+</li>
+<li><strong>应用文件系统</strong>：
+<ul>
+<li><code>ext4</code>（支持预分配以减少碎片）、<code>NTFS</code>（对连续大文件优化）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>链式分配（Linked Allocation）</strong>
+<ul>
+<li><strong>原理</strong>：  文件的每个数据块包含<strong>指向下一个块的指针</strong>，形成链表结构。
+<ul>
+<li>文件元数据只需记录<strong>首块地址</strong>，通过遍历链表访问全部数据。</li>
+</ul>
+</li>
+<li><strong>优点</strong>：
+<ul>
+<li><strong>无外部碎片</strong>：空闲块可分散利用。</li>
+<li><strong>动态扩容</strong>：文件增长时只需追加新块。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：
+<ul>
+<li><strong>随机访问慢</strong>：必须从头遍历链表。</li>
+<li><strong>空间开销</strong>：每个块需存储指针，降低有效存储容量。</li>
+<li><strong>可靠性风险</strong>：指针损坏会导致数据丢失。</li>
+</ul>
+</li>
+<li><strong>应用文件系统</strong>：
+<ul>
+<li><code>FAT</code>（File Allocation Table）：实际通过<strong>FAT表</strong>集中存储指针链，而非在块中直接存储，但逻辑仍属链式分配。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>索引分配（Indexed Allocation）</strong>
+<ul>
+<li><strong>原理</strong>：为每个文件分配一个<strong>索引块</strong>（index block），集中存储该文件所有数据块的指针。
+<ul>
+<li>文件元数据指向索引块，索引块中的指针直接定位数据块。</li>
+</ul>
+</li>
+<li><strong>优点</strong>：
+<ul>
+<li><strong>支持快速随机访问</strong>：通过索引块直接跳转到目标数据块。</li>
+<li><strong>无外部碎片</strong>：数据块可分散存储。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：
+<ul>
+<li><strong>小文件空间浪费</strong>：即使文件很小，也需占用整个索引块。</li>
+<li><strong>大文件需扩展</strong>：若索引块指针不足，需多级索引（如ext2的间接块）。</li>
+</ul>
+</li>
+<li><strong>应用文件系统</strong>：
+<ul>
+<li><code>ext2/ext3</code>：采用多级索引（直接、一级间接、二级间接指针）。</li>
+<li>现代文件系统（如<code>ext4</code>）结合索引与扩展机制（如Extents）。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>In Class Exercise</strong><br>
+<img src="pictures/12-8.png" alt=""><br>
+<strong>Answer</strong><br>
+<img src="pictures/12-9.png" alt=""><br>
+注意！每个indices是4B，这些indices可能在inode中（直接的），也可能在存储间接block的块中。间接block占一个sector，故一个间接block中有512/4个指向其他块的指针/indices</p>
+<p><strong>2.4 目录组织（Directory Organization）</strong></p>
+<ul>
+<li>A directory basically contains a list of <code>(entry name, inode number)</code> pairs</li>
+<li>删除文件（例如调用unlink()函数）可能会在目录中间留下空白空间，因此需要某种方式对此进行标记（例如使用保留的索引节点号，如0）。</li>
+<li>这种删除操作正是使用记录长度（reclen）的原因之一：新条目可能会重用旧的、更大的条目，从而在其中留有额外空间。</li>
+<li>目录拥有一个索引节点（inode），该节点位于索引节点表中的某个位置（其inode的类型字段标记为“目录”而非“普通文件”）。</li>
+</ul>
+<p><strong>2.5 访问路径（Access Paths）</strong></p>
+<ul>
+<li><strong>读取文件 <code>/foo/bar</code></strong>：
+<ol>
+<li>读取根目录<code>/</code>的Inode和数据块，找到<code>foo</code>的Inode号。</li>
+<li>读取<code>foo</code>的Inode和数据块，找到<code>bar</code>的Inode号。</li>
+<li>读取<code>bar</code>的Inode和数据块。</li>
+</ol>
+</li>
+<li><strong>写入文件</strong>：需额外更新位图和Inode（每次写入可能触发5次I/O）。</li>
+</ul>
+<hr>
+<h4 id="3-fast-file-system-ffs"><strong>3. Fast File System (FFS)</strong></h4>
+<p><strong>3.1 性能问题与优化</strong></p>
+<ul>
+<li><strong>原始问题</strong>：
+<ul>
+<li>数据块分散导致寻道时间长。</li>
+<li>块大小过小（512字节）。</li>
+</ul>
+</li>
+<li><strong>解决方案</strong>：
+<ul>
+<li><strong>块组（Block Groups）</strong>：将磁盘划分为多个组，每组包含完整文件系统结构（超级块、位图、Inode表、数据块）。</li>
+<li><strong>局部性策略</strong>：
+<ul>
+<li>同一目录下的文件放在同一组。</li>
+<li>大文件分散到不同组（避免占满单个组）。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>3.2 示例对比</strong></p>
+<ul>
+<li><strong>普通文件系统</strong>：文件分散存储，导致长寻道。</li>
+<li><strong>FFS</strong>：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>组号</th>
+<th>Inode</th>
+<th>数据块</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td><code>/</code>, <code>a</code></td>
+<td><code>/</code>, <code>a</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>b</code>, <code>c</code></td>
+<td><code>b</code>, <code>c</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>目录<code>/a</code>及其文件<code>c</code>、<code>d</code>、<code>e</code>集中在同一组。</li>
+</ul>
+<hr>
+<h4 id="4-fsck-and-journaling"><strong>4. FSCK and Journaling</strong></h4>
+<p><strong>4.1 崩溃一致性问题（Crash-Consistency Problem）</strong></p>
+<ul>
+<li><strong>场景</strong>：更新文件需写Inode、位图、数据块，若崩溃发生在部分写入后，会导致不一致。
+<ul>
+<li>例如：仅写入数据块（<code>Db</code>），其他未更新 → 无问题。</li>
+<li>仅写入Inode（<code>I[v2]</code>）→ 元数据不一致（位图未标记块已用）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>4.2 解决方案</strong></p>
+<ul>
+<li><strong>Fsck（File System Checker）</strong>：
+<ul>
+<li>扫描磁盘修复不一致（如重建位图、清除损坏Inode）。</li>
+<li><strong>缺点</strong>：速度慢（需扫描整个磁盘）。</li>
+</ul>
+</li>
+<li><strong>日志（Journaling）</strong>：
+<ol>
+<li><strong>日志写入</strong>：将事务（TxB、元数据、数据、TxE）写入日志区。</li>
+<li><strong>提交</strong>：写入TxE标记事务完成。</li>
+<li><strong>检查点</strong>：将日志中的更新写入实际位置。</li>
+</ol>
+<ul>
+<li><strong>元数据日志</strong>：仅记录元数据（不记录数据块），减少写入量。</li>
+</ul>
+</li>
+</ul>
+<p><strong>4.3 日志优化</strong></p>
+<ul>
+<li><strong>批处理（Batching）</strong>：合并多个事务写入日志。</li>
+<li><strong>循环日志（Finite Log）</strong>：通过日志超级块标记空闲事务。</li>
+</ul>
+<p><strong>4.4 日志模式（Journaling Modes）</strong></p>
+<ul>
+<li>
+<p><strong>Data Journaling（数据日志）</strong></p>
+<ul>
+<li>日志中记录完整事务（包括数据块），确保崩溃后完全恢复。</li>
+<li><strong>缺点</strong>：数据需写入两次（日志+实际位置），性能开销大。</li>
+</ul>
+<pre><code class="language-plaintext">| Journal | TxB | I[v2] | B[v2] | Db | TxE | → Checkpoint: I[v2], B[v2], Db |
+</code></pre>
+</li>
+<li>
+<p><strong>Metadata Journaling（元数据日志）</strong></p>
+<ul>
+<li>仅记录元数据（Inode、位图），数据块直接写入最终位置。</li>
+<li><strong>有序模式（Ordered）</strong>：
+<ol>
+<li>数据块先写入最终位置。</li>
+<li>元数据事务提交到日志。</li>
+<li>检查点更新元数据。</li>
+</ol>
+</li>
+<li><strong>无序模式（Unordered）</strong>：允许数据块和元数据乱序写入（风险更高）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>4.5 块重用问题（Block Reuse）</strong></p>
+<ul>
+<li><strong>场景</strong>：
+<ol>
+<li>文件A占用块1000，后删除。</li>
+<li>文件B重用块1000，但崩溃时日志中残留文件A的旧事务。</li>
+</ol>
+<ul>
+<li><strong>风险</strong>：恢复时可能错误地将旧数据写入新文件。</li>
+</ul>
+</li>
+<li><strong>解决方案</strong>：
+<ul>
+<li><strong>延迟重用</strong>：直到删除操作完成检查点后才允许重用块。</li>
+<li><strong>撤销记录（Revoke）</strong>：在日志中标记块不可回放（ext3采用）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>4.6 其他方法：写时复制（Copy-on-Write, COW）</strong></p>
+<ul>
+<li><strong>原理</strong>：更新时不覆盖旧数据，而是写入新位置（如日志结构文件系统LFS）。</li>
+<li><strong>优点</strong>：避免崩溃一致性问题，简化恢复流程。</li>
+</ul>
+<hr>
+<h4 id="5-关键概念总结"><strong>5. 关键概念总结</strong></h4>
+<table>
+<thead>
+<tr>
+<th><strong>概念</strong></th>
+<th><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Inode</strong></td>
+<td>文件控制块，包含元数据和数据块指针（直接/间接）。</td>
+</tr>
+<tr>
+<td><strong>多级索引</strong></td>
+<td>通过间接指针支持大文件（计算最大文件大小需考虑块大小和指针大小）。</td>
+</tr>
+<tr>
+<td><strong>FFS块组</strong></td>
+<td>将磁盘分组，提升局部性（同一目录文件放同组，大文件分散存储）。</td>
+</tr>
+<tr>
+<td><strong>Fsck</strong></td>
+<td>扫描修复不一致，但速度慢（如重建位图、清除损坏Inode）。</td>
+</tr>
+<tr>
+<td><strong>日志（Journaling）</strong></td>
+<td>先记录事务到日志，再提交到实际位置（确保崩溃后可恢复）。</td>
+</tr>
+<tr>
+<td><strong>数据 vs 元数据日志</strong></td>
+<td>数据日志更安全但性能差；元数据日志需有序写入数据块。</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h4 id="6-示例与计算"><strong>6. 示例与计算</strong></h4>
+<p><strong>6.1 最大文件大小计算</strong></p>
+<ul>
+<li><strong>假设</strong>：
+<ul>
+<li>块大小 = 4KB，指针大小 = 4B</li>
+<li>Inode包含：12直接指针 + 1间接指针 + 1双重间接指针 + 1三重间接指针</li>
+</ul>
+</li>
+<li><strong>计算</strong>：<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Max Size</mtext><mo>=</mo><mn>12</mn><mo>×</mo><mn>4</mn><mtext>KB</mtext><mo>+</mo><mrow><mo fence="true">(</mo><mfrac><mrow><mn>4</mn><mtext>KB</mtext></mrow><mrow><mn>4</mn><mtext>B</mtext></mrow></mfrac><mo fence="true">)</mo></mrow><mo>×</mo><mn>4</mn><mtext>KB</mtext><mo>+</mo><msup><mrow><mo fence="true">(</mo><mfrac><mrow><mn>4</mn><mtext>KB</mtext></mrow><mrow><mn>4</mn><mtext>B</mtext></mrow></mfrac><mo fence="true">)</mo></mrow><mn>2</mn></msup><mo>×</mo><mn>4</mn><mtext>KB</mtext><mo>+</mo><msup><mrow><mo fence="true">(</mo><mfrac><mrow><mn>4</mn><mtext>KB</mtext></mrow><mrow><mn>4</mn><mtext>B</mtext></mrow></mfrac><mo fence="true">)</mo></mrow><mn>3</mn></msup><mo>×</mo><mn>4</mn><mtext>KB</mtext></mrow><annotation encoding="application/x-tex">\text{Max Size} = 12 \times 4\text{KB} + \left(\frac{4\text{KB}}{4\text{B}}\right) \times 4\text{KB} + \left(\frac{4\text{KB}}{4\text{B}}\right)^2 \times 4\text{KB} + \left(\frac{4\text{KB}}{4\text{B}}\right)^3 \times 4\text{KB}  
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord text"><span class="mord">Max Size</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:2.40003em;vertical-align:-0.95003em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">B</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:2.604038em;vertical-align:-0.95003em;"></span><span class="minner"><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">B</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:1.6540080000000001em;"><span style="top:-3.9029000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:2.604038em;vertical-align:-0.95003em;"></span><span class="minner"><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">B</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:1.6540080000000001em;"><span style="top:-3.9029000000000003em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span></span></span></span></span></p>
+<ul>
+<li>直接块：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>12</mn><mo>×</mo><mn>4</mn><mtext>KB</mtext><mo>=</mo><mn>48</mn><mtext>KB</mtext></mrow><annotation encoding="application/x-tex">12 \times 4\text{KB} = 48\text{KB}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord">4</span><span class="mord">8</span><span class="mord text"><span class="mord">KB</span></span></span></span></span></li>
+<li>间接块：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1024</mn><mo>×</mo><mn>4</mn><mtext>KB</mtext><mo>=</mo><mn>4</mn><mtext>MB</mtext></mrow><annotation encoding="application/x-tex">1024 \times 4\text{KB} = 4\text{MB}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mord">0</span><span class="mord">2</span><span class="mord">4</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">MB</span></span></span></span></span></li>
+<li>双重间接：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>102</mn><msup><mn>4</mn><mn>2</mn></msup><mo>×</mo><mn>4</mn><mtext>KB</mtext><mo>=</mo><mn>4</mn><mtext>GB</mtext></mrow><annotation encoding="application/x-tex">1024^2 \times 4\text{KB} = 4\text{GB}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.897438em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mord">0</span><span class="mord">2</span><span class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">GB</span></span></span></span></span></li>
+<li>三重间接：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>102</mn><msup><mn>4</mn><mn>3</mn></msup><mo>×</mo><mn>4</mn><mtext>KB</mtext><mo>=</mo><mn>4</mn><mtext>TB</mtext></mrow><annotation encoding="application/x-tex">1024^3 \times 4\text{KB} = 4\text{TB}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.897438em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mord">0</span><span class="mord">2</span><span class="mord"><span class="mord">4</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">3</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">KB</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord">4</span><span class="mord text"><span class="mord">TB</span></span></span></span></span></li>
+<li><strong>总计</strong>：~4TB（实际受限于Inode字段位数）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>6.2 文件创建的I/O操作</strong></p>
+<ul>
+<li><strong>步骤</strong>：
+<ol>
+<li>读取Inode位图（找空闲Inode）。</li>
+<li>写入Inode位图（标记占用）。</li>
+<li>初始化Inode。</li>
+<li>写入目录数据块（添加文件名到Inode的映射）。</li>
+<li>更新目录Inode。</li>
+</ol>
+</li>
+<li><strong>总I/O次数</strong>：6次（若目录需扩展，额外操作更多）。</li>
+</ul>
+<hr>
+<h3 id="1-log-structured-file-system-lfs"><strong>1. Log-Structured File System (LFS)</strong></h3>
+<p><strong>1.1 Observations (观察)</strong></p>
+<ul>
+<li>System memories are growing (系统内存增长)
+<ul>
+<li>As more data is cached in memory, disk traffic increasingly consists of writes, as reads are serviced by the cache.<br>
+（随着更多数据缓存在内存中，磁盘流量主要由写入构成，因为读取由缓存服务。）</li>
+</ul>
+</li>
+<li>Large gap between random I/O and sequential I/O performance (随机I/O与顺序I/O性能差距大)
+<ul>
+<li>Hard-drive transfer bandwidth has increased, but seek and rotational delay costs decrease slowly.<br>
+（硬盘传输带宽提升，但寻道和旋转延迟成本降低缓慢。）</li>
+</ul>
+</li>
+<li>Existing file systems perform poorly on common workloads (现有文件系统在常见负载下表现不佳)
+<ul>
+<li>Even FFS incurs many short seeks and rotational delays.<br>
+（即使FFS也会产生大量短寻道和旋转延迟。）</li>
+</ul>
+</li>
+<li>File systems are not RAID-aware (文件系统未针对RAID优化)
+<ul>
+<li>Small writes problem in RAID-4 and RAID-5.<br>
+（RAID-4和RAID-5中的小写入问题。）</li>
+</ul>
+</li>
+</ul>
+<p><strong>1.2 LFS Core Idea (核心思想)</strong></p>
+<ul>
+<li>Buffer all updates in memory segments, then write sequentially to disk (将更新缓存在内存段中，然后顺序写入磁盘)
+<ul>
+<li>Segments are written to free locations, never overwriting existing data.<br>
+（段写入空闲位置，永不覆盖现有数据。）</li>
+</ul>
+</li>
+<li>Achieves high performance by transforming writes into sequential operations.<br>
+（通过将写入转为顺序操作实现高性能。）</li>
+</ul>
+<p><strong>1.3 Key Mechanisms (关键机制)</strong></p>
+<ul>
+<li><strong>Inode Map (imap)</strong> (inode映射表)
+<ul>
+<li>Indirect mapping between inode numbers and disk locations.<br>
+（inode编号与磁盘位置的间接映射。）</li>
+</ul>
+</li>
+<li><strong>Checkpoint Region (CR)</strong> (检查点区域)
+<ul>
+<li>Fixed location storing pointers to the imap, updated periodically.<br>
+（固定位置存储指向imap的指针，定期更新。）</li>
+</ul>
+</li>
+<li><strong>Garbage Collection</strong> (垃圾回收)
+<ul>
+<li>Compacts live data by reclaiming dead blocks (e.g., via segment summary blocks).<br>
+（通过回收无效块压缩有效数据，如通过段摘要块。）</li>
+</ul>
+</li>
+</ul>
+<p><strong>1.4 Crash Recovery (崩溃恢复)</strong></p>
+<ul>
+<li>Uses a log structure with two checkpoint regions for atomic updates.<br>
+（使用日志结构和双检查点区域实现原子更新。）</li>
+<li>Roll-forward mechanism to recover from partial writes.<br>
+（通过前滚机制恢复部分写入。）</li>
+</ul>
+<hr>
+<h3 id="2-flash-based-ssds"><strong>2. Flash-based SSDs</strong></h3>
+<p><strong>2.1 Advantages (优势)</strong></p>
+<ul>
+<li>Fast (no mechanical parts) and non-volatile.<br>
+（快速（无机械部件）且非易失性。）</li>
+</ul>
+<p><strong>2.2 Challenges (挑战)</strong></p>
+<ul>
+<li><strong>Erase-before-write</strong> (写前需擦除)
+<ul>
+<li>Must erase entire blocks (128–256 KB) before programming pages (4 KB).<br>
+（编程页前需擦除整个块。）</li>
+</ul>
+</li>
+<li><strong>Wear-out</strong> (磨损)
+<ul>
+<li>Limited Program/Erase (P/E) cycles (e.g., 10k for MLC, 100k for SLC).<br>
+（有限的擦写周期，如MLC 1万次，SLC 10万次。）</li>
+</ul>
+</li>
+</ul>
+<p><strong>2.3 Flash Operations (操作)</strong></p>
+<ul>
+<li><strong>Read (a page)</strong>: Fast random access (~25–75 μs).<br>
+（读取（页）：快速随机访问。）</li>
+<li><strong>Erase (a block)</strong>: Slow (~200–1350 μs).<br>
+（擦除（块）：慢速。）</li>
+<li><strong>Program (a page)</strong>: Moderate (~1500–4500 μs).<br>
+（编程（页）：中等速度。）</li>
+</ul>
+<p><strong>2.4 Flash Translation Layer (FTL)</strong> (闪存转换层)</p>
+<ul>
+<li><strong>Log-Structured FTL</strong> (日志结构FTL)
+<ul>
+<li>Maps logical writes to sequential physical writes, similar to LFS.<br>
+（将逻辑写入映射为顺序物理写入。）</li>
+</ul>
+</li>
+<li><strong>Garbage Collection</strong> (垃圾回收)
+<ul>
+<li>Reclaims blocks with dead pages by copying live data to new blocks.<br>
+（通过复制有效数据到新块回收无效块。）</li>
+</ul>
+</li>
+<li><strong>Hybrid Mapping</strong> (混合映射)
+<ul>
+<li>Combines block-level and page-level mapping for efficiency.<br>
+（结合块级和页级映射以提高效率。）</li>
+</ul>
+</li>
+</ul>
+<p><strong>2.5 Performance (性能)</strong></p>
+<ul>
+<li>SSDs outperform HDDs in random I/O (e.g., 103 MB/s vs. 2 MB/s).<br>
+（SSD在随机I/O上远超HDD。）</li>
+</ul>
+<hr>
+<h3 id="3-network-file-system-nfs"><strong>3. Network File System (NFS)</strong></h3>
+<p><strong>3.1 Stateless Design (无状态设计)</strong></p>
+<ul>
+<li>Server stores no client state; each request is self-contained.<br>
+（服务器不存储客户端状态，每个请求自包含。）</li>
+<li>Uses <strong>file handles</strong> (volume ID + inode + generation number) instead of descriptors.<br>
+（使用文件句柄（卷ID + inode + 世代号）而非描述符。）</li>
+</ul>
+<p><strong>3.2 Protocol (协议)</strong></p>
+<ul>
+<li><strong>Mount Protocol</strong>: Establishes initial connection.<br>
+（挂载协议：建立初始连接。）</li>
+<li><strong>NFSv2 Operations</strong>: Include <code>Fetch</code>, <code>Store</code>, <code>ListDir</code>.<br>
+（操作包括获取、存储、列目录。）</li>
+</ul>
+<hr>
+<h3 id="4-andrew-file-system-afs"><strong>4. Andrew File System (AFS)</strong></h3>
+<p><strong>4.1 Scaling Goal (扩展目标)</strong></p>
+<ul>
+<li>Whole-file caching on client disks to reduce server load.<br>
+（客户端磁盘上的全文件缓存以减少服务器负载。）</li>
+</ul>
+<p><strong>4.2 AFSv2 Improvements (改进)</strong></p>
+<ul>
+<li><strong>File Identifier (FID)</strong>: Replaces pathnames for efficiency.<br>
+（文件标识符（FID）：替代路径名以提高效率。）</li>
+<li><strong>Callbacks</strong>: Server notifies clients of file modifications.<br>
+（回调：服务器通知客户端文件修改。）</li>
+</ul>
+<hr>
+<h3 id="5-distributed-systems-fundamentals-分布式系统基础"><strong>5. Distributed Systems Fundamentals (分布式系统基础)</strong></h3>
+<p><strong>5.1 Challenges (挑战)</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>Challenge</strong></th>
+<th><strong>Solution</strong></th>
+<th><strong>说明</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Failure</strong></td>
+<td>Redundancy, retries</td>
+<td>通过冗余和重试处理故障</td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td>Minimize messages; efficient protocols (e.g., UDP for RPC)</td>
+<td>减少消息量；高效协议（如RPC基于UDP）</td>
+</tr>
+<tr>
+<td><strong>Security</strong></td>
+<td>Authentication, encryption</td>
+<td>认证与加密</td>
+</tr>
+</tbody>
+</table>
+<p><strong>5.2 Reliable Communication (可靠通信)</strong></p>
+<ul>
+<li><strong>Ack + Timeout + Retry</strong> (确认+超时+重试)
+<ul>
+<li>If no ack is received, sender retransmits after timeout.<br>
+（若未收到确认，发送方超时后重传。）</li>
+</ul>
+</li>
+<li><strong>Sequence Counters</strong> (序列计数器)
+<ul>
+<li>Detect duplicate messages (e.g., TCP).<br>
+（检测重复消息，如TCP协议。）</li>
+</ul>
+</li>
+</ul>
+<p><strong>5.3 Remote Procedure Call (RPC)</strong></p>
+<ul>
+<li><strong>Stub Generator</strong> (存根生成器)
+<ul>
+<li><strong>Marshaling</strong>: Pack arguments into messages (client side).<br>
+（序列化：将参数打包为消息（客户端）。）</li>
+<li><strong>Unmarshaling</strong>: Unpack messages (server side).<br>
+（反序列化：解包消息（服务端）。）</li>
+</ul>
+</li>
+<li><strong>Runtime Library</strong> (运行时库)
+<ul>
+<li>Handles naming (IP + port) and transport protocol (e.g., UDP).<br>
+（处理命名（IP+端口）和传输协议（如UDP）。）</li>
+</ul>
+</li>
+</ul>
+</article><!-- 笔记工具条--><div class="note-tools"><button class="tool-btn" id="toggle-dark"><i class="fas fa-moon"></i><span>Dark Mode</span></button><button class="tool-btn" id="print-note"><i class="fas fa-print"></i><span>Print This Note</span></button></div></main><!-- 页脚--><footer class="footer"><div class="footer-content"><p>© 2025 WeiKnight. All Rights Reserved. </p><div class="footer-links"><a href="/notes/about" target="_blank">About</a><a href="/notes/terms" target="_blank">Terms of Use</a><a href="/notes/privacy" target="_blank">Privacy Policy</a></div></div></footer><script src="/js/note.js"></script><script>document.querySelectorAll('figure.highlight').forEach((figure) => {
+  const langClass = Array.from(figure.classList).find(cls => cls !== 'highlight');
+  if (!langClass) return;
+
+  const langLabel = document.createElement('div');
+  langLabel.textContent = langClass;
+  langLabel.style.position = 'absolute';
+  langLabel.style.top = '0';
+  langLabel.style.right = '0';
+  langLabel.style.padding = '0.2em 0.5em';
+  langLabel.style.fontFamily = 'MapleMono-NF-CN';
+  langLabel.style.fontSize = '0.8em';
+  langLabel.style.borderRadius = '0 4px 0 4px';
+  langLabel.style.zIndex = '1';
+
+  // 设置初始样式（根据当前主题）
+  updateLabelTheme(langLabel);
+
+  figure.style.position = 'relative';
+  figure.prepend(langLabel);
+});
+
+// 更新标签主题的函数
+function updateLabelTheme(label) {
+  const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+  label.style.background = isDarkMode ? '#444' : '#eee';
+  label.style.color = isDarkMode ? '#ddd' : '#333';
+  //- console.log("更改了");
+}
+
+// 监听主题变化（仅更新标签）
+new MutationObserver(() => {
+  document.querySelectorAll('figure.highlight div').forEach(label => {
+    updateLabelTheme(label);
+    //- console.log("更改了2");
+  });
+}).observe(document.body, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});</script></body></html>

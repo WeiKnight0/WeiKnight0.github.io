@@ -1,0 +1,157 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Binary Search 二分查找 | WeiKnight's Personnal Blogs</title><link rel="icon" href="https://avatars.githubusercontent.com/WeiKnight0"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><link rel="stylesheet" href="/css/note.css"><meta name="generator" content="Hexo 7.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head><body><!-- 导航栏--><header class="navbar"><div class="navbar-container"><div class="navbar-brand"><a class="avatar-link" target="_blank" rel="noopener" href="https://github.com/WeiKnight0"><img class="avatar" src="https://avatars.githubusercontent.com/WeiKnight0" alt="WeiKnight"></a><div class="navbar-info"><a class="name" target="_blank" rel="noopener" href="https://github.com/WeiKnight0">WeiKnight</a><div class="subject">Study Notes</div></div></div><div class="navbar-actions"><a class="nav-link" href="../" title="Return to Basic Algorithms"><i class="fas fa-arrow-left"></i><span>Return to Basic Algorithms</span></a><a class="nav-link" href="/"><i class="fas fa-home"></i><span>Return to Home Page</span></a></div></div></header><!-- 标题区域--><section class="title-section"><div class="title-container"><h1 class="chapter-title">Binary Search 二分查找</h1><div class="chapter-meta"><span class="chapter-date"><i class="far fa-calendar-alt"></i>2025-10-07</span><span class="chapter-lang"><p>Language: 简体中文</p></span></div></div></section><!-- 内容区域--><main class="content-section"><article class="chapter-content"><h1 id="binary-search-二分查找">Binary Search 二分查找</h1>
+<p>二分查找（Binary Search）是一种在有序数组中查找特定元素的高效算法。它通过反复将搜索区间减半来快速定位目标元素的位置。二分查找的时间复杂度为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>log</mi><mo>⁡</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">n</span><span class="mclose">)</span></span></span></span>，远优于线性查找的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathdefault">n</span><span class="mclose">)</span></span></span></span>。</p>
+<p>核心介绍视频：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1AP41137w7">二分查找 红蓝染色法</a></p>
+<p>对于二分查找的实现，主要有三种区间划分方式，每种方式又分为第一个 大于等于、大于、小于等于、小于 <code>target</code>四种情况。<br>
+下面给出大于等于的代码。其余情况可以转化成大于等于。</p>
+<h2 id="情况1：-left-right-左闭右闭区间">情况1：<code>[left, right]</code> 左闭右闭区间</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在arr[0..n-1]中查找第一个大于等于target的元素下标（lower_bound），找不到返回-1</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">binary_search_lower_bound</span><span class="params">(<span class="type">int</span> arr[], <span class="type">int</span> n, <span class="type">int</span> target)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> left = <span class="number">0</span>, right = n - <span class="number">1</span>; <span class="comment">// [left, right]</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span> (left &lt;= right) &#123;</span><br><span class="line">        <span class="type">int</span> mid = left + (right - left) / <span class="number">2</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (arr[mid] &lt; target) &#123;</span><br><span class="line">            left = mid + <span class="number">1</span>;    <span class="comment">// [mid+1, right]</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            right = mid - <span class="number">1</span>;   <span class="comment">// [left, mid-1]</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (left == n)&#123; <span class="comment">// 如果找不到，最终left一定在数组外面</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> left;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="情况2：-left-right-左闭右开区间">情况2：<code>[left, right)</code> 左闭右开区间</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在arr[0..n-1]中查找第一个大于等于target的元素下标，找不到返回-1</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">binary_search_lower_bound</span><span class="params">(<span class="type">int</span> arr[], <span class="type">int</span> n, <span class="type">int</span> target)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> left = <span class="number">0</span>, right = n; <span class="comment">// [left, right)</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span> (left &lt; right) &#123;</span><br><span class="line">        <span class="type">int</span> mid = left + (right - left) / <span class="number">2</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (arr[mid] &lt; target) &#123;</span><br><span class="line">            left = mid + <span class="number">1</span>; <span class="comment">// 搜索右半部分 [mid+1, right)</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            right = mid; <span class="comment">// 搜索左半部分 [left, mid)</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (left == n)&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> left; <span class="comment">// 也可以return right</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="情况3：-left-right-左开右开区间">情况3：<code>(left, right)</code> 左开右开区间</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在arr[0..n-1]中查找第一个大于等于target的元素下标（lower_bound），找不到返回-1</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">binary_search_lower_bound</span><span class="params">(<span class="type">int</span> arr[], <span class="type">int</span> n, <span class="type">int</span> target)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> left = <span class="number">-1</span>, right = n; <span class="comment">// (left, right)</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span> (left + <span class="number">1</span> &lt; right) &#123;</span><br><span class="line">        <span class="type">int</span> mid = left + (right - left) / <span class="number">2</span>;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (arr[mid] &lt; target) &#123;</span><br><span class="line">            left = mid; <span class="comment">// 搜索右半部分 (mid, right)</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            right = mid; <span class="comment">// 搜索左半部分 (left, mid)</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (right == n) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span>; <span class="comment">// 没有不小于target的元素</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> right;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>总结表格：</p>
+<table>
+<thead>
+<tr>
+<th>情况</th>
+<th>初始条件</th>
+<th>状态更新<code>arr[mid] &lt; target</code></th>
+<th>状态更新<code>arr[mid] &gt;= target</code></th>
+<th>最终状态</th>
+<th>返回值</th>
+<th>未找到时的返回值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>[left, right]</code></strong> 左闭右闭</td>
+<td><code>left = 0, right = n - 1</code></td>
+<td><code>left = mid + 1</code></td>
+<td><code>right = mid - 1</code></td>
+<td><code>left &gt; right</code></td>
+<td><code>left</code></td>
+<td><code>left == n</code></td>
+</tr>
+<tr>
+<td><strong><code>[left, right)</code></strong> 左闭右开</td>
+<td><code>left = 0, right = n</code></td>
+<td><code>left = mid + 1</code></td>
+<td><code>right = mid</code></td>
+<td><code>left == right</code></td>
+<td><code>left</code> 或 <code>right</code></td>
+<td><code>left == right == n</code></td>
+</tr>
+<tr>
+<td><strong><code>(left, right)</code></strong> 左开右开</td>
+<td><code>left = -1, right = n</code></td>
+<td><code>left = mid</code></td>
+<td><code>right = mid</code></td>
+<td><code>left + 1 == right</code></td>
+<td><code>right</code></td>
+<td><code>right == n</code></td>
+</tr>
+</tbody>
+</table>
+<p>其他情况的转化（一般都是整数）：</p>
+<ol>
+<li>大于：转化成大于等于<code>target+1</code></li>
+<li>小于：先算出大于等于<code>target</code>，左边的那个数就是小于的</li>
+<li>小于等于：先算出大于<code>target</code>，左边的那个数就是小于的</li>
+</ol>
+<h1 id="stl中的二分查找">STL中的二分查找</h1>
+<p>在 C++ STL 中，二分查找相关的函数主要有 <code>std::lower_bound</code> 和 <code>std::upper_bound</code>。这些函数都要求输入的范围是有序的。</p>
+<ul>
+<li><code>lower_bound(first, last, num)</code>：返回第一个 <strong>不小于（大于等于）</strong> 目标值的元素位置。</li>
+<li><code>upper_bound(first, last, num)</code>：返回第一个 <strong>大于</strong> 目标值的元素位置。<br>
+注意，这两个函数返回的是指针或迭代器；此外，如果目标值不存在，<code>lower_bound</code> 返回的是第一个大于目标值的位置。<br>
+两个函数的输入均为 <strong>左闭右开区间</strong> <code>[first, last)</code>。</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> arr[] = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;;</span><br><span class="line"><span class="type">int</span> n = <span class="number">5</span>;</span><br><span class="line"><span class="type">int</span>* lower = std::<span class="built_in">lower_bound</span>(arr, arr + n, <span class="number">2</span>); <span class="comment">// 指向第一个2的位置</span></span><br><span class="line"><span class="type">int</span>* upper = std::<span class="built_in">upper_bound</span>(arr, arr + n, <span class="number">2</span>); <span class="comment">// 指向第一个大于2的位置（即3的位置）</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 查找第一个不小于target的元素下标</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">lower_bound_search</span><span class="params">(<span class="type">int</span> arr[], <span class="type">int</span> n, <span class="type">int</span> target)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span>* it = std::<span class="built_in">lower_bound</span>(arr, arr + n, target);</span><br><span class="line">    <span class="keyword">if</span> (it != arr + n &amp;&amp; *it == target) &#123;</span><br><span class="line">        <span class="keyword">return</span> it - arr;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 查找第一个大于target的元素的前一个下标（即最后一个等于target的元素下标）</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">upper_bound_search</span><span class="params">(<span class="type">int</span> arr[], <span class="type">int</span> n, <span class="type">int</span> target)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span>* it = std::<span class="built_in">upper_bound</span>(arr, arr + n, target);</span><br><span class="line">    <span class="keyword">if</span> (it != arr &amp;&amp; *(it - <span class="number">1</span>) == target) &#123;</span><br><span class="line">        <span class="keyword">return</span> (it - <span class="number">1</span>) - arr;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此外，还有 <code>std::binary_search</code> 函数，用于判断一个元素是否存在于有序范围内。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">bool</span> <span class="title">is_exist</span><span class="params">(<span class="type">int</span> arr[], <span class="type">int</span> n, <span class="type">int</span> target)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> std::<span class="built_in">binary_search</span>(arr, arr + n, target);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="二分答案">二分答案</h1>
+<p>当问题的答案具有<strong>单调性</strong>、有明确的<code>check()</code>函数、答案范围明确（一般是闭区间<code>[left, right]</code>）时，就可以尝试二分答案。</p>
+<p>主要分为以下两种情况：</p>
+<ul>
+<li>找最大值的<code>true</code>，<code>check()</code>随<code>x</code>增大从<code>true</code>变为<code>false</code><br>
+代码示例：</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">binary_search_max</span><span class="params">(<span class="type">int</span> left, <span class="type">int</span> right)</span> </span>&#123; <span class="comment">// [left, right]</span></span><br><span class="line">    <span class="keyword">while</span> (left &lt;= right) &#123;</span><br><span class="line">        <span class="type">int</span> mid = left + (right - left + <span class="number">1</span>) / <span class="number">2</span>; <span class="comment">// 向上取整</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">check</span>(mid)) &#123; <span class="comment">// check()随x增大从true变为false</span></span><br><span class="line">            left = mid + <span class="number">1</span>; <span class="comment">// [mid, right]</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            right = mid - <span class="number">1</span>; <span class="comment">// [left, mid-1]</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> right;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>找最小值，<code>check()</code>随<code>x</code>增大从<code>false</code>变为<code>true</code><br>
+代码示例：</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">binary_search_min</span><span class="params">(<span class="type">int</span> left, <span class="type">int</span> right)</span> </span>&#123; <span class="comment">// [left, right]</span></span><br><span class="line">    <span class="keyword">while</span> (left &lt;= right) &#123;</span><br><span class="line">        <span class="type">int</span> mid = left + (right - left) / <span class="number">2</span>; <span class="comment">// 向下取整</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">check</span>(mid)) &#123; <span class="comment">// check()随x增大从false变为true</span></span><br><span class="line">            right = mid - <span class="number">1</span>; <span class="comment">// [left, mid]</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            left = mid + <span class="number">1</span>; <span class="comment">// [mid+1, right]</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> left;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>总结表格：</p>
+<table>
+<thead>
+<tr>
+<th>问题类型</th>
+<th>check(x) 单调性</th>
+<th>目标答案</th>
+<th>状态更新</th>
+<th>循环结束时状态</th>
+<th>返回值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>最大化问题</strong><br>(找最大的可行x)</td>
+<td><code>[T, T, ..., T, F, F, ..., F]</code><br>x增大从true变false</td>
+<td>最后一个true</td>
+<td><code>if(check(mid)) l=mid+1;</code><br><code>else r=mid-1;</code></td>
+<td><code>l</code> → 第一个false<br><code>r</code> → 最后一个true</td>
+<td><strong><code>r</code></strong></td>
+</tr>
+<tr>
+<td><strong>最小化问题</strong><br>(找最小的可行x)</td>
+<td><code>[F, F, ..., F, T, T, ..., T]</code><br>x增大从false变true</td>
+<td>第一个true</td>
+<td><code>if(check(mid)) r=mid-1;</code><br><code>else l=mid+1;</code></td>
+<td><code>l</code> → 第一个true<br><code>r</code> → 最后一个false</td>
+<td><strong><code>l</code></strong></td>
+</tr>
+</tbody>
+</table>
+</article><!-- 笔记工具条--><div class="note-tools"><button class="tool-btn" id="toggle-dark"><i class="fas fa-moon"></i><span>Dark Mode</span></button><button class="tool-btn" id="print-note"><i class="fas fa-print"></i><span>Print This Note</span></button></div></main><!-- 页脚--><footer class="footer"><div class="footer-content"><p>© 2025 WeiKnight. All Rights Reserved. </p><div class="footer-links"><a href="/notes/about" target="_blank">About</a><a href="/notes/terms" target="_blank">Terms of Use</a><a href="/notes/privacy" target="_blank">Privacy Policy</a></div></div></footer><script src="/js/note.js"></script><script>document.querySelectorAll('figure.highlight').forEach((figure) => {
+  const langClass = Array.from(figure.classList).find(cls => cls !== 'highlight');
+  if (!langClass) return;
+
+  const langLabel = document.createElement('div');
+  langLabel.textContent = langClass;
+  langLabel.style.position = 'absolute';
+  langLabel.style.top = '0';
+  langLabel.style.right = '0';
+  langLabel.style.padding = '0.2em 0.5em';
+  langLabel.style.fontFamily = 'MapleMono-NF-CN';
+  langLabel.style.fontSize = '0.8em';
+  langLabel.style.borderRadius = '0 4px 0 4px';
+  langLabel.style.zIndex = '1';
+
+  // 设置初始样式（根据当前主题）
+  updateLabelTheme(langLabel);
+
+  figure.style.position = 'relative';
+  figure.prepend(langLabel);
+});
+
+// 更新标签主题的函数
+function updateLabelTheme(label) {
+  const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+  label.style.background = isDarkMode ? '#444' : '#eee';
+  label.style.color = isDarkMode ? '#ddd' : '#333';
+  //- console.log("更改了");
+}
+
+// 监听主题变化（仅更新标签）
+new MutationObserver(() => {
+  document.querySelectorAll('figure.highlight div').forEach(label => {
+    updateLabelTheme(label);
+    //- console.log("更改了2");
+  });
+}).observe(document.body, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});</script></body></html>

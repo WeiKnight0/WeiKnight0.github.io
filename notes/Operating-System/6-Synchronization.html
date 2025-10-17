@@ -1,0 +1,647 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 6: Process Synchronization | WeiKnight's Personnal Blogs</title><link rel="icon" href="https://avatars.githubusercontent.com/WeiKnight0"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><link rel="stylesheet" href="/css/note.css"><meta name="generator" content="Hexo 7.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head><body><!-- 导航栏--><header class="navbar"><div class="navbar-container"><div class="navbar-brand"><a class="avatar-link" target="_blank" rel="noopener" href="https://github.com/WeiKnight0"><img class="avatar" src="https://avatars.githubusercontent.com/WeiKnight0" alt="WeiKnight"></a><div class="navbar-info"><a class="name" target="_blank" rel="noopener" href="https://github.com/WeiKnight0">WeiKnight</a><div class="subject">Study Notes</div></div></div><div class="navbar-actions"><a class="nav-link" href="../" title="Return to Operating System"><i class="fas fa-arrow-left"></i><span>Return to Operating System</span></a><a class="nav-link" href="/"><i class="fas fa-home"></i><span>Return to Home Page</span></a></div></div></header><!-- 标题区域--><section class="title-section"><div class="title-container"><h1 class="chapter-title">Chapter 6: Process Synchronization</h1><div class="chapter-meta"><span class="chapter-date"><i class="far fa-calendar-alt"></i>2025-07-24</span><span class="chapter-lang"><p>Language: English</p></span></div></div></section><!-- 内容区域--><main class="content-section"><article class="chapter-content"><hr>
+<h2 id="1-warm-up-热身"><strong>1. Warm-up 热身</strong></h2>
+<h3 id="concurrency-example-并发示例"><strong>Concurrency Example 并发示例</strong></h3>
+<ul>
+<li><strong>Code Example</strong>:<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">volatile</span> <span class="type">int</span> counter = <span class="number">0</span>;</span><br><span class="line"><span class="type">void</span> *<span class="title function_">worker</span><span class="params">(<span class="type">void</span> *arg)</span> &#123;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; loops; i++) &#123; counter++; &#125;</span><br><span class="line">  	<span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>Output</strong>:
+<ul>
+<li>For small loops (e.g., <code>./thread 1000</code>): Final value = 2000 (correct).</li>
+<li>For large loops (e.g., <code>./thread 100000</code>): Final value ≠ 200,000 (race condition).</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Key Concept</strong>:
+<ul>
+<li><strong>Race Condition (竞争条件)</strong>: Multiple threads accessing shared data concurrently, leading to inconsistent results due to uncontrolled scheduling.</li>
+<li><strong>Shared Data</strong>: <code>counter</code> is shared between threads.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="2-background-背景"><strong>2. Background 背景</strong></h2>
+<h3 id="critical-section-problem-临界区问题"><strong>Critical-Section Problem 临界区问题</strong></h3>
+<ul>
+<li>
+<p><strong>Definition</strong>:</p>
+<ul>
+<li>A segment of code where shared data is accessed, requiring <strong>mutual exclusion</strong> to prevent race conditions.</li>
+</ul>
+</li>
+<li>
+<p><strong>Assembly Breakdown</strong>:</p>
+<ul>
+<li><code>counter++</code> translates to:<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mov 0x8049alc, %eax    ; Load counter into register</span><br><span class="line">add $0x1, %eax         ; Increment register</span><br><span class="line">mov %eax, 0x8049alc    ; Store back to counter</span><br></pre></td></tr></table></figure>
+</li>
+<li><strong>Interleaving Issue</strong>: If threads switch between these steps, final <code>counter</code> may be incorrect.</li>
+</ul>
+</li>
+</ul>
+<h3 id="uncontrolled-scheduling-不可控调度"><strong>Uncontrolled Scheduling 不可控调度</strong></h3>
+<ul>
+<li><strong>Example</strong>:
+<ul>
+<li>Thread 1 and Thread 2 interleave <code>mov</code> and <code>add</code> operations, resulting in lost updates (e.g., final <code>counter = 51</code> instead of 52).</li>
+</ul>
+</li>
+<li><strong>Solution Requirement</strong>: Atomic execution of critical sections.</li>
+</ul>
+<h3 id="race-condition-solutions-竞争条件与解决方案"><strong>Race Condition &amp; Solutions 竞争条件与解决方案</strong></h3>
+<ul>
+<li><strong>Race Condition</strong>: Outcome depends on the order of execution.</li>
+<li><strong>Approaches</strong>:
+<ul>
+<li><strong>Hardware Support</strong>: Atomic instructions (e.g., <code>test-and-set</code>, <code>compare-and-swap</code>).</li>
+<li><strong>Software Algorithms</strong>: Peterson’s, Bakery Algorithm.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-the-critical-section-problem-临界区问题"><strong>**3. The Critical-Section Problem 临界区问题</strong></h2>
+<h3 id="问题描述"><strong>问题描述</strong></h3>
+<ul>
+<li>给定<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span></span></span></span>个进程<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>0</mn></msub><mo separator="true">,</mo><msub><mi>P</mi><mn>1</mn></msub><mo separator="true">,</mo><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mo separator="true">,</mo><msub><mi>P</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow><annotation encoding="application/x-tex">P_0, P_1, ..., P_{n-1}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.891661em;vertical-align:-0.208331em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">.</span><span class="mord">.</span><span class="mord">.</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.301108em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.208331em;"><span></span></span></span></span></span></span></span></span></span></li>
+<li>每一个进程都有一段**临界区 (Critical Section)**代码
+<ul>
+<li>Process may be changing common variables, updating table, writing file, etc</li>
+<li>When one process in critical section, no other may be in its critical section</li>
+</ul>
+</li>
+<li>Critical section problem is to design protocol to avoid race condition.</li>
+<li>Each process must ask permission to enter critical section in entry section, may follow critical section with exit section, then remainder section</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">do</span>&#123;</span><br><span class="line">  [entry section]进入区</span><br><span class="line">  	[critical section]临界区</span><br><span class="line">  [<span class="built_in">exit</span> section]退出区</span><br><span class="line">  	[remainder section]剩余区</span><br><span class="line">&#125;<span class="keyword">while</span>(<span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="requirements-要求"><strong>Requirements 要求</strong></h3>
+<ol>
+<li><strong>Mutual Exclusion (互斥)</strong>:<br>
+If process <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">P_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> is executing in its critical section, then no other processes can be executing in their critical sections<br>
+一次只有一个进程在临界区</li>
+<li><strong>Progress (进展)</strong>:<br>
+If no process is executing in its critical section and there exist some processes that wish to enter their critical section, then the selection of the processes that will enter the critical section next cannot be postponed <strong>indefinitely</strong>.<br>
+如果没有进程正在其临界区内执行，并且存在一些想要进入它们临界区的进程，那么对于接下来将要进入临界区的进程的选择不能被<strong>无限期</strong>地推迟。<br>
+<strong>注意：只要有一个进程能进入临界区就赢了，就算不满足有限等待是某个进程无限进入也是在进入，满足Progress</strong></li>
+<li><strong>Bounded Waiting (有限等待)</strong>:<br>
+A bound must exist on the number of times that other processes are allowed to enter their critical sections after a process has made a request to enter its critical section and before that request is granted
+<ul>
+<li>Assume that each process executes at a nonzero speed</li>
+<li>No assumption concerning relative speed of the n processes<br>
+在一个进程发出进入其临界区的请求之后且该请求被批准之前，对于其他进程被允许进入它们临界区的<strong>次数</strong>必须存在一个限制。</li>
+<li>假定每个进程都以非零的速度执行。</li>
+<li>不假定这n个进程的相对速度情况。</li>
+<li><strong>是 <em>次数</em>  不是时间！！</strong></li>
+</ul>
+</li>
+</ol>
+<p>Two approaches depending on if kernel is preemptive or non-preemptive</p>
+<ul>
+<li>Preemptive: allows preemption of process when running in kernel mode</li>
+<li>Non-preemptive: runs until exits kernel mode, blocks, or voluntarily yields CPU</li>
+</ul>
+<h3 id="⚠-重点-判断是否满足三个条件">⚠️重点！！！判断是否满足三个条件</h3>
+<h4 id="互斥mutual-exclusion的判断">互斥Mutual Exclusion的判断</h4>
+<ol>
+<li>假设A进程进入了临界区</li>
+<li>运行</li>
+<li>在B进程进临界区前，如果在任意地方被中断并切换到B进程执行都不会出现两个同时在临界区的情况，则符合互斥；否则不符合</li>
+</ol>
+<h4 id="进步progress的判断">进步Progress的判断</h4>
+<ol>
+<li>假设两个进程AB都刚开始运行</li>
+<li>运行</li>
+<li>假设A刚离开临界区（无论是否释放锁），在这两种情况下，只要有进程（即便是A）想进入临界区，就会有程序在临界区运行，说明满足进步；否则不满足</li>
+</ol>
+<h4 id="有限等待bounded-waiting的判断">有限等待Bounded Waiting的判断</h4>
+<ol>
+<li>假设A刚从临界区出来要释放互斥锁，突然中断</li>
+<li>此时B一定不能进入临界区，判断中断转到A后A能否重新进入，若能说明不满足</li>
+</ol>
+<hr>
+<h2 id="4-mutex-locks-互斥锁"><strong>4. Mutex Locks 互斥锁</strong></h2>
+<h3 id="lock-unlock"><strong>Lock&amp;Unlock</strong></h3>
+<ul>
+<li>我们需要硬件<strong>同步元语 Hardware synchronization primitives</strong></li>
+<li>Lock代码在临界区两边，确保一次只有一个进程进入临界区</li>
+<li>A lock is just a variable</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">do</span>&#123;</span><br><span class="line">  lock();</span><br><span class="line">  	[critical section]</span><br><span class="line">  unlock();</span><br><span class="line">  	[remainder section]</span><br><span class="line">&#125;<span class="keyword">while</span>(<span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="controlling-interrupts">Controlling Interrupts</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">lock</span><span class="params">()</span>&#123;</span><br><span class="line">  DisableInterrupts();</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">void</span> <span class="title function_">unlock</span><span class="params">()</span>&#123;</span><br><span class="line">  EnableInterrupts();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>DisableInterrupts</code>/<code>EnableInterrupts()</code> are implemented by using special hardware instructions.</li>
+<li>Question: Is it a solution to the critical section problem?
+<ul>
+<li>Answer:
+<ul>
+<li>Mutual Exclusion, Progress</li>
+<li>NOT satisfies Bounded Waiting
+<ul>
+<li>原因：假设进程A执行完临界区后正要<code>EnableInterrupts()</code>的时候突然中断转到B，此时B无法进入临界区。若一段时间后转到A，此时A可以重新进入临界区，实现无限进入临界区</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Negatives:<br>
+<img src="./pictures/6-1.png" alt="6-1"></li>
+</ul>
+<h3 id="without-special-hardware-support"><strong>Without special hardware support</strong></h3>
+<ol>
+<li><strong>Peterson’s Solution (Software Approach) 彼得森算法</strong>
+<ul>
+<li><strong>Shared Variables</strong>:<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> turn;               <span class="comment">// Whose turn is it?</span></span><br><span class="line"><span class="type">bool</span> flag[<span class="number">2</span>];           <span class="comment">// Ready to enter critical section?</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><strong>Algorithm for Process Pi</strong>:<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    flag[i] = <span class="literal">true</span>;     <span class="comment">// Pi is ready</span></span><br><span class="line">    turn = j;           <span class="comment">// Let Pj go first</span></span><br><span class="line">    <span class="keyword">while</span> (flag[j] &amp;&amp; turn == j); <span class="comment">// Wait if Pj is ready and it&#x27;s its turn</span></span><br><span class="line">    <span class="comment">// Critical Section</span></span><br><span class="line">    flag[i] = <span class="literal">false</span>;    <span class="comment">// Pi is done</span></span><br><span class="line">    <span class="comment">// Remainder Section</span></span><br><span class="line">&#125; <span class="keyword">while</span> (<span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+</li>
+<li><strong>Algorithm for Process Pj</strong>:</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    flag[j] = <span class="literal">true</span>;     <span class="comment">// Pi is ready</span></span><br><span class="line">    turn = i;           <span class="comment">// Let Pj go first</span></span><br><span class="line">    <span class="keyword">while</span> (flag[i] &amp;&amp; turn == i); <span class="comment">// Wait if Pi is ready and it&#x27;s its turn</span></span><br><span class="line">    <span class="comment">// Critical Section</span></span><br><span class="line">    flag[j] = <span class="literal">false</span>;    <span class="comment">// Pi is done</span></span><br><span class="line">    <span class="comment">// Remainder Section</span></span><br><span class="line">&#125; <span class="keyword">while</span> (<span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>Proof</strong>: Satisfies all three requirements.
+<ul>
+<li>Mutual Exclusion: 假如Pi进入临界区但是Pj没有，此时发生中断转向Pj。此时<code>flag[i] == true</code>。若<code>turn == i</code>，此时Pj无法进入。若<code>turn == j</code>，此时由于<code>flag[i] == true</code>，Pj无法进入。</li>
+<li>Progress: 假设Pi刚好离开临界区发生中断，极端情况<code>flag[i]</code>还未改为false，此时Pi无法进入临界区；此时转向Pi后一定会有<code>flag[i] = false</code>，下次转向Pj后一定可以进入临界区。</li>
+<li>Bounded Waiting: 假设Pi刚好离开临界区发生中断，极端情况<code>flag[i]</code>还未改为false，此时Pi无法进入临界区，而由于在进入区<code>turn = j</code>，Pi无法再次进入临界区，不会无限次数进入。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Bakery Algorithm (n-Process Solution) 面包店算法（多进程方案）</strong>
+<ul>
+<li><strong>Key Idea</strong>: Assign a unique number to each process; the smallest number enters first.</li>
+<li><strong>Number Assignment</strong>:  Before entering its critical section, a process (customer) receives a number. The process with the smallest number enters the critical section (waits in a queue).</li>
+<li><strong>Tie-Breaking Rule</strong>:  If processes <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">P_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">P_j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.969438em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span> receive the same number:
+<ul>
+<li>If <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>&lt;</mo><mi>j</mi></mrow><annotation encoding="application/x-tex">i &lt; j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69862em;vertical-align:-0.0391em;"></span><span class="mord mathdefault">i</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.85396em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.05724em;">j</span></span></span></span>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">P_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> is served first.</li>
+<li>Otherwise, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">P_j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.969438em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span> is served first.<br>
+<em>(Ensures a unique order even with identical numbers.)</em></li>
+</ul>
+</li>
+<li><strong>Numbering Scheme</strong>:  Numbers are generated in strictly increasing order (e.g., 1, 2, 3, 3, 3, 3, 3, 4, 5, …).</li>
+<li><strong>Comparison</strong>: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo separator="true">,</mo><mi>b</mi><mo stretchy="false">)</mo><mo>&lt;</mo><mo stretchy="false">(</mo><mi>c</mi><mo separator="true">,</mo><mi>d</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(a, b) &lt; (c, d)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault">a</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault">c</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">d</span><span class="mclose">)</span></span></span></span> if:  <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>&lt;</mo><mi>c</mi></mrow><annotation encoding="application/x-tex">a &lt; c</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathdefault">a</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">c</span></span></span></span>, <strong>or</strong>  <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>c</mi></mrow><annotation encoding="application/x-tex">a = c</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">a</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">c</span></span></span></span> and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>&lt;</mo><mi>d</mi></mrow><annotation encoding="application/x-tex">b &lt; d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.73354em;vertical-align:-0.0391em;"></span><span class="mord mathdefault">b</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">d</span></span></span></span>.</li>
+<li><strong>Maximum</strong>:   <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>max</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>a</mi><mn>0</mn></msub><mo separator="true">,</mo><mo>⋯</mo><mtext> </mtext><mo separator="true">,</mo><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="false">)</mo><mo>=</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">\max(a_0, \cdots, a_{n-1}) = k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop">max</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="minner">⋯</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.301108em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.208331em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span></span></span></span>, where <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>≥</mo><msub><mi>a</mi><mi>i</mi></msub><mtext> </mtext><mi mathvariant="normal">∀</mi><mi>i</mi><mo>∈</mo><mo stretchy="false">[</mo><mn>0</mn><mo separator="true">,</mo><mi>n</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">k \geq a_i \, \forall i \in [0, n]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83041em;vertical-align:-0.13597em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">∀</span><span class="mord mathdefault">i</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">n</span><span class="mclose">]</span></span></span></span>.</li>
+<li><strong>核心思想</strong>: 为每个进程分配一个唯一编号；编号最小的进程优先进入临界区。</li>
+<li><strong>编号分配</strong>: 在进入临界区之前，进程（类比顾客）会获取一个编号。编号最小的进程将进入临界区（在队列中等待）。</li>
+<li><strong>相同编号仲裁规则</strong>: 如果进程 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">P_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 和 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">P_j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.969438em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span> 获得相同编号：
+<ul>
+<li>若 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>&lt;</mo><mi>j</mi></mrow><annotation encoding="application/x-tex">i &lt; j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69862em;vertical-align:-0.0391em;"></span><span class="mord mathdefault">i</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.85396em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.05724em;">j</span></span></span></span>，则 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">P_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 优先被服务。</li>
+<li>否则，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">P_j</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.969438em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.311664em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span> 优先被服务。<br>
+<em>(确保即使编号相同，执行顺序仍然唯一。)</em></li>
+</ul>
+</li>
+<li><strong>编号生成规则</strong>: 编号按严格递增顺序生成（例如 1, 2, 3, 3, 3, 3, 3, 4, 5, …）。</li>
+<li><strong>比较规则</strong>: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>a</mi><mo separator="true">,</mo><mi>b</mi><mo stretchy="false">)</mo><mo>&lt;</mo><mo stretchy="false">(</mo><mi>c</mi><mo separator="true">,</mo><mi>d</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">(a, b) &lt; (c, d)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault">a</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">b</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault">c</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">d</span><span class="mclose">)</span></span></span></span> 当且仅当：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>&lt;</mo><mi>c</mi></mrow><annotation encoding="application/x-tex">a &lt; c</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5782em;vertical-align:-0.0391em;"></span><span class="mord mathdefault">a</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">c</span></span></span></span>，或者 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mi>c</mi></mrow><annotation encoding="application/x-tex">a = c</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">a</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">c</span></span></span></span> 且 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>&lt;</mo><mi>d</mi></mrow><annotation encoding="application/x-tex">b &lt; d</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.73354em;vertical-align:-0.0391em;"></span><span class="mord mathdefault">b</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&lt;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">d</span></span></span></span>。</li>
+<li><strong>最大值计算</strong>: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>max</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>a</mi><mn>0</mn></msub><mo separator="true">,</mo><mo>⋯</mo><mtext> </mtext><mo separator="true">,</mo><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="false">)</mo><mo>=</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">\max(a_0, \cdots, a_{n-1}) = k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mop">max</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.30110799999999993em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="minner">⋯</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.301108em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.208331em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span></span></span></span>，其中 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>≥</mo><msub><mi>a</mi><mi>i</mi></msub><mtext> </mtext><mi mathvariant="normal">∀</mi><mi>i</mi><mo>∈</mo><mo stretchy="false">[</mo><mn>0</mn><mo separator="true">,</mo><mi>n</mi><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">k \geq a_i \, \forall i \in [0, n]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83041em;vertical-align:-0.13597em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">∀</span><span class="mord mathdefault">i</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">n</span><span class="mclose">]</span></span></span></span>。</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li><strong>Shared Data</strong>: <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">bool</span> choosing[n]; <span class="comment">// Process is choosing a number, initialized to false</span></span><br><span class="line"><span class="type">int</span> number[n];    <span class="comment">// Assigned ticket number, initialized to 0</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><strong>Algorithm</strong>: 进程Pi的算法</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">do</span>&#123;</span><br><span class="line">	choosing[i] = <span class="literal">true</span>;</span><br><span class="line">	number[i] = max(number[<span class="number">0</span>], number[<span class="number">1</span>], ..., number[n - <span class="number">1</span>]) + <span class="number">1</span>;</span><br><span class="line">	choosing[i] = <span class="literal">false</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; n; j++) &#123;</span><br><span class="line">	    <span class="keyword">while</span> (choosing[j]);</span><br><span class="line">	    <span class="comment">// 如果前面有正在选的进程，阻塞</span></span><br><span class="line">	    <span class="keyword">while</span> ((number[j] != <span class="number">0</span>) &amp;&amp; ((number[j], j) &lt; (number[i], i)));</span><br><span class="line">	    <span class="comment">// 如果前面有已经选择了且优先级更高的进程需要进入临界区，阻塞</span></span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">		critical_section</span><br><span class="line">	</span><br><span class="line">	number[i] = <span class="number">0</span>;<span class="comment">// 0表示没选</span></span><br><span class="line">	</span><br><span class="line">		remainder_section</span><br><span class="line">&#125; <span class="keyword">while</span> (<span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>为什么没有<code>choosing[]</code>会失败？
+<ul>
+<li>不满足Mutual Exclusion</li>
+</ul>
+</li>
+</ul>
+<h3 id="hardware-support-硬件支持"><strong>Hardware Support 硬件支持</strong></h3>
+<ol>
+<li><strong>Test-and-Set (测试并设置)</strong>:  Some form of <font color="red">test-and-set</font> instruction<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">TestAndSet</span><span class="params">(<span class="type">int</span> *old_ptr, <span class="type">int</span> new)</span> &#123;</span><br><span class="line">    <span class="type">int</span> old = *old_ptr;</span><br><span class="line">    *old_ptr = new;</span><br><span class="line">    <span class="keyword">return</span> old; <span class="comment">// Returns old value atomically</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+A spin lock based on this:</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> --<span class="title">lock_t</span> &#123;</span> <span class="type">int</span> flag; &#125; <span class="type">lock_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">init</span><span class="params">(<span class="type">lock_t</span> *lock)</span> &#123;</span><br><span class="line">    lock-&gt;flag = <span class="number">0</span>; <span class="comment">// 0 -&gt; available, 1 -&gt; held</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">lock</span><span class="params">(<span class="type">lock_t</span> *lock)</span> &#123;</span><br><span class="line">    <span class="keyword">while</span> (TestAndSet(&amp;lock-&gt;flag, <span class="number">1</span>) == <span class="number">1</span>)</span><br><span class="line">    ; <span class="comment">// spin-waiting</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">unlock</span><span class="params">(<span class="type">lock_t</span> *lock)</span> &#123;</span><br><span class="line">    lock-&gt;flag = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Evaluating this spin lock:
+<ul>
+<li>Mutual exclusion? Yes</li>
+<li>Progress? Yes</li>
+<li>Bounded waiting? No</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li><strong>Compare-and-Swap (比较并交换)</strong>:  <font color="red">compare-and-swap</font> atomic instruction<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">CAS</span><span class="params">(<span class="type">int</span> *ptr, <span class="type">int</span> expected, <span class="type">int</span> new)</span> &#123;</span><br><span class="line">    <span class="type">int</span> actual = *ptr;</span><br><span class="line">    <span class="keyword">if</span> (actual == expected) *ptr = new;</span><br><span class="line">    <span class="keyword">return</span> actual;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+A spin lock based on this:</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">  <span class="type">void</span> <span class="title function_">lock</span><span class="params">(<span class="type">lock_t</span> *lock)</span> &#123;</span><br><span class="line">    <span class="keyword">while</span> (CAS(&amp;lock-&gt;flag, <span class="number">0</span>, <span class="number">1</span>) == <span class="number">1</span>)</span><br><span class="line">    ; <span class="comment">// spin-waiting</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Evaluating this spin lock:
+<ul>
+<li>Mutual exclusion? Yes</li>
+<li>Progress? Yes</li>
+<li>Bounded waiting? No</li>
+</ul>
+</li>
+</ul>
+<ol start="3">
+<li>Compare-and-swap is more powerful than test-and-set. Can be used to achieve lock-free synchronization.<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">CompareAndSwap</span><span class="params">(<span class="type">int</span> *ptr, <span class="type">int</span> expected, <span class="type">int</span> new)</span> &#123;</span><br><span class="line">    <span class="type">int</span> actual = *ptr;</span><br><span class="line">    <span class="keyword">if</span> (actual == expected) &#123;</span><br><span class="line">     *ptr = new;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"> &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line">```   </span><br><span class="line">An alternative approach that does not require explicit locking:</span><br><span class="line">不需要显式的locking</span><br><span class="line">```c</span><br><span class="line"><span class="type">void</span> <span class="title function_">AtomicIncrement</span><span class="params">(<span class="type">int</span> *counter, <span class="type">int</span> amount)</span>&#123;</span><br><span class="line"> <span class="keyword">do</span>&#123;</span><br><span class="line">  <span class="type">int</span> old = *counter;</span><br><span class="line"> &#125;<span class="keyword">while</span>(CompareAndSwap(counter, old, old + amount) == <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><strong>Fetch-and-Add (获取并增加)</strong>:<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">  <span class="type">int</span> <span class="title function_">FetchAndAdd</span><span class="params">(<span class="type">int</span> *ptr)</span> &#123;</span><br><span class="line">      <span class="type">int</span> old = *ptr;</span><br><span class="line">      *ptr = old + <span class="number">1</span>;</span><br><span class="line">      <span class="keyword">return</span> old;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* ticket lock */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> ticket;</span><br><span class="line">    <span class="type">int</span> turn;</span><br><span class="line">&#125; <span class="type">lock_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">lock_init</span><span class="params">(<span class="type">lock_t</span> *lock)</span> &#123;</span><br><span class="line">    lock-&gt;ticket = <span class="number">0</span>;</span><br><span class="line">    lock-&gt;turn = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">lock</span><span class="params">(<span class="type">lock_t</span> *lock)</span> &#123;</span><br><span class="line">    <span class="type">int</span> myturn = FetchAndAdd(&amp;lock-&gt;ticket);</span><br><span class="line">    <span class="keyword">while</span> (lock-&gt;turn != myturn);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">unlock</span><span class="params">(<span class="type">lock_t</span> *lock)</span> &#123;</span><br><span class="line">    lock-&gt;turn = lock-&gt;turn + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>Ticket Lock</strong>: Uses <code>ticket</code> and <code>turn</code> variables for fairness.</li>
+</ul>
+</li>
+</ol>
+<h3 id="spin-waiting-自旋等待"><strong>Spin-Waiting 自旋等待</strong></h3>
+<ul>
+<li>When a thread waits to acquire a lock that is already held, it endlessly checks the value of flag, a technique known as spin-waiting.<br>
+当一个线程等待获取一个已被持有的锁时，它会不断地检查标志（flag）的值，这是一种被称为自旋等待的技术。<br>
+公平但效率很低<br>
+避免方法：</li>
+<li><strong>Yield</strong>: <code>yield()</code> syscall to voluntarily give up CPU. 主动放弃CPU
+<ul>
+<li>Think about N threads contending for a lock; N − 1 threads may execute the run-and-yield pattern.</li>
+<li>Starvation</li>
+</ul>
+</li>
+<li><strong>Queue-Based Locks</strong>:
+<ul>
+<li><code>park()</code>: Puts a calling thread to sleep.</li>
+<li><code>unpark(threadID)</code>: Wakes a particular thread.</li>
+<li>Race condition before the call to park(): With just a wrong timing switch, the subsequent park by the first thread would then sleep forever (potentially).</li>
+<li>Use system call <code>setpark()</code> : A thread indicates it is about to park</li>
+<li>If it then happens to be interrupted and another thread calls unpark() before park() is actually called, the subsequent park() returns immediately instead of sleeping.</li>
+<li>如果在调用 <code>setpark()</code> 之后、实际调用 <code>park()</code> 之前，线程被中断，并且另一个线程调用了 <code>unpark()</code>，那么后续的 <code>park()</code> 会立即返回，而不会进入休眠状态。这样就避免了永久休眠的问题。</li>
+<li>Is spin avoided? No, but the time spent spinning is quite limited.</li>
+</ul>
+</li>
+<li><strong>Priority Inversion (优先级反转)</strong>: Higher-priority threads blocked by lower-priority ones. Solved via <strong>priority inheritance</strong>.</li>
+</ul>
+<hr>
+<h2 id="5-locked-data-structures-加锁的数据结构"><strong>5. Locked Data Structures 加锁的数据结构</strong></h2>
+<h3 id="concurrent-counter-并发计数器">Concurrent Counter 并发计数器</h3>
+<ul>
+<li><strong>Simple Lock</strong>: Global lock on all operations (inefficient).</li>
+<li><strong>Sloppy Counter</strong>:</li>
+<li><strong>Local counters</strong> per CPU + occasional sync to global counter.</li>
+<li><strong>Threshold</strong>: Controls how often local counters sync.</li>
+</ul>
+<h3 id="linked-list-链表">Linked List 链表</h3>
+<ul>
+<li><strong>Coarse-Grained Lock</strong>: Single lock for entire list.</li>
+<li><strong>Fine-Grained Lock</strong>: Per-node locks (e.g., hand-over-hand locking).</li>
+</ul>
+<h3 id="queue-队列">Queue 队列</h3>
+<ul>
+<li><strong>Two Locks</strong>: Separate locks for <code>head</code> (dequeue) and <code>tail</code> (enqueue).</li>
+</ul>
+<h3 id="hash-table-哈希表">Hash Table 哈希表</h3>
+<ul>
+<li><strong>Per-Bucket Locks</strong>: Each bucket has its own lock for scalability.</li>
+</ul>
+<hr>
+<h2 id="4-mutex-locks-continued-互斥锁-续"><strong>4. Mutex Locks (Continued) 互斥锁（续）</strong></h2>
+<h3 id="spin-locks-vs-blocking-locks-自旋锁-vs-阻塞锁"><strong>Spin Locks vs. Blocking Locks 自旋锁 vs. 阻塞锁</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>特性</strong></th>
+<th><strong>自旋锁 (Spin Lock)</strong></th>
+<th><strong>阻塞锁 (Blocking Lock)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>实现方式</strong></td>
+<td>循环检查锁状态 (<code>while (lock == held);</code>)</td>
+<td>调用 <code>park()</code>/<code>unpark()</code> 让出CPU</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>临界区短、多核CPU</td>
+<td>临界区长、单核CPU</td>
+</tr>
+<tr>
+<td><strong>性能开销</strong></td>
+<td>高（占用CPU空转）</td>
+<td>低（线程休眠）</td>
+</tr>
+<tr>
+<td><strong>公平性</strong></td>
+<td>可能饥饿（无顺序保证）</td>
+<td>可通过队列实现公平性</td>
+</tr>
+</tbody>
+</table>
+<h3 id="two-phase-locking-linux-hybrid-approach-两阶段锁-linux混合方案"><strong>Two-Phase Locking (Linux Hybrid Approach) 两阶段锁（Linux混合方案）</strong></h3>
+<ol>
+<li><strong>第一阶段（自旋）</strong>: 短暂自旋尝试获取锁（适用于短临界区）。</li>
+<li><strong>第二阶段（阻塞）</strong>: 若自旋失败，线程休眠并加入等待队列。</li>
+</ol>
+<h3 id="priority-inversion-problem-优先级反转问题"><strong>Priority Inversion Problem 优先级反转问题</strong></h3>
+<ul>
+<li><strong>场景</strong>:
+<ul>
+<li>低优先级线程（L）持有锁 → 中优先级线程（M）抢占CPU → 高优先级线程（H）等待锁。</li>
+<li><strong>结果</strong>: H被阻塞，尽管其优先级最高。</li>
+</ul>
+</li>
+<li><strong>解决方案</strong>:
+<ul>
+<li><strong>优先级继承 (Priority Inheritance)</strong>: L临时继承H的优先级，使其快速执行并释放锁。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="5-locked-data-structures-加锁的数据结构"><strong>5. Locked Data Structures 加锁的数据结构</strong></h2>
+<h3 id="concurrent-counter-并发计数器">Concurrent Counter 并发计数器</h3>
+<h4 id="sloppy-counter-松散计数器">Sloppy Counter 松散计数器</h4>
+<ul>
+<li><strong>设计思想</strong>:
+<ul>
+<li><strong>局部计数器 (Per-CPU)</strong>: 每个CPU维护自己的计数器，减少全局锁争用。</li>
+<li><strong>全局计数器 (Global)</strong>: 定期将局部值累加到全局计数器。</li>
+</ul>
+</li>
+<li><strong>阈值 (Threshold)</strong>: 控制局部→全局同步的频率（平衡性能与准确性）。<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (local_counter &gt;= threshold) &#123;  </span><br><span class="line">    lock(&amp;global_lock);  </span><br><span class="line">    global += local;  </span><br><span class="line">    unlock(&amp;global_lock);  </span><br><span class="line">    local = <span class="number">0</span>;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="性能对比"><strong>性能对比</strong></h4>
+<table>
+<thead>
+<tr>
+<th><strong>线程数</strong></th>
+<th><strong>简单锁 (ms)</strong></th>
+<th><strong>松散锁 (ms)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>30</td>
+<td>35</td>
+</tr>
+<tr>
+<td>2</td>
+<td>5000</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="concurrent-linked-list-并发链表">Concurrent Linked List 并发链表</h3>
+<h4 id="hand-over-hand-locking-手拉手锁">Hand-Over-Hand Locking 手拉手锁</h4>
+<ul>
+<li><strong>加锁方式</strong>:
+<ul>
+<li>遍历时，先锁下一个节点，再释放当前节点锁。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lock(&amp;curr-&gt;lock);  </span><br><span class="line">lock(&amp;next-&gt;lock);  </span><br><span class="line">unlock(&amp;curr-&gt;lock);  </span><br></pre></td></tr></table></figure>
+</li>
+<li><strong>缺点</strong>: 锁开销高，实际性能可能不如单锁（因频繁加解锁）。</li>
+</ul>
+<h4 id="扩展性优化"><strong>扩展性优化</strong></h4>
+<ul>
+<li><strong>分段锁 (Bucket Locking)</strong>: 将链表分段，每段一个锁（类似哈希表）。</li>
+</ul>
+<hr>
+<h3 id="concurrent-queue-并发队列">Concurrent Queue 并发队列</h3>
+<h4 id="双锁设计-two-lock-queue">双锁设计 (Two-Lock Queue)</h4>
+<ul>
+<li><strong>Enqueue</strong>: 仅锁 <code>tail</code>，操作 <code>tail-&gt;next</code>。</li>
+<li><strong>Dequeue</strong>: 仅锁 <code>head</code>，操作 <code>head-&gt;next</code>。</li>
+<li><strong>Dummy Node</strong>: 避免头尾竞争（初始化时头尾指向哑节点）。<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">enqueue</span><span class="params">(<span class="type">queue_t</span> *q, <span class="type">int</span> value)</span> &#123;  </span><br><span class="line">    lock(&amp;q-&gt;tail_lock);  </span><br><span class="line">    q-&gt;tail-&gt;next = new_node;  </span><br><span class="line">    q-&gt;tail = new_node;  </span><br><span class="line">    unlock(&amp;q-&gt;tail_lock);  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<hr>
+<h3 id="concurrent-hash-table-并发哈希表">Concurrent Hash Table 并发哈希表</h3>
+<h4 id="per-bucket-locking-分桶锁">Per-Bucket Locking 分桶锁</h4>
+<ul>
+<li><strong>设计</strong>: 每个桶一个独立的锁（锁粒度 = 桶数量）。</li>
+<li><strong>性能</strong>: 并发访问不同桶的线程无需阻塞。<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">hash_insert</span><span class="params">(<span class="type">hash_t</span> *h, <span class="type">int</span> key)</span> &#123;  </span><br><span class="line">    <span class="type">int</span> bucket = key % BUCKETS;  </span><br><span class="line">    lock(&amp;h-&gt;locks[bucket]);  </span><br><span class="line">    list_insert(&amp;h-&gt;lists[bucket], key);  </span><br><span class="line">    unlock(&amp;h-&gt;locks[bucket]);  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<hr>
+<h1 id="contd-续">Contd. 续</h1>
+<h4 id="1-condition-variables-条件变量"><strong>1. Condition Variables (条件变量)</strong></h4>
+<p><strong>1.1 Implementing <code>pthread_join()</code></strong></p>
+<ul>
+<li><strong>Problem #1</strong>: How to indicate the child thread is done?<br>
+<strong>问题1</strong>：如何指示子线程已完成？</li>
+<li><strong>Problem #2</strong>: How to make the parent thread wait for the child?<br>
+<strong>问题2</strong>：如何让父线程等待子线程？<br>
+<strong>Initial Solution (Shared Variable)</strong>:</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> done = <span class="number">0</span>;</span><br><span class="line"><span class="type">void</span> *<span class="title function_">child</span><span class="params">(<span class="type">void</span> *arg)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;child\n&quot;</span>);</span><br><span class="line">    done = <span class="number">1</span>;  <span class="comment">// Signal completion</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Parent spins while waiting (wastes CPU)</span></span><br><span class="line"><span class="keyword">while</span> (done == <span class="number">0</span>); </span><br></pre></td></tr></table></figure>
+<p><strong>缺点</strong>: Spin-waiting (忙等待) 浪费CPU资源。<br>
+<strong>1.2 Condition Variable Operations</strong></p>
+<ul>
+<li><strong><code>wait(c, m)</code></strong>：根据条件变量<code>c</code>，线程休眠并释放锁 <code>m</code>。</li>
+<li><strong><code>signal(c)</code></strong>：根据条件变量<code>c</code>唤醒一个等待 <code>c</code> 的线程。<br>
+<strong>Correct Implementation</strong>:</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">pthread_mutex_t</span> m = PTHREAD_MUTEX_INITIALIZER;</span><br><span class="line"><span class="type">pthread_cond_t</span> c = PTHREAD_COND_INITIALIZER;</span><br><span class="line"><span class="type">int</span> done = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">thr_exit</span><span class="params">()</span> &#123;</span><br><span class="line">    pthread_mutex_lock(&amp;m);</span><br><span class="line">    done = <span class="number">1</span>;</span><br><span class="line">    pthread_cond_signal(&amp;c);  <span class="comment">// Wake parent</span></span><br><span class="line">    pthread_mutex_unlock(&amp;m);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">thr_join</span><span class="params">()</span> &#123;</span><br><span class="line">    pthread_mutex_lock(&amp;m);</span><br><span class="line">    <span class="keyword">while</span> (done == <span class="number">0</span>)</span><br><span class="line">        pthread_cond_wait(&amp;c, &amp;m);  <span class="comment">// Sleep and release lock</span></span><br><span class="line">    pthread_mutex_unlock(&amp;m);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Key Points</strong>:</p>
+<ul>
+<li>Always use a <strong>while loop</strong> to recheck conditions after wake-up (避免虚假唤醒).</li>
+<li>Condition variables <strong>must</strong> be paired with a mutex and a flag (条件变量必须与互斥锁和标志变量配合使用).<br>
+<strong>1.3 Broken Code Examples</strong></li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">thr_exit</span><span class="params">()</span> &#123;</span><br><span class="line">    pthread_mutex_lock(&amp;m);</span><br><span class="line">    pthread_cond_signal(&amp;c);</span><br><span class="line">    pthread_mutex_unlock(&amp;m);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">thr_join</span><span class="params">()</span> &#123;</span><br><span class="line">    pthread_mutex_lock(&amp;m);</span><br><span class="line">    pthread_cond_wait(&amp;c, &amp;m);</span><br><span class="line">    pthread_mutex_unlock(&amp;m);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* broken code #1 */</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">thr_exit</span><span class="params">()</span> &#123;</span><br><span class="line">    done = <span class="number">1</span>;</span><br><span class="line">    pthread_cond_signal(&amp;c);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">thr_join</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (done == <span class="number">0</span>)</span><br><span class="line">    pthread_cond_wait(&amp;c);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* broken code #2 */</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>Broken #1</strong>: Missing flag check → may miss signals.<br>
+<strong>错误1</strong>：未检查标志变量 → 可能丢失信号。</li>
+<li><strong>Broken #2</strong>: No mutex → race condition.<br>
+<strong>错误2</strong>：无互斥锁 → 竞态条件。</li>
+</ul>
+<hr>
+<p><strong>1.4 Producer-Consumer Problem (生产者-消费者问题)</strong><br>
+<strong>Single Buffer Solution (Initial Attempt)</strong>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">cond_t</span> cond; <span class="type">mutex_t</span> mutex;</span><br><span class="line"><span class="type">void</span> <span class="title function_">producer</span><span class="params">()</span> &#123;</span><br><span class="line">    pthread_mutex_lock(&amp;mutex);</span><br><span class="line">    <span class="keyword">if</span> (count == <span class="number">1</span>) pthread_cond_wait(&amp;cond, &amp;mutex);</span><br><span class="line">    put();  <span class="comment">// Produce</span></span><br><span class="line">    pthread_cond_signal(&amp;cond);</span><br><span class="line">    pthread_mutex_unlock(&amp;mutex);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Similar for consumer</span></span><br></pre></td></tr></table></figure>
+<p><strong>Issue</strong>: With multiple threads, <code>signal</code> may wake the wrong thread (e.g., another producer instead of a consumer).<br>
+<strong>问题</strong>：多线程下，<code>signal</code> 可能唤醒错误的线程（如唤醒生产者而非消费者）。</p>
+<p><strong>Fix</strong>: Use <strong>two condition variables</strong> (<code>empty</code> and <code>full</code>):</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">cond_t</span> empty, fill;</span><br><span class="line"><span class="type">void</span> <span class="title function_">producer</span><span class="params">()</span> &#123;</span><br><span class="line">    pthread_mutex_lock(&amp;mutex);</span><br><span class="line">    <span class="keyword">while</span> (count == MAX) pthread_cond_wait(&amp;empty, &amp;mutex);</span><br><span class="line">    put();</span><br><span class="line">    pthread_cond_signal(&amp;fill);  <span class="comment">// Wake consumer</span></span><br><span class="line">    pthread_mutex_unlock(&amp;mutex);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">void</span> <span class="title function_">consumer</span><span class="params">()</span> &#123;</span><br><span class="line">    pthread_mutex_lock(&amp;mutex);</span><br><span class="line">    <span class="keyword">while</span> (count == <span class="number">0</span>) pthread_cond_wait(&amp;fill, &amp;mutex);</span><br><span class="line">    get();</span><br><span class="line">    pthread_cond_signal(&amp;empty);  <span class="comment">// Wake producer</span></span><br><span class="line">    pthread_mutex_unlock(&amp;mutex);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Key Point</strong>:</p>
+<ul>
+<li><strong><code>while</code></strong> (not <code>if</code>) to recheck after wake-up (必须用 <code>while</code> 循环重新检查条件).</li>
+</ul>
+<p><strong>1.5 Covering Condition (覆盖条件)</strong></p>
+<ul>
+<li>Scenario: Multiple threads waiting for different conditions (e.g., memory allocation).<br>
+<strong>场景</strong>：多个线程等待不同条件（如内存分配）。</li>
+<li><strong>Solution</strong>: Use <code>pthread_cond_broadcast()</code> to wake all waiting threads.<br>
+<strong>解决方案</strong>：用 <code>pthread_cond_broadcast()</code> 唤醒所有等待线程。</li>
+</ul>
+<hr>
+<h4 id="2-semaphores-信号量"><strong>2. Semaphores (信号量)</strong></h4>
+<p><strong>2.1 Definition</strong></p>
+<ul>
+<li>A semaphore is an integer with two atomic operations:<br>
+<strong>信号量</strong>是一个整数，支持两种原子操作：
+<ul>
+<li><strong><code>wait(s)</code></strong> (or <strong><code>P()</code></strong>): Decrements <code>s</code>; blocks if <code>s &lt; 0</code>.<br>
+<strong><code>wait(s)</code></strong>：<code>s</code> 减1；若 <code>s &lt; 0</code> 则阻塞。</li>
+<li><strong><code>signal(s)</code></strong> (or <strong><code>V()</code></strong>): Increments <code>s</code>; wakes a blocked thread if any.<br>
+<strong><code>signal(s)</code></strong>：<code>s</code> 加1；唤醒一个阻塞线程（若有）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>Implementation (No Busy-Waiting)</strong>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">int</span> value;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">process</span> *<span class="title">list</span>;</span></span><br><span class="line">&#125; semaphore;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">wait</span><span class="params">(semaphore *s)</span> &#123;</span><br><span class="line">    s-&gt;value--;</span><br><span class="line">    <span class="keyword">if</span> (s-&gt;value &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        add this process to s-&gt;<span class="built_in">list</span>;</span><br><span class="line">        block();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">void</span> <span class="title function_">signal</span><span class="params">(semaphore *s)</span> &#123;</span><br><span class="line">    s-&gt;value++;</span><br><span class="line">    <span class="keyword">if</span> (s-&gt;value &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">        remove a process P from s-&gt;<span class="built_in">list</span>;</span><br><span class="line">        wakeup(P);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>2.2 Synchronization Patterns</strong></p>
+<ul>
+<li><strong>Signaling</strong>: Ensure <code>statement a</code> executes before <code>statement b</code>.<br>
+<strong>信号传递</strong>：保证 <code>a</code> 在 <code>b</code> 前执行。<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">  semaphore s = <span class="number">0</span>;</span><br><span class="line">  Thread A: statement a; signal(s);</span><br><span class="line">  Thread B: wait(s); statement b;</span><br><span class="line">  ```  </span><br><span class="line">- **Rendezvous**: 两线程必须都到达汇合点后才能继续</span><br><span class="line">- Ensure `a1` before `b2` and `b1` before `a2`.  </span><br><span class="line">  **汇合点**：保证 `a1` 在 `b2` 前，`b1` 在 `a2` 前。  </span><br><span class="line">  ```c</span><br><span class="line">  semaphore a = <span class="number">0</span>, b = <span class="number">0</span>;</span><br><span class="line">  Thread A: a1; signal(a); wait(b); a2;</span><br><span class="line">  Thread B: b1; signal(b); wait(a); b2;</span><br><span class="line">  ```  </span><br><span class="line">- **Mutex**: Protect critical sections.  </span><br><span class="line">  **互斥锁**：保护临界区。  </span><br><span class="line">  ```c</span><br><span class="line">  semaphore mutex = <span class="number">1</span>;</span><br><span class="line">  wait(mutex); count++; signal(mutex);</span><br><span class="line">  ```  </span><br><span class="line">- **Barrier** 问题</span><br><span class="line">- 无效的Barrier</span><br><span class="line">```c</span><br><span class="line"><span class="comment">/* Bad barrier solution */</span></span><br><span class="line">rendezvous;</span><br><span class="line">wait(mutex);</span><br><span class="line">count = count + <span class="number">1</span>;</span><br><span class="line"><span class="keyword">if</span> (count == n)</span><br><span class="line">    signal(barrier);</span><br><span class="line">wait(barrier);</span><br><span class="line">signal(barrier);</span><br><span class="line">signal(mutex);</span><br><span class="line">critical point;</span><br></pre></td></tr></table></figure>
+</li>
+<li>无效原因：造成死锁
+<ul>
+<li>假设进程A到达<code>wait(mutex)</code>后，未触发<code>signal(barrier)</code>，卡在<code>wait(barrier)</code>，另一个进程B此时想<code>wait(mutex)</code>，发现无法进入。</li>
+</ul>
+</li>
+<li>有效的Barrier</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">semaphore barrier1 = <span class="number">0</span>, barrier2 = <span class="number">0</span>, mutex = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">rendezvous;</span><br><span class="line">wait(mutex);</span><br><span class="line">count += <span class="number">1</span>;</span><br><span class="line"><span class="keyword">if</span> (count == n)</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++)</span><br><span class="line">    signal(barrier1);</span><br><span class="line"></span><br><span class="line">signal(mutex);</span><br><span class="line">wait(barrier1);</span><br><span class="line">critical point;</span><br><span class="line">wait(mutex);</span><br><span class="line">count -= <span class="number">1</span>;</span><br><span class="line"><span class="keyword">if</span> (count == <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; n; i++)</span><br><span class="line">    signal(barrier2);</span><br><span class="line"></span><br><span class="line">signal(mutex);</span><br><span class="line">wait(barrier2);</span><br></pre></td></tr></table></figure>
+<p><strong>2.3 Pairing</strong></p>
+<ul>
+<li>Imagine that threads represent ballroom dancers and that two kinds of dancers, leaders and followers, wait in two queues before entering the dance floor. When a leader arrives, it checks to see if there is a follower waiting. If so, they can both proceed. Otherwise it waits. Similarly, when a follower arrives, it checks for a leader and either proceeds or waits, accordingly.</li>
+<li>关键点：保证dance配对执行
+<ul>
+<li>使用两个int变量存储当前leader和follower的数量。定义信号量leader, follower，用于等待对方。mutex互斥锁保证数量的改变不会冲突。此外还需要pairing信号量通知leader配对完成。</li>
+<li>leader的逻辑：首先获取锁。如果当前follower的数量大于0，说明已经有follower在等待，<code>signal(leader)</code>，通知follower直接dance；否则，需要等待follower，释放锁并<code>wait(follower)</code>。dance后<code>wait(pairing)</code>，等待follower结束。最后释放互斥锁</li>
+<li>follower的逻辑：首先获取锁。如果当前leader的数量大于0，说明已经有leader在等待，<code>signal(follower)</code>，通知leader直接dance；否则，需要等待leader，释放锁并<code>wait(leader)</code>。dance后<code>signal(pairing)</code>。</li>
+<li>注意动态改变两者数量<br>
+初始化</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* initialization */</span></span><br><span class="line"><span class="type">int</span> num_l = <span class="number">0</span>, num_f = <span class="number">0</span>;</span><br><span class="line">semaphore leader = <span class="number">0</span>, follower = <span class="number">0</span>, pairing = <span class="number">0</span>, mutex = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<p>leader</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* leader */</span></span><br><span class="line">wait(mutex);</span><br><span class="line"><span class="keyword">if</span> (num_f &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    num_f --;</span><br><span class="line">    signal(leader);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">    num_l ++;</span><br><span class="line">    signal(mutex);</span><br><span class="line">    wait(follower);</span><br><span class="line">&#125;</span><br><span class="line">dance();</span><br><span class="line">wait(pairing);</span><br><span class="line">signal(mutex);</span><br></pre></td></tr></table></figure>
+<p>follower</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* follower */</span></span><br><span class="line">wait(mutex);</span><br><span class="line"><span class="keyword">if</span> (num_l &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    num_l --;</span><br><span class="line">    signal(follower);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">    num_f ++;</span><br><span class="line">    signal(mutex);</span><br><span class="line">    wait(leader);</span><br><span class="line">&#125;</span><br><span class="line">dance();</span><br><span class="line">signal(pairing);</span><br><span class="line"><span class="comment">// no signal(mutex);</span></span><br></pre></td></tr></table></figure>
+<p><strong>2.4 Producer-Consumer with Semaphores</strong><br>
+需要注意mutex保护生产消费所在的地址空间</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">semaphore empty = MAX, full = <span class="number">0</span>, mutex = <span class="number">1</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">producer</span><span class="params">()</span> &#123;</span><br><span class="line">    wait(empty);  <span class="comment">// Wait for space</span></span><br><span class="line">    wait(mutex);  <span class="comment">// Enter critical section</span></span><br><span class="line">    put();</span><br><span class="line">    signal(mutex);</span><br><span class="line">    signal(full);  <span class="comment">// Increment filled count</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="type">void</span> <span class="title function_">consumer</span><span class="params">()</span> &#123;</span><br><span class="line">    wait(full);</span><br><span class="line">    wait(mutex);</span><br><span class="line">    get();</span><br><span class="line">    signal(mutex);</span><br><span class="line">    signal(empty);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>2.5 Dining Philosophers (哲学家就餐问题)</strong></p>
+<ul>
+<li>There are five “philosophers” sitting around a table. Between each pair of philosophers is a single chopstick (and thus, five total). The philosophers each have times where they think, and don’t need any chopsticks, and times where they eat. In order to eat, a philosopher needs two chopsticks, both the one on their left and the one on their right. The basic loop of each philosopher is as follows, assuming each has a unique identifier <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>∈</mo><mo stretchy="false">[</mo><mn>0</mn><mo separator="true">,</mo><mn>4</mn><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">p \in [0, 4]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7335400000000001em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">p</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">∈</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">0</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord">4</span><span class="mclose">]</span></span></span></span>:</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(<span class="literal">true</span>)&#123;</span><br><span class="line"> think();</span><br><span class="line"> getchopsticks();</span><br><span class="line"> eat();</span><br><span class="line"> putchopsticks();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>注意死锁问题：当所有哲学家同时获取左边或右边的筷子时，会发生死锁。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* a correct solution */</span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">left</span><span class="params">(<span class="type">int</span> p)</span> &#123; <span class="keyword">return</span> p; &#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">right</span><span class="params">(<span class="type">int</span> p)</span> &#123; <span class="keyword">return</span> (p + <span class="number">1</span>) % <span class="number">5</span>; &#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">putchopsticks</span><span class="params">()</span> &#123;</span><br><span class="line">    signal(chopsticks[left(p)]);</span><br><span class="line">    signal(chopsticks[right(p)]);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">getchopsticks</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (p == <span class="number">4</span>) &#123;</span><br><span class="line">        wait(chopsticks[right(p)]);</span><br><span class="line">        wait(chopsticks[left(p)]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        wait(chopsticks[left(p)]);</span><br><span class="line">        wait(chopsticks[right(p)]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>2.6 The Readers-Writers Problem</strong></p>
+<ul>
+<li>试想有许多并发操作，包括读取和写入操作。
+<ul>
+<li>写入会改变数据的状态。</li>
+<li>读取则不会——只要我们能保证没有写入操作在进行，许多读取操作就可以并发进行。</li>
+</ul>
+</li>
+<li>第一个读者-写者问题——要求除非写者已获得使用共享对象的权限，否则不应让读者等待。</li>
+<li>第二个读者-写者问题——要求一旦写者准备好，该写者应尽快执行其写入操作。<br>
+<strong>2.6.1 First Readers-Writers Problem</strong></li>
+<li><strong>Priority to Readers</strong>: No reader waits unless a writer is already active.<br>
+<strong>读者优先</strong>：除非写者已获得锁，否则读者无需等待。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">semaphore write_mutex = <span class="number">1</span>;</span><br><span class="line">semaphore readcount_mutex = <span class="number">1</span>;</span><br><span class="line"><span class="type">int</span> read_count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">write</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        wait(write_mutex);</span><br><span class="line">        <span class="comment">/* writing */</span></span><br><span class="line">        signal(write_mutex);</span><br><span class="line">    &#125; <span class="keyword">while</span> (<span class="literal">true</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">read</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        wait(readcount_mutex);</span><br><span class="line">        read_count++;</span><br><span class="line">        <span class="keyword">if</span> (read_count == <span class="number">1</span>)</span><br><span class="line">            wait(write_mutex);</span><br><span class="line">        signal(readcount_mutex);</span><br><span class="line">        <span class="comment">/* reading */</span></span><br><span class="line">        wait(readcount_mutex);</span><br><span class="line">        read_count--;</span><br><span class="line">        <span class="keyword">if</span> (read_count == <span class="number">0</span>)</span><br><span class="line">            signal(write_mutex);</span><br><span class="line">        signal(readcount_mutex);</span><br><span class="line">    &#125; <span class="keyword">while</span> (<span class="literal">true</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Issue</strong>: Starvation of writers (写者可能饿死).<br>
+No-starvation:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">semaphore readcount_mutex = <span class="number">1</span>;</span><br><span class="line">semaphore writemutex = <span class="number">1</span>;</span><br><span class="line"><span class="type">int</span> read_count = <span class="number">0</span>;</span><br><span class="line">semaphore readmutex = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">write</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        wait(readmutex);</span><br><span class="line">        wait(writemutex);</span><br><span class="line">        <span class="comment">/* writing */</span></span><br><span class="line">        signal(writemutex);</span><br><span class="line">        signal(readmutex);</span><br><span class="line">    &#125; <span class="keyword">while</span> (<span class="literal">true</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">read</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        wait(readmutex);</span><br><span class="line">        signal(readmutex);</span><br><span class="line">        wait(readcount_mutex);</span><br><span class="line">        read_count++;</span><br><span class="line">        <span class="keyword">if</span> (read_count == <span class="number">1</span>)</span><br><span class="line">            wait(writemutex);</span><br><span class="line">        signal(readcount_mutex);</span><br><span class="line">        <span class="comment">/* reading */</span></span><br><span class="line">        wait(readcount_mutex);</span><br><span class="line">        read_count--;</span><br><span class="line">        <span class="keyword">if</span> (read_count == <span class="number">0</span>)</span><br><span class="line">            signal(writemutex);</span><br><span class="line">        signal(readcount_mutex);</span><br><span class="line">    &#125; <span class="keyword">while</span> (<span class="literal">true</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>4.2 Second Readers-Writers Problem</strong></p>
+<ul>
+<li><strong>Priority to Writers</strong>: Once a writer is ready, it proceeds ASAP.<br>
+<strong>写者优先</strong>：写者就绪后尽快执行。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">semaphore readcount_mutex = <span class="number">1</span>;</span><br><span class="line">semaphore writemutex = <span class="number">1</span>;</span><br><span class="line"><span class="type">int</span> write_count = <span class="number">0</span>, read_count = <span class="number">0</span>;</span><br><span class="line">semaphore writecount_mutex = <span class="number">1</span>;</span><br><span class="line">semaphore readmutex = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">write</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        wait(writecount_mutex);</span><br><span class="line">        write_count++;</span><br><span class="line">        <span class="keyword">if</span> (write_count == <span class="number">1</span>)</span><br><span class="line">            wait(readmutex);</span><br><span class="line">        signal(writecount_mutex);</span><br><span class="line">        wait(writemutex);</span><br><span class="line">        <span class="comment">/* writing */</span></span><br><span class="line">        signal(writemutex);</span><br><span class="line">        wait(writecount_mutex);</span><br><span class="line">        write_count--;</span><br><span class="line">        <span class="keyword">if</span> (write_count == <span class="number">0</span>)</span><br><span class="line">            signal(readmutex);</span><br><span class="line">        signal(writecount_mutex);</span><br><span class="line">    &#125; <span class="keyword">while</span> (<span class="literal">true</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">read</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        wait(readmutex);</span><br><span class="line">        wait(readcount_mutex);</span><br><span class="line">        read_count++;</span><br><span class="line">        <span class="keyword">if</span> (read_count == <span class="number">1</span>)</span><br><span class="line">            wait(writemutex);</span><br><span class="line">        signal(readcount_mutex);</span><br><span class="line">        signal(readmutex);</span><br><span class="line">        <span class="comment">/* reading */</span></span><br><span class="line">        wait(readcount_mutex);</span><br><span class="line">        read_count--;</span><br><span class="line">        <span class="keyword">if</span> (read_count == <span class="number">0</span>)</span><br><span class="line">            signal(writemutex);</span><br><span class="line">        signal(readcount_mutex);</span><br><span class="line">    &#125; <span class="keyword">while</span> (<span class="literal">true</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h4 id="3-monitors-管程"><strong>3. Monitors (管程)</strong></h4>
+<p><strong>3.1 Definition</strong></p>
+<ul>
+<li>A <strong>monitor</strong> is a high-level synchronization construct that encapsulates shared data and operations, ensuring only one thread can execute within the monitor at a time.<br>
+<strong>管程</strong>是一种高级同步原语，封装了共享数据及其操作，保证同一时间仅有一个线程在管程内执行。</li>
+<li><strong>Key Features</strong>:
+<ul>
+<li><strong>Mutual exclusion</strong> (互斥): Automatic lock management.</li>
+<li><strong>Condition variables</strong> (条件变量): <code>wait()</code> and <code>signal()</code> for thread coordination.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Java Example</strong>:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SynchronizedCounter</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">c</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">increment</span><span class="params">()</span> &#123; c++; &#125;  <span class="comment">// Monitor entry</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">decrement</span><span class="params">()</span> &#123; c--; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Note</strong>: <code>synchronized</code> methods in Java act as monitors.</p>
+<hr>
+<p><strong>3.2 Hoare vs. Mesa Semantics</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>Hoare Semantics</strong> (霍尔语义)</th>
+<th><strong>Mesa Semantics</strong> (Mesa语义)</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>signal()</code> immediately switches execution to the woken thread.</td>
+<td><code>signal()</code> moves a thread to the ready queue; the signaling thread continues.</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Guarantees</strong> condition holds when woken thread runs.</td>
+<td><strong>Requires rechecking</strong> conditions after wake-up (<code>while</code> loop).</td>
+<td></td>
+</tr>
+<tr>
+<td>Less common in practice.</td>
+<td>Used in Java, POSIX, and most modern systems.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example (Bounded Buffer)</strong>:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">monitor <span class="keyword">class</span> <span class="title class_">BoundedBuffer</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> buffer[MAX], fill = <span class="number">0</span>, use = <span class="number">0</span>, count = <span class="number">0</span>;</span><br><span class="line">    condition empty, full;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">produce</span><span class="params">(<span class="type">int</span> item)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (count == MAX) empty.wait();  <span class="comment">// Hoare: if; Mesa: while</span></span><br><span class="line">        buffer[fill] = item;</span><br><span class="line">        fill = (fill + <span class="number">1</span>) % MAX;</span><br><span class="line">        count++;</span><br><span class="line">        full.signal();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span> <span class="title function_">consume</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (count == <span class="number">0</span>) full.wait();    <span class="comment">// Hoare: if; Mesa: while</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">item</span> <span class="operator">=</span> buffer[use];</span><br><span class="line">        use = (use + <span class="number">1</span>) % MAX;</span><br><span class="line">        count--;</span><br><span class="line">        empty.signal();</span><br><span class="line">        <span class="keyword">return</span> item;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Key Point</strong>:</p>
+<ul>
+<li><strong>Mesa semantics require <code>while</code> loops</strong> to handle spurious wake-ups (虚假唤醒).</li>
+</ul>
+<hr>
+<h3 id="after-class-exercise">After Class Exercise</h3>
+<p><img src="pictures/6-2.png" alt=""></p>
+</article><!-- 笔记工具条--><div class="note-tools"><button class="tool-btn" id="toggle-dark"><i class="fas fa-moon"></i><span>Dark Mode</span></button><button class="tool-btn" id="print-note"><i class="fas fa-print"></i><span>Print This Note</span></button></div></main><!-- 页脚--><footer class="footer"><div class="footer-content"><p>© 2025 WeiKnight. All Rights Reserved. </p><div class="footer-links"><a href="/notes/about" target="_blank">About</a><a href="/notes/terms" target="_blank">Terms of Use</a><a href="/notes/privacy" target="_blank">Privacy Policy</a></div></div></footer><script src="/js/note.js"></script><script>document.querySelectorAll('figure.highlight').forEach((figure) => {
+  const langClass = Array.from(figure.classList).find(cls => cls !== 'highlight');
+  if (!langClass) return;
+
+  const langLabel = document.createElement('div');
+  langLabel.textContent = langClass;
+  langLabel.style.position = 'absolute';
+  langLabel.style.top = '0';
+  langLabel.style.right = '0';
+  langLabel.style.padding = '0.2em 0.5em';
+  langLabel.style.fontFamily = 'MapleMono-NF-CN';
+  langLabel.style.fontSize = '0.8em';
+  langLabel.style.borderRadius = '0 4px 0 4px';
+  langLabel.style.zIndex = '1';
+
+  // 设置初始样式（根据当前主题）
+  updateLabelTheme(langLabel);
+
+  figure.style.position = 'relative';
+  figure.prepend(langLabel);
+});
+
+// 更新标签主题的函数
+function updateLabelTheme(label) {
+  const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+  label.style.background = isDarkMode ? '#444' : '#eee';
+  label.style.color = isDarkMode ? '#ddd' : '#333';
+  //- console.log("更改了");
+}
+
+// 监听主题变化（仅更新标签）
+new MutationObserver(() => {
+  document.querySelectorAll('figure.highlight div').forEach(label => {
+    updateLabelTheme(label);
+    //- console.log("更改了2");
+  });
+}).observe(document.body, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});</script></body></html>

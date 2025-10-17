@@ -1,0 +1,230 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 2: Operating-System Structures | WeiKnight's Personnal Blogs</title><link rel="icon" href="https://avatars.githubusercontent.com/WeiKnight0"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><link rel="stylesheet" href="/css/note.css"><meta name="generator" content="Hexo 7.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head><body><!-- 导航栏--><header class="navbar"><div class="navbar-container"><div class="navbar-brand"><a class="avatar-link" target="_blank" rel="noopener" href="https://github.com/WeiKnight0"><img class="avatar" src="https://avatars.githubusercontent.com/WeiKnight0" alt="WeiKnight"></a><div class="navbar-info"><a class="name" target="_blank" rel="noopener" href="https://github.com/WeiKnight0">WeiKnight</a><div class="subject">Study Notes</div></div></div><div class="navbar-actions"><a class="nav-link" href="../" title="Return to Operating System"><i class="fas fa-arrow-left"></i><span>Return to Operating System</span></a><a class="nav-link" href="/"><i class="fas fa-home"></i><span>Return to Home Page</span></a></div></div></header><!-- 标题区域--><section class="title-section"><div class="title-container"><h1 class="chapter-title">Chapter 2: Operating-System Structures</h1><div class="chapter-meta"><span class="chapter-date"><i class="far fa-calendar-alt"></i>2025-07-24</span><span class="chapter-lang"><p>Language: English</p></span></div></div></section><!-- 内容区域--><main class="content-section"><article class="chapter-content"><hr>
+<h2 id="1-warm-up-os-evolution-操作系统发展史">1. Warm-up: OS Evolution 操作系统发展史</h2>
+<h3 id="generations-of-os-历代操作系统">Generations of OS 历代操作系统</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Generation</strong> 代次</th>
+<th><strong>Technology</strong> 技术</th>
+<th><strong>Key Features</strong> 关键特性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1st (1945-1955)</strong></td>
+<td>Vacuum Tubes 电子管</td>
+<td>- Libraries of functions (函数库) <br>- Human-operated batch systems (人工批处理系统)</td>
+</tr>
+<tr>
+<td><strong>2nd (1955-1965)</strong></td>
+<td>Transistors 晶体管</td>
+<td>- Dual-mode protection (双模式保护) <br>- System calls introduced (引入系统调用)</td>
+</tr>
+<tr>
+<td><strong>3rd (1965-1980)</strong></td>
+<td>Integrated Circuits 集成电路</td>
+<td>- Multiprogramming (多道程序设计) <br>- Long-term scheduling (长期调度)</td>
+</tr>
+<tr>
+<td><strong>4th (1980-now)</strong></td>
+<td>LSI/VLSI 大规模集成电路</td>
+<td>- Timesharing (分时系统) <br>- GUI, personal computing (图形界面与个人计算)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key Transition</strong>: From hardware-centric to user-centric design.<br>
+<strong>关键转变</strong>：从以硬件为中心到以用户为中心的设计。</p>
+<hr>
+<h2 id="2-operating-system-services-操作系统服务">2. Operating System Services 操作系统服务</h2>
+<h3 id="user-centric-services-面向用户的服务">User-Centric Services 面向用户的服务</h3>
+<p><img src="pictures/2-3.png" alt=""></p>
+<h3 id="system-centric-services-面向系统的服务">System-Centric Services 面向系统的服务</h3>
+<p><img src="pictures/2-4.png" alt=""></p>
+<hr>
+<h2 id="3-user-operating-system-interface-用户接口">3. User Operating System Interface 用户接口</h2>
+<h3 id="types-of-interfaces-接口类型">Types of Interfaces 接口类型</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Type</strong> 类型</th>
+<th><strong>Description</strong> 描述</th>
+<th><strong>Examples</strong> 示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CLI</strong> 命令行</td>
+<td>Text-based commands (基于文本的命令)</td>
+<td>Linux shell, Windows CMD</td>
+</tr>
+<tr>
+<td><strong>GUI</strong> 图形界面</td>
+<td>Visual icons/windows (可视化图标与窗口)</td>
+<td>Windows Explorer, macOS Finder</td>
+</tr>
+<tr>
+<td><strong>Touchscreen</strong> 触屏</td>
+<td>Gesture-based input (基于手势的输入)</td>
+<td>iOS, Android</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CLI vs. GUI</strong>:</p>
+<ul>
+<li>CLI offers finer control (e.g., scripting).</li>
+<li>GUI prioritizes usability (e.g., drag-and-drop).<br>
+<strong>CLI vs. GUI</strong>：CLI提供更精细控制（如脚本），GUI侧重易用性（如拖拽操作）。</li>
+</ul>
+<hr>
+<h2 id="4-system-calls-系统调用">4. System Calls 系统调用</h2>
+<h3 id="implementation-实现机制">Implementation 实现机制</h3>
+<ul>
+<li><strong>APIs</strong> (e.g., POSIX, Win32) abstract system calls for portability.
+<ul>
+<li><strong>API</strong>（如POSIX、Win32）抽象系统调用以提高可移植性。</li>
+</ul>
+</li>
+<li><strong>Parameter Passing</strong> 参数传递方法：
+<ol>
+<li><strong>Registers</strong> 寄存器传递 (Fast but limited).</li>
+<li><strong>Memory Block</strong> 内存块传递 (Linux/Solaris).</li>
+<li><strong>Stack</strong> 栈传递 (Flexible for complex calls).</li>
+</ol>
+</li>
+</ul>
+<h3 id="execution-flow-执行流程">Execution Flow 执行流程</h3>
+<ol>
+<li><strong>Trap</strong> to kernel mode (陷入内核态).</li>
+<li><strong>Handler</strong> executes via trap table (通过中断向量表执行处理程序).</li>
+<li><strong>Return</strong> to user mode with results (返回用户态并带回结果).</li>
+</ol>
+<p><strong>Example</strong>: <code>open()</code> system call for file access.<br>
+<strong>示例</strong>：文件访问的<code>open()</code>系统调用。</p>
+<p><img src="./pictures/2-1.png" alt="2-1" title="2-1"></p>
+<p><img src="./pictures/2-2.png" alt="2-2" title="2-2"></p>
+<hr>
+<h2 id="5-types-of-system-calls-系统调用类型">5. Types of System Calls 系统调用类型</h2>
+<table>
+<thead>
+<tr>
+<th><strong>Category</strong> 类别</th>
+<th><strong>Functions</strong> 功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Process Control</strong> 进程控制</td>
+<td><code>fork()</code>, <code>exit()</code>, <code>wait()</code> (创建/终止进程，进程同步).</td>
+</tr>
+<tr>
+<td><strong>File Management</strong> 文件管理</td>
+<td><code>open()</code>, <code>read()</code>, <code>write()</code> (文件操作).</td>
+</tr>
+<tr>
+<td><strong>Device Management</strong> 设备管理</td>
+<td><code>ioctl()</code>, <code>read()</code> (设备控制与数据读写).</td>
+</tr>
+<tr>
+<td><strong>Communication</strong> 通信</td>
+<td><code>pipe()</code>, <code>shmget()</code> (进程间通信).</td>
+</tr>
+<tr>
+<td><strong>Information maintenance</strong> 信息维护</td>
+<td>get/set time or date...</td>
+</tr>
+<tr>
+<td><strong>Protection</strong> 保护</td>
+<td>control access to resources<br>get and set permissions<br>allow and deny user access...</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="6-os-structure-操作系统结构">6. OS Structure 操作系统结构</h2>
+<h3 id="design-approaches-设计方法">Design Approaches 设计方法</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Model</strong> 模型</th>
+<th><strong>Pros</strong> 优点</th>
+<th><strong>Cons</strong> 缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Monolithic</strong> 单体结构</td>
+<td>High performance (e.g., Linux) 高性能</td>
+<td>Difficult to debug/modify 难以调试/修改</td>
+</tr>
+<tr>
+<td><strong>Microkernel</strong> 微内核</td>
+<td>Secure/portable (e.g., Mach) 安全/可移植</td>
+<td>Slower due to message passing 消息传递慢</td>
+</tr>
+<tr>
+<td><strong>Hybrid</strong> 混合结构</td>
+<td>Balances performance/flexibility (e.g., Windows NT) 平衡性能与灵活性</td>
+<td>Complex design 设计复杂</td>
+</tr>
+</tbody>
+</table>
+<p><img src="pictures/2-6.png" alt=""></p>
+<hr>
+<h2 id="7-key-concepts-核心概念">7. Key Concepts 核心概念</h2>
+<h3 id="policy-vs-mechanism-策略与机制">Policy vs. Mechanism 策略与机制</h3>
+<ul>
+<li><strong>Mechanism</strong> (How): E.g., timer interrupt implementation.
+<ul>
+<li><strong>机制</strong>（如何做）：如定时器中断的实现。</li>
+</ul>
+</li>
+<li><strong>Policy</strong> (What): E.g., CPU scheduling algorithm (FIFO vs. Round-Robin).
+<ul>
+<li><strong>策略</strong>（做什么）：如CPU调度算法（FIFO vs. 轮询）.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Separation Benefit</strong>: Policies can change without modifying mechanisms.<br>
+<strong>分离优势</strong>：策略变更无需修改机制代码。</p>
+<hr>
+<h2 id="8-after-class-exercise-课后练习">8. After Class Exercise 课后练习</h2>
+<p><img src="pictures/2-5.png" alt=""></p>
+</article><!-- 笔记工具条--><div class="note-tools"><button class="tool-btn" id="toggle-dark"><i class="fas fa-moon"></i><span>Dark Mode</span></button><button class="tool-btn" id="print-note"><i class="fas fa-print"></i><span>Print This Note</span></button></div></main><!-- 页脚--><footer class="footer"><div class="footer-content"><p>© 2025 WeiKnight. All Rights Reserved. </p><div class="footer-links"><a href="/notes/about" target="_blank">About</a><a href="/notes/terms" target="_blank">Terms of Use</a><a href="/notes/privacy" target="_blank">Privacy Policy</a></div></div></footer><script src="/js/note.js"></script><script>document.querySelectorAll('figure.highlight').forEach((figure) => {
+  const langClass = Array.from(figure.classList).find(cls => cls !== 'highlight');
+  if (!langClass) return;
+
+  const langLabel = document.createElement('div');
+  langLabel.textContent = langClass;
+  langLabel.style.position = 'absolute';
+  langLabel.style.top = '0';
+  langLabel.style.right = '0';
+  langLabel.style.padding = '0.2em 0.5em';
+  langLabel.style.fontFamily = 'MapleMono-NF-CN';
+  langLabel.style.fontSize = '0.8em';
+  langLabel.style.borderRadius = '0 4px 0 4px';
+  langLabel.style.zIndex = '1';
+
+  // 设置初始样式（根据当前主题）
+  updateLabelTheme(langLabel);
+
+  figure.style.position = 'relative';
+  figure.prepend(langLabel);
+});
+
+// 更新标签主题的函数
+function updateLabelTheme(label) {
+  const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+  label.style.background = isDarkMode ? '#444' : '#eee';
+  label.style.color = isDarkMode ? '#ddd' : '#333';
+  //- console.log("更改了");
+}
+
+// 监听主题变化（仅更新标签）
+new MutationObserver(() => {
+  document.querySelectorAll('figure.highlight div').forEach(label => {
+    updateLabelTheme(label);
+    //- console.log("更改了2");
+  });
+}).observe(document.body, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});</script></body></html>

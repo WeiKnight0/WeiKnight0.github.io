@@ -1,0 +1,118 @@
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Times New Roman', Times, '宋体', SimSun, serif;
+}
+
+.academic-container {
+    max-width: 900px;
+    margin: 48px auto 0 auto;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.13);
+    padding: 2.5rem 2rem 2rem 2rem;
+}
+
+.academic-title {
+    text-align: center;
+    font-size: 2.4rem;
+    font-weight: bold;
+    margin-bottom: 1.2rem;
+    letter-spacing: 1px;
+}
+
+.academic-desc {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 2.2rem;
+}
+
+.academic-toc {
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+
+.academic-toc-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.2rem;
+    padding: 0;
+    margin: 1.2rem 0 0 0;
+    list-style: none;
+}
+
+.academic-toc-list li {
+    margin: 0;
+    padding: 0;
+}
+
+.academic-toc-list a {
+    display: block;
+    padding: 0.7em 1.5em;
+    background: #f3f0fa;
+    color: #6a3fb3;
+    border-radius: 22px;
+    font-size: 1.08rem;
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(138, 43, 226, 0.07);
+    transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+    border: 1px solid #e3d8f7;
+}
+
+.academic-toc-list a:hover,
+.academic-toc-list a:focus {
+    background: #8a2be2;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(138, 43, 226, 0.13);
+    outline: none;
+}
+
+.back-to-top {
+    position: fixed;
+    right: 32px;
+    bottom: 32px;
+    z-index: 99;
+    display: none;
+    background: #ff9800;
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    min-width: 120px;
+    height: 48px;
+    font-size: 1.18rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 12px rgba(255, 152, 0, 0.18);
+    transition: background 0.2s, box-shadow 0.2s;
+    padding: 0 22px;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+}
+
+.back-to-top:hover {
+    background: #e65100;
+    box-shadow: 0 4px 18px rgba(255, 152, 0, 0.28);
+}
+
+.academic-section {
+    margin-bottom: 2.5rem;
+}
+
+.academic-section h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: #4a3791;
+    border-left: 4px solid #8a2be2;
+    padding-left: 0.7rem;
+}
+
+.academic-section p {
+    font-size: 1.05rem;
+    color: #222;
+    text-indent: 2em;
+}

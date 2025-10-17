@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>福瑞/兽人OC介绍 - WeiKnight</title>
+    <link rel="stylesheet" href="./styles/index.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header fade-in">
+            <h1>🐾 WeiKnight的OC介绍页 🐾</h1>
+        </div>
+
+        <div class="sections-container">
+            <!-- 世界观规律部分 -->
+            <section class="section world-rules fade-in" id="rules" style="animation-delay: 0.2s; position:relative;">
+                <a href="./rule-of-worldview/" class="section-cover-link" aria-label="跳转到世界观规律"></a>
+                <h2>🌌 世界观规律</h2>
+
+                <div class="section-content">
+                    <ul>
+                        <li>实用函数与能力</li>
+                        <li>世界理论与无神理论</li>
+                        <li>元素理论</li>
+                        <li>二次元变换</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 世界观设定部分 -->
+            <section class="section world-setting fade-in" id="setting"
+                style="animation-delay: 0.4s; position:relative;">
+                <a href="#setting" class="section-cover-link" aria-label="跳转到世界观设定"></a>
+                <h2>🏰 世界观设定</h2>
+                <div class="section-content">
+                    <ul>
+                        <li>基础世界设定</li>
+                        <li>社会与文化</li>
+                        <li>OC的前置经历</li>
+                        <li>时间流动</li>
+                        <li>OC的身份与关联性</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- OC介绍部分 -->
+            <section class="section oc-profile fade-in" id="oc" style="animation-delay: 0.6s; position:relative;">
+                <a href="#oc" class="section-cover-link" aria-label="跳转到OC介绍"></a>
+                <h2>🌟 WeiKnight的OC</h2>
+                <div class="section-content">
+                    <div class="character-card">
+                        <img class="character-avatar" src="./avatar-placeholder.png" alt="角色头像">
+                        <div class="character-basic">
+                            <h3 style="margin:0;">🐺 角色名称</h3>
+                            <div><strong>种族：</strong>填写种族</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 下载公式书PDF按钮 -->
+        <div style="text-align:center;">
+            <a class="download-btn" href="./formula-book.pdf" download>下载公式书PDF</a>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 WeiKnight - 版权所有。任何人不得随意转载或使用本网站内容，亦不允许盗取WeiKnight的OC、稿件等。</p>
+        </div>
+
+    </div>
+
+    <script>
+        // 简单的滚动动画效果
+        document.addEventListener('DOMContentLoaded', function () {
+            const sections = document.querySelectorAll('.section');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            sections.forEach(section => {
+                section.style.opacity = 0;
+                section.style.transform = 'translateY(20px)';
+                section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 1: Introduction | WeiKnight's Personnal Blogs</title><link rel="icon" href="https://avatars.githubusercontent.com/WeiKnight0"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><link rel="stylesheet" href="/css/note.css"><meta name="generator" content="Hexo 7.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head><body><!-- 导航栏--><header class="navbar"><div class="navbar-container"><div class="navbar-brand"><a class="avatar-link" target="_blank" rel="noopener" href="https://github.com/WeiKnight0"><img class="avatar" src="https://avatars.githubusercontent.com/WeiKnight0" alt="WeiKnight"></a><div class="navbar-info"><a class="name" target="_blank" rel="noopener" href="https://github.com/WeiKnight0">WeiKnight</a><div class="subject">Study Notes</div></div></div><div class="navbar-actions"><a class="nav-link" href="../" title="Return to Operating System"><i class="fas fa-arrow-left"></i><span>Return to Operating System</span></a><a class="nav-link" href="/"><i class="fas fa-home"></i><span>Return to Home Page</span></a></div></div></header><!-- 标题区域--><section class="title-section"><div class="title-container"><h1 class="chapter-title">Chapter 1: Introduction</h1><div class="chapter-meta"><span class="chapter-date"><i class="far fa-calendar-alt"></i>2025-07-24</span><span class="chapter-lang"><p>Language: English</p></span></div></div></section><!-- 内容区域--><main class="content-section"><article class="chapter-content"><hr>
+<h2 id="1-warm-up-discussion-热身讨论">1. Warm-up Discussion 热身讨论</h2>
+<h3 id="key-questions-核心问题">Key Questions 核心问题</h3>
+<ul>
+<li>
+<p><strong>What OS are you familiar with?</strong></p>
+<ul>
+<li>Examples: Windows (GUI-focused), Linux (open-source), macOS (Unix-based), Android (mobile), iOS (Apple ecosystem).</li>
+</ul>
+</li>
+<li>
+<p><strong>你熟悉哪些操作系统？</strong></p>
+<ul>
+<li>例如：Windows（图形界面）、Linux（开源）、macOS（基于Unix）、Android（移动端）、iOS（苹果生态）。</li>
+</ul>
+</li>
+<li>
+<p><strong>What is the &quot;best&quot; OS?</strong></p>
+<ul>
+<li>Subjective; depends on use case:
+<ul>
+<li><strong>Servers</strong>: Linux (stability, security).</li>
+<li><strong>Developers</strong>: macOS/Unix-like (toolchain compatibility).</li>
+<li><strong>Gaming</strong>: Windows (broad hardware support).</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>最佳操作系统？</strong></p>
+<ul>
+<li>主观选择，取决于场景：服务器（Linux稳定）、开发（macOS工具链兼容）、游戏（Windows硬件支持广）。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="2-what-operating-systems-do-操作系统的功能">2. What Operating Systems Do 操作系统的功能</h2>
+<h3 id="definition">Definition</h3>
+<ul>
+<li>A program that acts as an intermediary between a user of a computer and the computer hardware.</li>
+<li><strong>OS</strong>: A software layer between hardware and applications, managing resources and providing services.</li>
+<li><strong>操作系统</strong>：硬件与应用之间的软件层，管理资源并提供服务。</li>
+<li>Resource Allocator, Control Program</li>
+</ul>
+<h3 id="goals-目标">Goals 目标</h3>
+<ol>
+<li><strong>Execute user programs</strong> efficiently and conveniently.
+<ul>
+<li>高效、便捷地执行用户程序。</li>
+</ul>
+</li>
+<li><strong>Abstract hardware complexity</strong> (e.g., file systems hide disk details).
+<ul>
+<li>抽象硬件复杂性（如文件系统隐藏磁盘细节）。</li>
+</ul>
+</li>
+<li><strong>Optimize resource utilization</strong> (CPU, memory, I/O).
+<ul>
+<li>优化资源利用率（CPU、内存、I/O）。</li>
+</ul>
+</li>
+</ol>
+<h3 id="computer-system-structure-计算机系统结构">Computer System Structure 计算机系统结构</h3>
+<table>
+<thead>
+<tr>
+<th>Layer 层次</th>
+<th>Examples 示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hardware</strong></td>
+<td>CPU, RAM, Disk, GPU.</td>
+</tr>
+<tr>
+<td><strong>OS</strong></td>
+<td>Windows Kernel, Linux Scheduler.</td>
+</tr>
+<tr>
+<td><strong>Applications</strong></td>
+<td>Chrome, Word, Games.</td>
+</tr>
+<tr>
+<td><strong>Users</strong></td>
+<td>Humans, other computers (via network).</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>OS is a <strong>resource allocator</strong>
+<ul>
+<li>Manages all resources.</li>
+<li>Decides between conflicting requests for efficient and fair resource use.</li>
+</ul>
+</li>
+<li>OS is a <strong>control program</strong>.
+<ul>
+<li>Controls execution of programs to prevent errors and improper use of the computer.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-computer-system-organization-计算机系统组织">3. Computer-System Organization 计算机系统组织</h2>
+<h3 id="boot-process-启动流程">Boot Process 启动流程</h3>
+<ol>
+<li><strong>Bootstrap Program</strong> (firmware) loads the OS kernel.
+<ul>
+<li><strong>引导程序</strong>（固件）加载内核。</li>
+</ul>
+</li>
+<li><strong>Kernel initializes</strong> hardware (CPU, memory, devices).
+<ul>
+<li><strong>内核初始化</strong>硬件（CPU、内存、设备）。</li>
+</ul>
+</li>
+</ol>
+<h3 id="von-neumann-architecture-冯-诺依曼架构">Von Neumann Architecture 冯·诺依曼架构</h3>
+<ul>
+<li><strong>Components</strong>:
+<ul>
+<li>CPU (fetches/executes instructions).</li>
+<li>Memory (stores data/instructions).</li>
+<li>I/O devices (communication).</li>
+</ul>
+</li>
+<li><strong>组件</strong>：
+<ul>
+<li>CPU（取指/执行）、内存（存储数据/指令）、I/O设备（通信）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="interrupts-中断">Interrupts 中断</h3>
+<ul>
+<li><strong>Hardware Interrupt</strong>: Triggered by devices (e.g., keyboard input).
+<ul>
+<li><strong>硬件中断</strong>：设备触发（如键盘输入）。</li>
+</ul>
+</li>
+<li><strong>Software Interrupt (Trap)</strong>: Caused by errors or system calls (e.g., division by zero).
+<ul>
+<li><strong>软件中断（陷阱）</strong>：错误或系统调用触发（如除零错误）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="storage-hierarchy-存储层次">Storage Hierarchy 存储层次</h3>
+<table>
+<thead>
+<tr>
+<th>Level 层级</th>
+<th>Speed 速度</th>
+<th>Volatility 易失性</th>
+<th>Example 示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Registers</strong></td>
+<td>Fastest</td>
+<td>Volatile</td>
+<td>CPU registers.</td>
+</tr>
+<tr>
+<td><strong>Cache</strong></td>
+<td>Very fast</td>
+<td>Volatile</td>
+<td>L1/L2 cache.</td>
+</tr>
+<tr>
+<td><strong>Main Memory</strong></td>
+<td>Fast</td>
+<td>Volatile</td>
+<td>RAM.</td>
+</tr>
+<tr>
+<td><strong>SSD/HDD</strong></td>
+<td>Slow</td>
+<td>Non-volatile</td>
+<td>Disk storage.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="4-computer-system-architecture-计算机系统架构">4. Computer-System Architecture 计算机系统架构</h2>
+<h3 id="multiprocessor-systems-多处理器系统">Multiprocessor Systems 多处理器系统</h3>
+<ul>
+<li><strong>Symmetric (SMP)</strong>: All CPUs perform tasks (e.g., modern PCs).
+<ul>
+<li><strong>对称多处理</strong>：所有CPU执行任务（如现代PC）。</li>
+</ul>
+</li>
+<li><strong>Asymmetric (AMP)</strong>: CPUs have dedicated roles (e.g., GPU for graphics).
+<ul>
+<li><strong>非对称多处理</strong>：CPU分工明确（如GPU处理图形）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="clustered-systems-集群系统">Clustered Systems 集群系统</h3>
+<ul>
+<li><strong>High Availability</strong>: Failover support (e.g., cloud servers).
+<ul>
+<li><strong>高可用性</strong>：故障转移（如云服务器）。</li>
+</ul>
+</li>
+<li><strong>High Performance Computing (HPC)</strong>: Parallel processing (e.g., weather modeling).
+<ul>
+<li><strong>高性能计算</strong>：并行处理（如气象建模）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>In Class Exercise</strong><br>
+<img src="pictures/1-1.png" alt=""><br>
+<strong>Answer</strong><br>
+<img src="pictures/1-2.png" alt=""></p>
+<p><img src="pictures/1-3.png" alt=""></p>
+<hr>
+<h2 id="5-operating-system-structure-操作系统结构">5. Operating-System Structure 操作系统结构</h2>
+<h3 id="historical-evolution-历史演进">Historical Evolution 历史演进</h3>
+<ol>
+<li><strong>Batch Systems (1950s)</strong>: No interaction (e.g., punch cards).
+<ul>
+<li><strong>批处理系统</strong>：无交互（如打孔卡）。</li>
+</ul>
+</li>
+<li><strong>Multiprogramming (1960s)</strong>: Multiple jobs in memory to maximize CPU usage.
+<ul>
+<li><strong>多道程序</strong>：内存中驻留多个作业以提高CPU利用率。</li>
+</ul>
+</li>
+<li><strong>Timesharing (1970s)</strong>: Interactive computing (e.g., UNIX).
+<ul>
+<li><strong>分时系统</strong>：交互式计算（如UNIX）。</li>
+</ul>
+</li>
+</ol>
+<h3 id="key-concepts-核心概念">Key Concepts 核心概念</h3>
+<ul>
+<li><strong>Virtualization</strong>: Illusion of dedicated resources (e.g., virtual memory).
+<ul>
+<li><strong>虚拟化</strong>：模拟独占资源（如虚拟内存）。</li>
+</ul>
+</li>
+<li><strong>Concurrency</strong>: Managing multiple tasks (race conditions, deadlocks).
+<ul>
+<li><strong>并发</strong>：多任务管理（竞态条件、死锁）。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="6-operating-system-operations-操作系统操作">6. Operating-System Operations 操作系统操作</h2>
+<h3 id="dual-mode-operation-双模式运行">Dual-Mode Operation 双模式运行</h3>
+<ul>
+<li><strong>User Mode</strong>: Restricted access (e.g., apps cannot directly access hardware).
+<ul>
+<li><strong>用户态</strong>：受限访问（如应用无法直接操作硬件）。</li>
+</ul>
+</li>
+<li><strong>Kernel Mode</strong>: Full privileges (e.g., OS manages devices).
+<ul>
+<li><strong>内核态</strong>：全权限（如OS管理设备）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="timer-定时器">Timer 定时器</h3>
+<ul>
+<li>Prevents a process from monopolizing the CPU.
+<ul>
+<li><strong>防止进程独占CPU</strong>。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="7-kernel-data-structures-内核数据结构">7. Kernel Data Structures 内核数据结构</h2>
+<h3 id="essential-structures-基础结构">Essential Structures 基础结构</h3>
+<ul>
+<li><strong>Linked Lists</strong>: Process scheduling queues.
+<ul>
+<li><strong>链表</strong>：进程调度队列。</li>
+</ul>
+</li>
+<li><strong>Hash Maps</strong>: Fast file system lookups.
+<ul>
+<li><strong>哈希表</strong>：快速文件系统查询。</li>
+</ul>
+</li>
+<li><strong>Bitmaps</strong>: Track free/used memory blocks.
+<ul>
+<li><strong>位图</strong>：跟踪内存块使用状态。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="8-after-class-exercise-课后练习">8. After Class Exercise 课后练习</h2>
+<p><img src="pictures/1-4.png" alt=""></p>
+<ul>
+<li><strong>Interrupts vs. Traps</strong>:
+<ul>
+<li>Interrupts are hardware-generated; traps are software-generated (e.g., system calls).</li>
+<li><strong>中断 vs. 陷阱</strong>：中断由硬件触发，陷阱由软件触发（如系统调用）。</li>
+</ul>
+</li>
+<li><strong>Intentional Traps</strong>: Yes, for system services (e.g., requesting file access).
+<ul>
+<li><strong>故意触发陷阱</strong>：可以，用于请求系统服务（如文件访问）。</li>
+</ul>
+</li>
+</ul>
+</article><!-- 笔记工具条--><div class="note-tools"><button class="tool-btn" id="toggle-dark"><i class="fas fa-moon"></i><span>Dark Mode</span></button><button class="tool-btn" id="print-note"><i class="fas fa-print"></i><span>Print This Note</span></button></div></main><!-- 页脚--><footer class="footer"><div class="footer-content"><p>© 2025 WeiKnight. All Rights Reserved. </p><div class="footer-links"><a href="/notes/about" target="_blank">About</a><a href="/notes/terms" target="_blank">Terms of Use</a><a href="/notes/privacy" target="_blank">Privacy Policy</a></div></div></footer><script src="/js/note.js"></script><script>document.querySelectorAll('figure.highlight').forEach((figure) => {
+  const langClass = Array.from(figure.classList).find(cls => cls !== 'highlight');
+  if (!langClass) return;
+
+  const langLabel = document.createElement('div');
+  langLabel.textContent = langClass;
+  langLabel.style.position = 'absolute';
+  langLabel.style.top = '0';
+  langLabel.style.right = '0';
+  langLabel.style.padding = '0.2em 0.5em';
+  langLabel.style.fontFamily = 'MapleMono-NF-CN';
+  langLabel.style.fontSize = '0.8em';
+  langLabel.style.borderRadius = '0 4px 0 4px';
+  langLabel.style.zIndex = '1';
+
+  // 设置初始样式（根据当前主题）
+  updateLabelTheme(langLabel);
+
+  figure.style.position = 'relative';
+  figure.prepend(langLabel);
+});
+
+// 更新标签主题的函数
+function updateLabelTheme(label) {
+  const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+  label.style.background = isDarkMode ? '#444' : '#eee';
+  label.style.color = isDarkMode ? '#ddd' : '#333';
+  //- console.log("更改了");
+}
+
+// 监听主题变化（仅更新标签）
+new MutationObserver(() => {
+  document.querySelectorAll('figure.highlight div').forEach(label => {
+    updateLabelTheme(label);
+    //- console.log("更改了2");
+  });
+}).observe(document.body, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});</script></body></html>
