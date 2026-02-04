@@ -1,0 +1,403 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 11: File-System Interface | WeiKnight's Personnal Blogs</title><link rel="icon" href="https://avatars.githubusercontent.com/WeiKnight0"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><link rel="stylesheet" href="/css/note.css"><meta name="generator" content="Hexo 7.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head><body><!-- 导航栏--><header class="navbar"><div class="navbar-container"><div class="navbar-brand"><a class="avatar-link" target="_blank" rel="noopener" href="https://github.com/WeiKnight0"><img class="avatar" src="https://avatars.githubusercontent.com/WeiKnight0" alt="WeiKnight"></a><div class="navbar-info"><a class="name" target="_blank" rel="noopener" href="https://github.com/WeiKnight0">WeiKnight</a><div class="subject">Study Notes</div></div></div><div class="navbar-actions"><a class="nav-link" href="../" title="Return to Operating System"><i class="fas fa-arrow-left"></i><span>Return to Operating System</span></a><a class="nav-link" href="/"><i class="fas fa-home"></i><span>Return to Home Page</span></a></div></div></header><!-- 标题区域--><section class="title-section"><div class="title-container"><h1 class="chapter-title">Chapter 11: File-System Interface</h1><div class="chapter-meta"><span class="chapter-date"><i class="far fa-calendar-alt"></i>2025-07-24</span><span class="chapter-lang"><p>Language: English</p></span></div></div></section><!-- 内容区域--><main class="content-section"><article class="chapter-content"><hr>
+<h2 id="2-files-and-directories-文件与目录"><strong>2. Files and Directories / 文件与目录</strong></h2>
+<h3 id="key-abstractions-关键抽象"><strong>Key Abstractions / 关键抽象</strong></h3>
+<ul>
+<li><strong>File / 文件</strong>
+<ul>
+<li>A linear array of bytes with a low-level name (inode number).</li>
+<li>线性字节数组，具有低级名称（inode号）</li>
+</ul>
+</li>
+<li><strong>Directory / 目录</strong>
+<ul>
+<li>Contains entries mapping user-readable names to low-level names (files or other directories).</li>
+<li>包含将用户可读名称映射到低级名称（文件或其他目录）的条目</li>
+</ul>
+</li>
+</ul>
+<h3 id="directory-hierarchy-目录层次结构"><strong>Directory Hierarchy / 目录层次结构</strong></h3>
+<ul>
+<li><strong>Absolute Pathname / 绝对路径名</strong>
+<ul>
+<li>e.g., <code>/home/users/foo.txt</code></li>
+<li>例如：<code>/home/users/foo.txt</code></li>
+</ul>
+</li>
+<li><strong>File Naming Convention / 文件命名约定</strong>
+<ul>
+<li>By placing directories within other directories, users are able to build an arbitrary directory tree (or directory hierarchy), under which all files and directories are stored.</li>
+<li>The directory hierarchy starts at a root directory 根目录 , and uses some kind of separator to name subsequent sub-directories 子目录 until the desired file or directory is named.</li>
+<li><code>x.y</code>: <code>x</code> is an arbitrary name, <code>y</code> indicates file type (e.g., <code>.c</code> for C code).</li>
+<li><code>x.y</code>：<code>x</code>为任意名称，<code>y</code>表示文件类型（如<code>.c</code>表示C代码）</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-file-interface-文件接口"><strong>3. File Interface / 文件接口</strong></h2>
+<h3 id="creating-files-创建文件"><strong>Creating Files / 创建文件</strong></h3>
+<p>The <code>open()</code> system call</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> fd = open(<span class="string">&quot;foo&quot;</span>, O_CREAT | O_WRONLY | O_TRUNC);</span><br><span class="line">```  </span><br><span class="line">- **Flags / 标志**  </span><br><span class="line">  - `O_CREAT`: Create the file.  </span><br><span class="line">  - `O_WRONLY`: Write-only mode.  </span><br><span class="line">  - `O_TRUNC`: Truncate existing content.  </span><br><span class="line">  - `O_CREAT`：创建文件；`O_WRONLY`：只写模式；`O_TRUNC`：清空文件  </span><br><span class="line">- A file descriptor is what `open()` returns. 文件描述符</span><br><span class="line">  -  Is just an integer, private per process, and is used in UNIX systems to access files, i.e., to call `read()` and `write()`.</span><br><span class="line">### **Reading Files / 读取文件**  </span><br><span class="line">The `read()` system call</span><br><span class="line">```c</span><br><span class="line"><span class="title function_">read</span><span class="params">(<span class="number">3</span>, <span class="string">&quot;hello\n&quot;</span>, <span class="number">4096</span>)</span>;  <span class="comment">// Reads 6 bytes from file descriptor 3</span></span><br><span class="line">```  </span><br><span class="line">- **`read()` 的第一个参数是File <span class="title function_">Descriptor</span> <span class="params">(fd)</span> / 文件描述符**  </span><br><span class="line">  - An integer per <span class="title function_">process</span> <span class="params">( `<span class="number">0</span>` <span class="keyword">for</span> <span class="built_in">stdin</span>, `<span class="number">1</span>` <span class="keyword">for</span> <span class="built_in">stdout</span>)</span>.  </span><br><span class="line">  - 每个进程的整数标识符（`0`为标准输入，`1`为标准输出）</span><br><span class="line">### **Writing Files / 写入文件** </span><br><span class="line">The `<span class="title function_">write</span><span class="params">()</span>` system call</span><br><span class="line">```c</span><br><span class="line"><span class="title function_">write</span><span class="params">(<span class="number">1</span>, <span class="string">&quot;hello\n&quot;</span>, <span class="number">6</span>)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>The file descriptor 1 is the standard output, and thus is used to write the word &quot;hello&quot; to the screen as the program cat is meant to do.</li>
+<li>Writing a file has similar steps
+<ul>
+<li>First, a file is opened for writing;</li>
+<li>Then the write() system call is called;</li>
+<li>Perhaps repeatedly for larger files;</li>
+<li>And then close()</li>
+</ul>
+</li>
+<li>How to read or write to a specific offset within a file
+<ul>
+<li><code>offset_t lseek(fd, offset, SEEK_SET)</code>: Moves the file offset explicitly.</li>
+<li>The first argument is a file descriptor.</li>
+</ul>
+</li>
+<li>The second argument is offset, which positions the file offset to a particular location within the file.</li>
+<li>The third argument, called whence for historical reasons, determines exactly how the seek is performed.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>Whence 参数</strong></th>
+<th><strong>功能描述 / Description</strong></th>
+<th><strong>计算公式 / Formula</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SEEK_SET</code></td>
+<td>从文件开头偏移 / Offset from file beginning</td>
+<td><code>offset = 指定字节数 / specified bytes</code></td>
+</tr>
+<tr>
+<td><code>SEEK_CUR</code></td>
+<td>从当前位置偏移 / Offset from current position</td>
+<td><code>offset = 当前位置 + 指定字节数 / current position + specified bytes</code></td>
+</tr>
+<tr>
+<td><code>SEEK_END</code></td>
+<td>从文件末尾偏移 / Offset from file end</td>
+<td><code>offset = 文件大小 + 指定字节数 / file size + specified bytes</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="writing-immediately">Writing Immediately</h3>
+<p>The file system, for performance reasons, will buffer such writes in memory for some time, then the write(s) will actually be issued to the storage device. How to write immediately?<br>
+The <code>fsync()</code> system call<br>
+When a process calls <code>fsync(int fd)</code>, the file system responds by forcing all dirty (i.e., not yet written) data to disk, for the file referred to by the specified file descriptor.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> fd = open(<span class="string">&quot;foo&quot;</span>, O_CREAT | O_WRONLY | O_TRUNC);</span><br><span class="line">assert(fd &gt; <span class="number">-1</span>);</span><br><span class="line"><span class="type">int</span> rc = write(fd, buffer, size);</span><br><span class="line">assert(rc == size);</span><br><span class="line">rc = fsync(fd);</span><br><span class="line">assert(rc == <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="rename-files">Rename Files</h3>
+<p>The <code>rename()</code> system call</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rename(<span class="type">char</span>* old, <span class="type">char</span>* new);</span><br></pre></td></tr></table></figure>
+<p>rename the file from <code>old</code> to <code>new</code>.<br>
+Atomic update to file state:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> fd = open(<span class="string">&quot;foo.txt.tmp&quot;</span>, O_WRONLY | O_CREAT | O_TRUNC);</span><br><span class="line">write(fd, buffer, size);</span><br><span class="line">fsync(fd);</span><br><span class="line">close(fd);</span><br><span class="line">rename(<span class="string">&quot;foo.txt.tmp&quot;</span>, <span class="string">&quot;foo.txt&quot;</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="removing-files">Removing Files</h3>
+<p>The <code>unlink()</code> system call</p>
+<h2 id="code-4"><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">unlink</span><span class="params">(<span class="type">const</span> <span class="type">char</span>* )</span>;</span><br></pre></td></tr></table></figure></h2>
+<h2 id="4-directory-interface-目录接口"><strong>4. Directory Interface / 目录接口</strong></h2>
+<h3 id="creating-directories-创建目录"><strong>Creating Directories / 创建目录</strong></h3>
+<pre><code class="language-c">mkdir(&quot;foo&quot;, 0777);  // Creates directory &quot;foo&quot; with full permissions
+</code></pre>
+<ul>
+<li><strong>New Directory Contents / 新目录内容</strong>
+<ul>
+<li>Always contains <code>.</code> (current directory) and <code>..</code> (parent directory).</li>
+<li>始终包含<code>.</code>（当前目录）和<code>..</code>（父目录）</li>
+</ul>
+</li>
+</ul>
+<h3 id="reading-directories-读取目录"><strong>Reading Directories / 读取目录</strong></h3>
+<pre><code class="language-c">struct dirent *d;
+while ((d = readdir(dp)) != NULL) &#123;
+    printf(&quot;%s\n&quot;, d-&gt;d_name);  // Prints each entry name
+&#125;
+</code></pre>
+<h3 id="deleting-directories-删除目录"><strong>Deleting Directories / 删除目录</strong></h3>
+<p>The <code>rmdir()</code> system call</p>
+<ul>
+<li><strong>Requirement / 要求</strong>
+<ul>
+<li>Directory must be empty (only <code>.</code> and <code>..</code>).</li>
+<li>目录必须为空（仅含<code>.</code>和<code>..</code>）</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="5-links-链接"><strong>5. Links / 链接</strong></h2>
+<h3 id="hard-links-硬链接"><strong>Hard Links / 硬链接</strong></h3>
+<pre><code class="language-bash">ln file file2  # Creates a hard link
+</code></pre>
+<ul>
+<li><strong>Characteristics / 特性</strong>
+<ul>
+<li>Shares the same inode number as the original file.</li>
+<li><em>与原始文件共享相同的inode号</em></li>
+</ul>
+</li>
+</ul>
+<h3 id="symbolic-links-符号链接"><strong>Symbolic Links / 符号链接</strong></h3>
+<pre><code class="language-bash">ln -s file file2  # Creates a symbolic link
+</code></pre>
+<ul>
+<li><strong>Characteristics / 特性</strong>
+<ul>
+<li>A separate file pointing to the original path (can dangle if original is deleted).</li>
+<li><em>独立文件指向原始路径（若原始文件删除则链接失效）</em></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="6-file-system-interface-文件系统接口"><strong>6. File System Interface / 文件系统接口</strong></h2>
+<h3 id="making-and-mounting-file-systems-创建与挂载文件系统"><strong>Making and Mounting File Systems / 创建与挂载文件系统</strong></h3>
+<h4 id="mkfs-make-file-system-创建文件系统"><strong>mkfs (Make File System) / 创建文件系统</strong></h4>
+<pre><code class="language-bash">mkfs -t ext4 /dev/sda1  # 在/dev/sda1分区上创建ext4文件系统
+</code></pre>
+<ul>
+<li><strong>Function / 功能</strong>
+<ul>
+<li>Writes an empty file system (with root directory) to a disk partition.</li>
+<li><em>在磁盘分区上写入空文件系统（包含根目录）</em></li>
+</ul>
+</li>
+</ul>
+<h4 id="mount-挂载"><strong>mount / 挂载</strong></h4>
+<pre><code class="language-bash">mount -t ext3 /dev/sda1 /home/users  # 将/dev/sda1挂载到/home/users
+</code></pre>
+<ul>
+<li><strong>Key Points / 关键点</strong>
+<ul>
+<li>Attaches a file system to an existing directory (mount point).</li>
+<li><em>将文件系统附加到现有目录（挂载点）</em></li>
+<li>Original contents of mount point become inaccessible until unmounted.</li>
+<li><em>挂载后原目录内容将不可访问，直到卸载</em></li>
+</ul>
+</li>
+</ul>
+<h3 id="file-system-protection-文件系统保护"><strong>File System Protection / 文件系统保护</strong></h3>
+<h4 id="permission-bits-权限位"><strong>Permission Bits / 权限位</strong></h4>
+<pre><code class="language-bash">-rw-r--r-- 1 user group 0 Jan 1 10:00 file.txt
+</code></pre>
+<ul>
+<li><strong>Structure / 结构</strong></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>Type</strong></th>
+<th><strong>Owner</strong></th>
+<th><strong>Group</strong></th>
+<th><strong>Others</strong></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-</code> (file)</td>
+<td><code>rw-</code></td>
+<td><code>r--</code></td>
+<td><code>r--</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Changing Permissions / 修改权限</strong><pre><code class="language-bash">chmod 755 script.sh  # 设置权限为rwxr-xr-x
+</code></pre>
+<ul>
+<li><code>7 (111)</code> = rwx (Owner)</li>
+<li><code>5 (101)</code> = r-x (Group/Others)</li>
+</ul>
+</li>
+</ul>
+<h4 id="access-control-lists-acls-访问控制列表"><strong>Access Control Lists (ACLs) / 访问控制列表</strong></h4>
+<ul>
+<li><strong>Extended Permissions / 扩展权限</strong><pre><code class="language-bash">setfacl -m u:guest:rw file.txt  # 授予guest用户读写权限
+getfacl file.txt               # 查看ACL权限
+</code></pre>
+</li>
+</ul>
+<hr>
+<h2 id="7-atomic-file-operations-原子文件操作"><strong>7. Atomic File Operations / 原子文件操作</strong></h2>
+<h3 id="renaming-files-文件重命名"><strong>Renaming Files / 文件重命名</strong></h3>
+<pre><code class="language-c">rename(&quot;old.txt&quot;, &quot;new.txt&quot;);  # 原子性地将old.txt重命名为new.txt
+</code></pre>
+<ul>
+<li><strong>Crash Safety / 崩溃安全性</strong>
+<ul>
+<li>Ensures the file is either fully renamed or not at all.</li>
+<li><em>确保文件要么完全重命名，要么完全不重命名</em></li>
+</ul>
+</li>
+</ul>
+<h3 id="atomic-updates-原子更新"><strong>Atomic Updates / 原子更新</strong></h3>
+<pre><code class="language-c">// 1. Write to temporary file
+int fd = open(&quot;file.txt.tmp&quot;, O_WRONLY|O_CREAT|O_TRUNC);
+write(fd, data, size);
+fsync(fd);
+close(fd);
+
+// 2. Atomically replace original
+rename(&quot;file.txt.tmp&quot;, &quot;file.txt&quot;);
+</code></pre>
+<ul>
+<li><strong>Why? / 作用</strong>
+<ul>
+<li>Prevents partial writes/corruption during crashes.</li>
+<li><em>防止崩溃时出现部分写入或文件损坏</em></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="8-advanced-topics-高级主题"><strong>8. Advanced Topics / 高级主题</strong></h2>
+<h3 id="journaling-write-ahead-logging-日志-预写日志"><strong>Journaling (Write-Ahead Logging) / 日志（预写日志）</strong></h3>
+<ul>
+<li><strong>Purpose / 目的</strong>
+<ul>
+<li>Records pending changes in a log before writing to disk.</li>
+<li><em>在写入磁盘前，将待修改操作记录到日志中</em></li>
+</ul>
+</li>
+<li><strong>Recovery / 恢复</strong>
+<ul>
+<li>After a crash, the file system replays the log to restore consistency.</li>
+<li><em>崩溃后，文件系统重放日志以恢复一致性</em></li>
+</ul>
+</li>
+</ul>
+<h3 id="copy-on-write-cow-file-systems-写时复制文件系统"><strong>Copy-on-Write (COW) File Systems / 写时复制文件系统</strong></h3>
+<ul>
+<li><strong>Mechanism / 机制</strong>
+<ul>
+<li>Modifications are written to new blocks; original data remains until committed.</li>
+<li><em>修改写入新块，原始数据保留直到提交</em></li>
+</ul>
+</li>
+<li><strong>Examples / 例子</strong>
+<ul>
+<li>ZFS, Btrfs.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="summary-总结"><strong>Summary / 总结</strong></h2>
+<h3 id="key-system-calls-关键系统调用"><strong>Key System Calls / 关键系统调用</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>System Call</strong></th>
+<th><strong>Description</strong></th>
+<th><strong>中文描述</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>open()</code></td>
+<td>Open/create a file</td>
+<td>打开/创建文件</td>
+</tr>
+<tr>
+<td><code>read()</code>/<code>write()</code></td>
+<td>Read/write file data</td>
+<td>读写文件数据</td>
+</tr>
+<tr>
+<td><code>lseek()</code></td>
+<td>Change file offset</td>
+<td>改变文件偏移量</td>
+</tr>
+<tr>
+<td><code>fsync()</code></td>
+<td>Force write to disk</td>
+<td>强制写入磁盘</td>
+</tr>
+<tr>
+<td><code>mkdir()</code>/<code>rmdir()</code></td>
+<td>Create/delete directories</td>
+<td>创建/删除目录</td>
+</tr>
+<tr>
+<td><code>link()</code>/<code>unlink()</code></td>
+<td>Create/remove hard links</td>
+<td>创建/移除硬链接</td>
+</tr>
+<tr>
+<td><code>rename()</code></td>
+<td>Atomically rename file</td>
+<td>原子性重命名文件</td>
+</tr>
+</tbody>
+</table>
+<h3 id="file-system-features-文件系统特性"><strong>File System Features / 文件系统特性</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Feature</strong></th>
+<th><strong>Purpose</strong></th>
+<th><strong>中文说明</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hard Links</strong></td>
+<td>Multiple names for same file</td>
+<td>同一文件的多个名称</td>
+</tr>
+<tr>
+<td><strong>Symbolic Links</strong></td>
+<td>Shortcuts to files/dirs</td>
+<td>文件/目录的快捷方式</td>
+</tr>
+<tr>
+<td><strong>Permissions</strong></td>
+<td>Control file access</td>
+<td>控制文件访问权限</td>
+</tr>
+<tr>
+<td><strong>Journaling</strong></td>
+<td>Crash recovery</td>
+<td>崩溃恢复机制</td>
+</tr>
+</tbody>
+</table>
+</article><!-- 笔记工具条--><div class="note-tools"><button class="tool-btn" id="toggle-dark"><i class="fas fa-moon"></i><span>Dark Mode</span></button><button class="tool-btn" id="print-note"><i class="fas fa-print"></i><span>Print This Note</span></button></div></main><!-- 页脚--><footer class="footer"><div class="footer-content"><p>© 2025 WeiKnight. All Rights Reserved. </p><div class="footer-links"><a href="/notes/about" target="_blank">About</a><a href="/notes/terms" target="_blank">Terms of Use</a><a href="/notes/privacy" target="_blank">Privacy Policy</a></div></div></footer><script src="/js/note.js"></script><script>document.querySelectorAll('figure.highlight').forEach((figure) => {
+  const langClass = Array.from(figure.classList).find(cls => cls !== 'highlight');
+  if (!langClass) return;
+
+  const langLabel = document.createElement('div');
+  langLabel.textContent = langClass;
+  langLabel.style.position = 'absolute';
+  langLabel.style.top = '0';
+  langLabel.style.right = '0';
+  langLabel.style.padding = '0.2em 0.5em';
+  langLabel.style.fontFamily = 'MapleMono-NF-CN';
+  langLabel.style.fontSize = '0.8em';
+  langLabel.style.borderRadius = '0 4px 0 4px';
+  langLabel.style.zIndex = '1';
+
+  // 设置初始样式（根据当前主题）
+  updateLabelTheme(langLabel);
+
+  figure.style.position = 'relative';
+  figure.prepend(langLabel);
+});
+
+// 更新标签主题的函数
+function updateLabelTheme(label) {
+  const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+  label.style.background = isDarkMode ? '#444' : '#eee';
+  label.style.color = isDarkMode ? '#ddd' : '#333';
+  //- console.log("更改了");
+}
+
+// 监听主题变化（仅更新标签）
+new MutationObserver(() => {
+  document.querySelectorAll('figure.highlight div').forEach(label => {
+    updateLabelTheme(label);
+    //- console.log("更改了2");
+  });
+}).observe(document.body, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});</script></body></html>

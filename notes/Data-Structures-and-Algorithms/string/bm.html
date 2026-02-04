@@ -1,0 +1,239 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Boyer-Moore (BM) 字符串匹配算法 | WeiKnight's Personnal Blogs</title><link rel="icon" href="https://avatars.githubusercontent.com/WeiKnight0"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><link rel="stylesheet" href="/css/note.css"><meta name="generator" content="Hexo 7.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head><body><!-- 导航栏--><header class="navbar"><div class="navbar-container"><div class="navbar-brand"><a class="avatar-link" target="_blank" rel="noopener" href="https://github.com/WeiKnight0"><img class="avatar" src="https://avatars.githubusercontent.com/WeiKnight0" alt="WeiKnight"></a><div class="navbar-info"><a class="name" target="_blank" rel="noopener" href="https://github.com/WeiKnight0">WeiKnight</a><div class="subject">Study Notes</div></div></div><div class="navbar-actions"><a class="nav-link" href="../" title="Return to String"><i class="fas fa-arrow-left"></i><span>Return to String</span></a><a class="nav-link" href="/"><i class="fas fa-home"></i><span>Return to Home Page</span></a></div></div></header><!-- 标题区域--><section class="title-section"><div class="title-container"><h1 class="chapter-title">Boyer-Moore (BM) 字符串匹配算法</h1><div class="chapter-meta"><span class="chapter-date"><i class="far fa-calendar-alt"></i>2025-10-23</span><span class="chapter-lang"><p>Language: 简体中文</p></span></div></div></section><!-- 内容区域--><main class="content-section"><article class="chapter-content"><h1 id="1-为什么需要-bm-算法？">1. 为什么需要 BM 算法？</h1>
+<p>在文本编辑器中搜索一个词，或者使用 <code>grep</code> 命令时，速度之所以快，很大程度上归功于 BM 算法及其变种。</p>
+<p>传统的（朴素）字符串匹配是从左到右，一个字符一个字符地比。如果文本有一百万字，效率非常低。<br>
+<strong>BM 算法的核心优势在于“跳跃”</strong>：当发现不匹配时，它不是移动一位，而是利用规则一次性向后滑动多位。</p>
+<blockquote>
+<p><strong>核心结论</strong>：模式串（要找的词）越长，BM 算法通常越快。这是反直觉的，但在 BM 算法中是事实。</p>
+</blockquote>
+<hr>
+<h1 id="2-bm-算法的两个-反常识-设计">2. BM 算法的两个“反常识”设计</h1>
+<p>在深入规则之前，必须记住 BM 算法的两个独特行为：</p>
+<ol>
+<li><strong>从后往前比</strong>：<br>
+虽然模式串是相对于文本向右移动的，但在比较每一个字符时，BM 是<strong>从模式串的末尾</strong>开始倒着比的。</li>
+<li><strong>贪心跳跃</strong>：<br>
+算法同时参考两条规则（坏字符、好后缀），哪条规则能让模式串向右跳得更远，就听谁的。</li>
+</ol>
+<hr>
+<h1 id="3-核心规则一：坏字符规则-bad-character-rule">3. 核心规则一：坏字符规则 (Bad Character Rule)</h1>
+<p>这是最直观的规则。</p>
+<h3 id="场景">场景</h3>
+<p>当我们从后往前比较时，发现文本中的某个字符（叫它 <code>X</code>）和模式串对应位置的字符不匹配。这个 <code>X</code> 就是<strong>坏字符</strong>。</p>
+<h3 id="策略">策略</h3>
+<p>既然 <code>X</code> 导致了不匹配，我们就在模式串里找找：<strong>“我的模式串里有没有 <code>X</code> 这个字？”</strong></p>
+<ol>
+<li>
+<p><strong>情况 A：模式串里根本没有 <code>X</code></strong></p>
+<ul>
+<li><strong>结论</strong>：既然模式串里没这个字，那么只要模式串还覆盖着文本中的 <code>X</code>，就绝不可能匹配。</li>
+<li><strong>操作</strong>：直接把整个模式串搬到 <code>X</code> 的后面。</li>
+<li><strong>效果</strong>：直接跳过一大段，效率极高。</li>
+</ul>
+</li>
+<li>
+<p><strong>情况 B：模式串里有 <code>X</code></strong></p>
+<ul>
+<li><strong>结论</strong>：虽然现在对不上，但也许滑一滑，把模式串里的 <code>X</code> 和文本里的 <code>X</code> 对齐，就能匹配了。</li>
+<li><strong>操作</strong>：移动模式串，让模式串中最靠右的 <code>X</code> 与文本中的 <code>X</code> 对齐。</li>
+</ul>
+</li>
+</ol>
+<h3 id="图解示例">图解示例</h3>
+<p>假设文本是 <code>...C D E F...</code>，模式串是 <code>A B C D</code>。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">文本:  ... C  D  E  F ...</span><br><span class="line">模式:      A  B  C  D</span><br><span class="line">                    ^ (比较 D 和 F，不匹配！F 是坏字符)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>分析</strong>：模式串 <code>ABCD</code> 里没有 <code>F</code>。</li>
+<li><strong>操作</strong>：直接跳过 <code>F</code>。</li>
+</ul>
+<p>Plaintext</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">文本:  ... C  D  E  F ...</span><br><span class="line">模式:                 A  B  C  D</span><br></pre></td></tr></table></figure>
+<p><em>(一下子跳过了整个模式串的长度)</em></p>
+<hr>
+<h1 id="4-核心规则二：好后缀规则-good-suffix-rule">4. 核心规则二：好后缀规则 (Good Suffix Rule)</h1>
+<p>这是一条“以此类推”的规则，用于处理部分匹配的情况。</p>
+<h3 id="场景">场景</h3>
+<p>我们在从后往前比较时，末尾的几个字符已经匹配成功了（这部分叫<strong>好后缀</strong>），但在中间某个位置卡住了。</p>
+<h3 id="策略">策略</h3>
+<p>既然尾巴（好后缀）已经匹配了，我们能不能利用这个已知信息？</p>
+<ol>
+<li><strong>情况 A：模式串前面还有“好后缀”</strong>
+<ul>
+<li><strong>逻辑</strong>：模式串里有没有另一段和“好后缀”长得一样的子串？</li>
+<li><strong>操作</strong>：把模式串移动一下，让前面那个重复的子串，对准现在文本里匹配好的位置。</li>
+</ul>
+</li>
+<li><strong>情况 B：模式串前面没有完整的“好后缀”</strong>
+<ul>
+<li><strong>逻辑</strong>：虽然没有完全一样的重复段，但也许好后缀的<strong>一部分</strong>（后缀的后缀）出现在了模式串的<strong>开头</strong>（前缀）？</li>
+<li><strong>操作</strong>：移动模式串，让头部和尾部重合的部分对齐。</li>
+</ul>
+</li>
+<li><strong>情况 C：啥都没有</strong>
+<ul>
+<li><strong>操作</strong>：直接把整个模式串滑过去。</li>
+</ul>
+</li>
+</ol>
+<h3 id="图解示例">图解示例</h3>
+<h4 id="1-对应情况-a-模式串里有重复的好后缀">1. 对应情况 A（模式串里有重复的好后缀）</h4>
+<p>假设模式串为 <code>B A B ... B A B</code>，文本与之匹配了一部分 <code>B A B</code> 后发现不匹配。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">文本:  ... X  B  A  B ...</span><br><span class="line">模式:      B  A  B ... B  A  B</span><br><span class="line">           ^  ^  ^     ^  ^  ^</span><br><span class="line">           (重复部分)   (好后缀)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>分析</strong>：好后缀是 <code>BAB</code>。模式串的前半段也有一个 <code>BAB</code>。</li>
+<li><strong>操作</strong>：移动模式串，让前面的 <code>BAB</code> 对齐文本现在的 <code>BAB</code>。</li>
+</ul>
+<h4 id="2-对应情况-b-好后缀的后缀匹配模式串的前缀">2. 对应情况 B（好后缀的后缀匹配模式串的前缀）</h4>
+<p>假设模式串为 <code>A B ... C A B</code>，好后缀是 <code>CAB</code>。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">文本:  ... X  C  A  B ...</span><br><span class="line">模式:      A  B ... C  A  B</span><br><span class="line">           ^  ^     ^  ^  ^</span><br><span class="line">           (前缀)    (好后缀 CAB)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>分析</strong>：好后缀 <code>CAB</code> 在模式串里没有完整重复。但好后缀的后缀 <code>AB</code> 与模式串的前缀 <code>AB</code> 吻合。</li>
+<li><strong>操作</strong>：移动模式串，让开头的前缀 <code>AB</code> 对齐文本末尾的 <code>AB</code>。</li>
+</ul>
+<h4 id="3-对应情况-c-完全没关系">3. 对应情况 C（完全没关系）</h4>
+<p>假设模式串为 <code>D E F</code>，好后缀 <code>F</code>。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">文本:  ... X  F ...</span><br><span class="line">模式:      D  E  F</span><br><span class="line">              ^</span><br><span class="line">             (好后缀)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>分析</strong>：好后缀 <code>F</code>，模式串前面既没有 <code>F</code>，前缀也跟 <code>F</code> 没关系。</li>
+<li><strong>操作</strong>：直接把整个模式串跳过 <code>F</code>。</li>
+</ul>
+<hr>
+<h1 id="5-完整工作流程演练">5. 完整工作流程演练</h1>
+<p>让我们用一个经典的例子，模拟计算机的视角。</p>
+<ul>
+<li><strong>文本 (Text)</strong>: <code>HERE IS A SIMPLE EXAMPLE</code></li>
+<li><strong>模式 (Pattern)</strong>: <code>EXAMPLE</code></li>
+</ul>
+<h3 id="第一轮比较">第一轮比较</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">位置: 0123456...</span><br><span class="line">文本: HERE IS A SIMPLE EXAMPLE</span><br><span class="line">模式: EXAMPLE</span><br><span class="line">      ^^^^^^^</span><br></pre></td></tr></table></figure>
+<ol>
+<li><strong>比较方向</strong>：从模式串末尾（'E'）对应文本的 'S'（索引 6）。</li>
+<li><strong>发现</strong>：<code>S</code> 和 <code>E</code> 不匹配。</li>
+<li><strong>坏字符</strong>：<code>S</code>。</li>
+<li><strong>决策</strong>：
+<ul>
+<li>模式串 <code>EXAMPLE</code> 里没有 <code>S</code>。</li>
+<li><strong>操作</strong>：直接将模式串移到 <code>S</code> 后面（向右滑动 7 位）。模式串起始位置从 0 变到 7。</li>
+</ul>
+</li>
+</ol>
+<h3 id="第二轮比较">第二轮比较</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">位置: ...6789...</span><br><span class="line">文本: ...S A SIMPLE EXAMPLE</span><br><span class="line">模式:     EXAMPLE</span><br><span class="line">          ^^^^^^</span><br></pre></td></tr></table></figure>
+<p><em>(注：模式串起始位置为 7，末尾字符 'E' 对齐文本的第 13 位 'P')</em></p>
+<ol>
+<li><strong>比较方向</strong>：从末尾开始。</li>
+<li><strong>发现</strong>：文本的 <code>P</code> (索引 13) 和模式串的 <code>E</code> 不匹配。</li>
+<li><strong>坏字符</strong>：<code>P</code>。</li>
+<li><strong>决策</strong>：
+<ul>
+<li>模式串里有 <code>P</code>（倒数第 3 位，索引 4）。</li>
+<li><strong>操作</strong>：将模式串向右滑动，让模式串里的 <code>P</code> 对齐文本的 <code>P</code>。</li>
+<li><em>移动量</em>：末尾索引 6 - P的索引 4 = 2 位。</li>
+<li>新起始位置：7 + 2 = 9。</li>
+</ul>
+</li>
+</ol>
+<h3 id="第三轮比较">第三轮比较</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">位置: ...9...</span><br><span class="line">文本: ... SIMPLE EXAMPLE</span><br><span class="line">模式:    EXAMPLE</span><br><span class="line">         ^^^^^^^</span><br></pre></td></tr></table></figure>
+<p><em>(注：模式串起始位置为 9，覆盖文本 <code> SIMPLE</code>)</em></p>
+<ol>
+<li><strong>比较方向</strong>：从后往前。
+<ul>
+<li>E (模) = E (文)</li>
+<li>L (模) = L (文)</li>
+<li>P (模) = P (文)</li>
+<li>M (模) = M (文)</li>
+<li><strong>A (模) ≠ I (文)</strong>  (索引 11)</li>
+</ul>
+</li>
+<li><strong>发现</strong>：坏字符 <code>I</code>，好后缀 <code>MPLE</code>。</li>
+<li><strong>决策</strong>：
+<ul>
+<li><strong>坏字符规则</strong>：<code>I</code> 不在模式串中。单纯用此规则可移动让模式串越过 <code>I</code>。</li>
+<li><strong>好后缀规则</strong>：好后缀是 <code>MPLE</code>。
+<ul>
+<li>模式串其他地方有 <code>MPLE</code> 吗？无。</li>
+<li>模式串有前缀匹配 <code>MPLE</code> 的后缀吗？有！前缀 <code>E</code> 匹配后缀 <code>E</code>。</li>
+</ul>
+</li>
+<li><strong>操作</strong>：移动模式串，让开头的前缀 <code>E</code> 对齐文本中刚刚匹配位置的 <code>E</code> (索引 15)。</li>
+<li><em>移动量</em>：6 位 (从位置 9 跳到 15)。</li>
+</ul>
+</li>
+</ol>
+<h3 id="第四轮比较">第四轮比较</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">位置: ...15...</span><br><span class="line">文本: ...LE EXAMPLE</span><br><span class="line">模式:     EXAMPLE</span><br><span class="line">          ^^^^^^^</span><br></pre></td></tr></table></figure>
+<p><em>(注：模式串起始位置 15，末尾对齐文本第 21 位 'P')</em></p>
+<ol>
+<li><strong>比较方向</strong>：从末尾开始。</li>
+<li><strong>发现</strong>：模式串 <code>E</code> ≠ 文本 <code>P</code>。</li>
+<li><strong>坏字符</strong>：<code>P</code>。</li>
+<li><strong>决策</strong>：
+<ul>
+<li>模式串里有 <code>P</code>。</li>
+<li><strong>操作</strong>：对齐 <code>P</code>。向右滑动 2 位。</li>
+<li>新起始位置：15 + 2 = 17。</li>
+</ul>
+</li>
+</ol>
+<h3 id="第五轮比较">第五轮比较</h3>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">位置: ...17...</span><br><span class="line">文本: ...LE EXAMPLE</span><br><span class="line">模式:       EXAMPLE</span><br><span class="line">            ^^^^^^^</span><br></pre></td></tr></table></figure>
+<ol>
+<li><strong>比较方向</strong>：从后往前。</li>
+<li><strong>结果</strong>：全部匹配！搜索成功。</li>
+</ol>
+<hr>
+<h1 id="6-性能总结">6. 性能总结</h1>
+<p>BM 算法之所以是工业界的宠儿，归结于以下几点：</p>
+<ul>
+<li><strong>最佳时间复杂度</strong>：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mi mathvariant="normal">/</mi><mi>M</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N/M)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mord">/</span><span class="mord mathdefault" style="margin-right:0.10903em;">M</span><span class="mclose">)</span></span></span></span>。
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span></span></span></span> 是文本长度，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi></mrow><annotation encoding="application/x-tex">M</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">M</span></span></span></span> 是模式串长度。</li>
+<li>意味着：<strong>模式串越长，跳得越远，速度越快</strong>。这是 KMP 算法做不到的。</li>
+</ul>
+</li>
+<li><strong>平均性能</strong>：在处理自然语言（英文、代码）时，BM 算法通常比 KMP 快 3-5 倍。</li>
+<li><strong>最差情况</strong>：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mi>N</mi><mo>×</mo><mi>M</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(N \times M)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">M</span><span class="mclose">)</span></span></span></span>。虽然理论存在，但在实际文本搜索中极少遇到。</li>
+</ul>
+<hr>
+<h1 id="7-c-代码实现">7. C++ 代码实现</h1>
+<p>以下是一个包含<strong>坏字符规则</strong>和<strong>好后缀规则</strong>完整实现的 BM 算法示例。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="comment">// --- 预处理坏字符规则 ---</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">getBadChar</span><span class="params">(<span class="type">const</span> string&amp; p, vector&lt;<span class="type">int</span>&gt;&amp; badChar)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> m = p.<span class="built_in">size</span>();</span><br><span class="line">    <span class="comment">// 初始化为 -1</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">256</span>; i++) &#123;</span><br><span class="line">        badChar[i] = <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 记录模式串中每个字符最后出现的位置</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">        badChar[(<span class="type">unsigned</span> <span class="type">char</span>)p[i]] = i;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// --- 预处理好后缀规则 ---</span></span><br><span class="line"><span class="comment">// suffix[i] 表示 pattern[0...i] 和 pattern 的最长公共后缀长度</span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">getSuffix</span><span class="params">(<span class="type">const</span> string&amp; p, vector&lt;<span class="type">int</span>&gt;&amp; suffix)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> m = p.<span class="built_in">size</span>();</span><br><span class="line">    suffix[m - <span class="number">1</span>] = m;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = m - <span class="number">2</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">        <span class="type">int</span> j = i;</span><br><span class="line">        <span class="keyword">while</span> (j &gt;= <span class="number">0</span> &amp;&amp; p[j] == p[m - <span class="number">1</span> - (i - j)]) &#123;</span><br><span class="line">            j--;</span><br><span class="line">        &#125;</span><br><span class="line">        suffix[i] = i - j;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">getGoodSuffix</span><span class="params">(<span class="type">const</span> string&amp; p, vector&lt;<span class="type">int</span>&gt;&amp; gs)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> m = p.<span class="built_in">size</span>();</span><br><span class="line">    <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">suffix</span><span class="params">(m)</span></span>;</span><br><span class="line">    <span class="built_in">getSuffix</span>(p, suffix);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化：如果没有匹配的好后缀，直接移动 m 位</span></span><br><span class="line">    <span class="comment">// 同时也涵盖了 Case 3 (什么都没匹配到) 和 Case 2 的默认情况</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">        gs[i] = m;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Case 2: 模式串头部有子串匹配好后缀的后缀</span></span><br><span class="line">    <span class="type">int</span> j = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = m - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">        <span class="keyword">if</span> (suffix[i] == i + <span class="number">1</span>) &#123; <span class="comment">// 找到了一个前缀等于后缀</span></span><br><span class="line">            <span class="comment">// 将剩余的部分 fill 进 gs</span></span><br><span class="line">            <span class="keyword">for</span> (; j &lt; m - <span class="number">1</span> - i; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (gs[j] == m) &#123;</span><br><span class="line">                    gs[j] = m - <span class="number">1</span> - i;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Case 1: 模式串中有子串与好后缀完全匹配</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt;= m - <span class="number">2</span>; i++) &#123;</span><br><span class="line">        gs[m - <span class="number">1</span> - suffix[i]] = m - <span class="number">1</span> - i;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// --- BM 搜索主函数 ---</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">boyerMoore</span><span class="params">(<span class="type">const</span> string&amp; text, <span class="type">const</span> string&amp; pattern)</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> n = text.<span class="built_in">size</span>();</span><br><span class="line">    <span class="type">int</span> m = pattern.<span class="built_in">size</span>();</span><br><span class="line">    <span class="keyword">if</span> (m == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">badChar</span><span class="params">(<span class="number">256</span>)</span></span>;</span><br><span class="line">    <span class="function">vector&lt;<span class="type">int</span>&gt; <span class="title">goodSuffix</span><span class="params">(m)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">getBadChar</span>(pattern, badChar);</span><br><span class="line">    <span class="built_in">getGoodSuffix</span>(pattern, goodSuffix);</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> s = <span class="number">0</span>; <span class="comment">// s 是对齐位置（shift）</span></span><br><span class="line">    <span class="keyword">while</span> (s &lt;= n - m) &#123;</span><br><span class="line">        <span class="type">int</span> j = m - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 从后往前比对</span></span><br><span class="line">        <span class="keyword">while</span> (j &gt;= <span class="number">0</span> &amp;&amp; pattern[j] == text[s + j]) &#123;</span><br><span class="line">            j--;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (j &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 匹配成功，返回下标</span></span><br><span class="line">            <span class="keyword">return</span> s;</span><br><span class="line">            <span class="comment">// 如果需要找下一个匹配: s += goodSuffix[0];</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 坏字符规则跳跃距离</span></span><br><span class="line">            <span class="type">int</span> bcShift = j - badChar[(<span class="type">unsigned</span> <span class="type">char</span>)text[s + j]];</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 好后缀规则跳跃距离</span></span><br><span class="line">            <span class="type">int</span> gsShift = goodSuffix[j];</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 取较大者作为跳跃步数</span></span><br><span class="line">            s += <span class="built_in">max</span>(bcShift, gsShift);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    string text = <span class="string">&quot;HERE IS A SIMPLE EXAMPLE&quot;</span>;</span><br><span class="line">    string pattern = <span class="string">&quot;EXAMPLE&quot;</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="type">int</span> result = <span class="built_in">boyerMoore</span>(text, pattern);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (result != <span class="number">-1</span>)</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Pattern found at index &quot;</span> &lt;&lt; result &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Pattern not found&quot;</span> &lt;&lt; endl;</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></article><!-- 笔记工具条--><div class="note-tools"><button class="tool-btn" id="toggle-dark"><i class="fas fa-moon"></i><span>Dark Mode</span></button><button class="tool-btn" id="print-note"><i class="fas fa-print"></i><span>Print This Note</span></button></div></main><!-- 页脚--><footer class="footer"><div class="footer-content"><p>© 2025 WeiKnight. All Rights Reserved. </p><div class="footer-links"><a href="/notes/about" target="_blank">About</a><a href="/notes/terms" target="_blank">Terms of Use</a><a href="/notes/privacy" target="_blank">Privacy Policy</a></div></div></footer><script src="/js/note.js"></script><script>document.querySelectorAll('figure.highlight').forEach((figure) => {
+  const langClass = Array.from(figure.classList).find(cls => cls !== 'highlight');
+  if (!langClass) return;
+
+  const langLabel = document.createElement('div');
+  langLabel.textContent = langClass;
+  langLabel.style.position = 'absolute';
+  langLabel.style.top = '0';
+  langLabel.style.right = '0';
+  langLabel.style.padding = '0.2em 0.5em';
+  langLabel.style.fontFamily = 'MapleMono-NF-CN';
+  langLabel.style.fontSize = '0.8em';
+  langLabel.style.borderRadius = '0 4px 0 4px';
+  langLabel.style.zIndex = '1';
+
+  // 设置初始样式（根据当前主题）
+  updateLabelTheme(langLabel);
+
+  figure.style.position = 'relative';
+  figure.prepend(langLabel);
+});
+
+// 更新标签主题的函数
+function updateLabelTheme(label) {
+  const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+  label.style.background = isDarkMode ? '#444' : '#eee';
+  label.style.color = isDarkMode ? '#ddd' : '#333';
+  //- console.log("更改了");
+}
+
+// 监听主题变化（仅更新标签）
+new MutationObserver(() => {
+  document.querySelectorAll('figure.highlight div').forEach(label => {
+    updateLabelTheme(label);
+    //- console.log("更改了2");
+  });
+}).observe(document.body, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});</script></body></html>

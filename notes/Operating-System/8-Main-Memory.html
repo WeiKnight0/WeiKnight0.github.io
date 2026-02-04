@@ -1,0 +1,840 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 8: Main Memory | WeiKnight's Personnal Blogs</title><link rel="icon" href="https://avatars.githubusercontent.com/WeiKnight0"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><link rel="stylesheet" href="/css/note.css"><meta name="generator" content="Hexo 7.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head><body><!-- 导航栏--><header class="navbar"><div class="navbar-container"><div class="navbar-brand"><a class="avatar-link" target="_blank" rel="noopener" href="https://github.com/WeiKnight0"><img class="avatar" src="https://avatars.githubusercontent.com/WeiKnight0" alt="WeiKnight"></a><div class="navbar-info"><a class="name" target="_blank" rel="noopener" href="https://github.com/WeiKnight0">WeiKnight</a><div class="subject">Study Notes</div></div></div><div class="navbar-actions"><a class="nav-link" href="../" title="Return to Operating System"><i class="fas fa-arrow-left"></i><span>Return to Operating System</span></a><a class="nav-link" href="/"><i class="fas fa-home"></i><span>Return to Home Page</span></a></div></div></header><!-- 标题区域--><section class="title-section"><div class="title-container"><h1 class="chapter-title">Chapter 8: Main Memory</h1><div class="chapter-meta"><span class="chapter-date"><i class="far fa-calendar-alt"></i>2025-07-24</span><span class="chapter-lang"><p>Language: English</p></span></div></div></section><!-- 内容区域--><main class="content-section"><article class="chapter-content"><h2 id="目录-table-of-contents">目录 / Table of Contents</h2>
+<ol>
+<li>热身 / Warm-up</li>
+<li>背景知识 / Background</li>
+<li>地址转换 / Address Translation</li>
+<li>分段 / Segmentation</li>
+<li>空闲空间管理 / Free Space Management</li>
+<li>分页 / Paging</li>
+<li>转换后备缓冲器 / Translation Lookaside Buffer</li>
+<li>页表结构 / Structure of the Page Table</li>
+<li>交换 / Swapping</li>
+<li>示例架构 / Example Architectures</li>
+</ol>
+<hr>
+<h2 id="1-热身-warm-up">1. 热身 / Warm-up</h2>
+<h3 id="内存api-memory-api">内存API / Memory API</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">func</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">int</span> x;          <span class="comment">// 栈内存</span></span><br><span class="line">    <span class="type">int</span> *x = (<span class="type">int</span> *) <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="type">int</span>));  <span class="comment">// 堆内存</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>栈内存 (Stack memory)</strong>
+<ul>
+<li>分配和释放由编译器隐式管理，因此有时称为自动内存</li>
+<li>The allocations and deallocations are managed implicitly by the compiler. So it is sometimes called automatic memory.</li>
+</ul>
+</li>
+<li><strong>堆内存 (Heap memory)</strong>
+<ul>
+<li>所有分配和释放都由程序员显式处理，是许多错误的根源</li>
+<li>All allocations and deallocations are explicitly handled by the programmer. The cause of many bugs!</li>
+</ul>
+</li>
+</ul>
+<h3 id="输出示例-what-is-the-output">输出示例 / What is the Output?</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;common.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> *argv[])</span> &#123;</span><br><span class="line">    <span class="type">int</span> *p = <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="type">int</span>));</span><br><span class="line">    assert(p != <span class="literal">NULL</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;(%d) memory address of p: %08x\n&quot;</span>, getpid(), (<span class="type">unsigned</span>) p);</span><br><span class="line">    *p = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        Spin(<span class="number">1</span>);</span><br><span class="line">        *p = *p + <span class="number">1</span>;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;(%d) p: %d\n&quot;</span>, getpid(), *p);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>输出显示两个进程可以访问相同的虚拟地址(00200000)，但各自有独立的物理内存</li>
+<li>The output shows two processes can access the same virtual address (00200000) but have independent physical memory</li>
+</ul>
+<hr>
+<h2 id="2-背景知识-background">2. 背景知识 / Background</h2>
+<h3 id="主要概念-key-concepts">主要概念 / Key Concepts</h3>
+<ul>
+<li>程序必须从磁盘加载到内存才能运行
+<ul>
+<li>Program must be brought (from disk) into memory and placed within a process to be run</li>
+</ul>
+</li>
+<li>只有内存和寄存器能被CPU直接访问
+<ul>
+<li>Main memory and registers are only storage CPU can access directly</li>
+</ul>
+</li>
+<li>存储单元只能看到一连串的地址加读取请求，或者是地址加数据以及写入请求。
+<ul>
+<li>Memory unit only sees a stream of addresses + read requests, or address + data and write requests</li>
+</ul>
+</li>
+<li>在一个 CPU 时钟周期内（或更短时间内）访问寄存器。
+<ul>
+<li>Register access in one CPU clock (or less)</li>
+</ul>
+</li>
+<li>内存访问比寄存器慢很多，导致停顿
+<ul>
+<li>Main memory can take many cycles, causing a <font color="red">stall</font></li>
+</ul>
+</li>
+<li>Cache位于主存储器和中央处理器（CPU）寄存器之间。
+<ul>
+<li>Cache sits between main memory and CPU register</li>
+</ul>
+</li>
+</ul>
+<h3 id="地址绑定-address-binding">地址绑定 / Address Binding</h3>
+<p>地址在不同阶段有不同表示形式：</p>
+<ul>
+<li>源代码地址通常是符号化的(如<code>int count</code>)</li>
+<li>编译代码地址绑定到可重定位地址(如“距模块开头14字节”)</li>
+<li>链接器或加载器将可重定位地址绑定到绝对地址(如“74014”)</li>
+</ul>
+<h3 id="绑定时间-binding-time">绑定时间 / Binding Time</h3>
+<ol>
+<li><strong>编译时绑定 Compile Time</strong>：If memory location known a priori 先验知道, absolute code can be generated; must recompile code if starting location changes</li>
+<li><strong>加载时绑定 Loading Time</strong>：Must generate relocatable code 可重定位代码 if memory location is not known at compile time</li>
+<li><strong>执行时绑定 Execution Time</strong>：Binding delayed until run time if the process can be moved during its execution from one memory segment to another 进程可以从一个内存段移动到另一个
+<ul>
+<li>Need hardware support for address maps (e.g., base and limit registers)</li>
+<li>Most general-purpose operating systems use this method</li>
+</ul>
+</li>
+</ol>
+<h3 id="动态加载与链接-dynamic-loading-linking">动态加载与链接 / Dynamic Loading &amp; Linking</h3>
+<ul>
+<li><strong>动态加载 Dynamic loading</strong>：a routine is not loaded until it is called. All routines are kept<br>
+on disk in a relocatable load format. (*.exe, *.o)</li>
+<li><strong>静态链接 Static linking</strong>：系统库和程序代码在加载时组合</li>
+<li><strong>动态链接 Dynamic linking</strong>：延迟到执行时才链接，使用存根(stub)定位库例程</li>
+<li>Small piece of code, <strong>stub 存根</strong>, used to locate the appropriate memory-resident library
+<ul>
+<li>routine.s</li>
+</ul>
+</li>
+</ul>
+<h3 id="地址空间-address-space">地址空间 / Address Space</h3>
+<ul>
+<li><strong>逻辑地址 Logic Address</strong>：CPU生成的地址(虚拟地址)</li>
+<li><strong>物理地址 Physical Address</strong>：内存单元看到的地址</li>
+<li>Logical and physical addresses are identical in compile-time and load-time address-binding schemes; logical (virtual) and physical addresses differ in execution-time address-binding scheme<br>
+在编译时和加载时地址绑定方案中，逻辑地址和物理地址是相同的；而在运行时地址绑定方案中，逻辑（虚拟）地址和物理地址是不同的。</li>
+<li>Logical address space is the set of all logical addresses generated by a program</li>
+<li>Physical address space is the set of all physical addresses generated by a program</li>
+</ul>
+<hr>
+<h2 id="3-address-translation-地址转换"><strong>3. Address Translation / 地址转换</strong></h2>
+<h3 id="base-and-limit-registers-基址和界限寄存器"><strong>Base and Limit Registers / 基址和界限寄存器</strong></h3>
+<ul>
+<li><strong>Function / 功能</strong>:
+<ul>
+<li>A pair of base and limit / bound registers define the logical address space</li>
+<li>基址和界限寄存器用于透明地重定位进程并确保内存访问在合法范围内。</li>
+</ul>
+</li>
+<li><strong>Formula</strong>:</li>
+</ul>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>Physical Address</mtext><mo>=</mo><mtext>Virtual Address</mtext><mo>+</mo><mtext>Base</mtext></mrow><annotation encoding="application/x-tex"> \text{Physical Address} = \text{Virtual Address} + \text{Base}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord text"><span class="mord">Physical Address</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.77777em;vertical-align:-0.08333em;"></span><span class="mord text"><span class="mord">Virtual Address</span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord text"><span class="mord">Base</span></span></span></span></span></span></p>
+<h3 id="memory-management-unit-mmu-内存管理单元"><strong>Memory Management Unit (MMU) / 内存管理单元</strong></h3>
+<ul>
+<li>The base and limit registers are hardware structures kept on the chip (one pair per CPU).</li>
+<li>The part of the processor that helps with address translation is the memory management unit (MMU)</li>
+<li>MMU是负责地址转换的硬件组件，包含基址和界限寄存器。</li>
+</ul>
+<h3 id="hardware-os-support"><strong>Hardware &amp; OS Support</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>硬件需求 Hardware Requirements</strong></th>
+<th><strong>说明 Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>特权模式 <br>Privileged mode</td>
+<td>防止用户模式进程执行特权操作 <br>Needed to prevent user-mode processes from executing privileged operations</td>
+</tr>
+<tr>
+<td>基址/界限寄存器<br>Base/limit registers</td>
+<td>每个CPU需要一对寄存器支持地址转换和边界检查 <br>Need pair of registers per CPU to support address translation and bounds checks</td>
+</tr>
+<tr>
+<td>虚拟地址转换和边界检查能力 <br>Ability to translate virtual addresses and check bounds</td>
+<td>执行转换和检查边界的电路，此情况下较为简单 <br>Circuitry to do translations and checks; in this case, quite simple</td>
+</tr>
+<tr>
+<td>更新基址/界限的特权指令<br>Privileged instructions to update base/limit</td>
+<td>操作系统必须在运行用户程序前能设置这些值<br>OS must be able to set these values before letting user program run</td>
+</tr>
+<tr>
+<td>注册异常处理程序的特权指令 <br>Privileged instructions to register exception handlers</td>
+<td>操作系统必须能告诉硬件异常时运行什么代码 <br>OS must be able to tell hardware what code to run on exception</td>
+</tr>
+<tr>
+<td>异常触发能力 <br>Ability to raise exceptions</td>
+<td>当进程尝试访问特权指令或越界内存时触发 <br>When processes try to access privileged instructions or out-of-bounds memory</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><strong>操作系统需求 OS Requirements</strong></th>
+<th><strong>说明 Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>内存管理<br>Memory management</td>
+<td>需要为新进程分配内存；回收终止进程的内存；通常通过空闲列表管理内存 <br>Need to allocate memory for new processes; Reclaim memory from terminated processes; Generally manage memory via freelist</td>
+</tr>
+<tr>
+<td>基址/界限管理<br>Base/limit management</td>
+<td>必须在上下文切换时正确设置基址和界限值<br>Must set base / limit properly upon context switch</td>
+</tr>
+<tr>
+<td>异常处理 <br>Exception handling</td>
+<td>异常发生时运行的代码；通常操作是终止违规进程 <br>Code to run when exceptions arise; likely action is to terminate offending process</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Summary:</strong><br>
+<img src="pictures/8-1.png" alt=""></p>
+<hr>
+<h2 id="4-segmentation-分段"><strong>4. Segmentation / 分段</strong></h2>
+<h3 id="generalized-base-limit-广义基址-界限"><strong>Generalized Base/Limit / 广义基址-界限</strong></h3>
+<ul>
+<li>
+<p><strong>Segmentation Registers / 段寄存器</strong>:</p>
+<ul>
+<li>Have a base and bounds pair per logical segment of the address space, instead of having just one base and bounds pair in the MMU.</li>
+<li>每个逻辑段（代码、堆、栈）都有自己的基址和界限寄存器。</li>
+</ul>
+</li>
+<li>
+<p>Segmentation is a solution to internal fragmentation.</p>
+</li>
+<li>
+<p>One problem with segmentation is external fragmentation.</p>
+</li>
+<li>
+<p><strong>External Fragmentation</strong>: total memory space exists to satisfy a request, but it is not contiguous</p>
+</li>
+<li>
+<p><strong>Internal Fragmentation</strong>: allocated memory may be slightly larger than requested memory; this size difference is memory internal to a partition, but not being used</p>
+<ul>
+<li>内部碎片由MMU分块机制产生</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="5-free-space-management-空闲空间管理"><strong>5. Free Space Management / 空闲空间管理</strong></h2>
+<p><strong>Mechanisms: Splitting 分裂, coalescing 合并 .</strong></p>
+<ul>
+<li>Policies: Various strategies.
+<ul>
+<li>Best-fit (smallest fit)
+<ul>
+<li>从所有空闲块中选择<strong>最小的足够大的块</strong>。优点是减少浪费，但可能需要遍历所有空闲块，速度较慢。</li>
+</ul>
+</li>
+<li>Worst-fit
+<ul>
+<li>选择<strong>最大的空闲块</strong>进行分配，将剩余部分作为新的空闲块。优点是避免产生过多小碎片，但性能较差，实际使用较少。</li>
+</ul>
+</li>
+<li>First-fit
+<ul>
+<li>从内存的起始位置开始查找，选择<strong>第一个足够大的空闲块</strong>。优点是速度快，但可能导致内存前部分产生较多小碎片。</li>
+</ul>
+</li>
+<li>Next-fit
+<ul>
+<li>类似首次适应，但从上次分配结束的位置开始查找。优点是分布更均匀，但可能漏掉某些合适的块。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Efficiency / 效率</strong>:
+<ul>
+<li>Simulations have shown that both first-fit and best-fit are better than worst-fit in terms of decreasing time and storage utilization.</li>
+<li>First-fit is generally faster than best-fit.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="6-paging-分页"><strong>6. Paging / 分页</strong></h2>
+<h3 id="分页与分段比较">分页与分段比较</h3>
+<ul>
+<li>Segmentation
+<ul>
+<li>to chop up space into different-size chunks.</li>
+<li>The space itself can become fragmented, and thus allocation becomes more challenging over time.</li>
+</ul>
+</li>
+<li>Paging</li>
+<li>to chop up space into fixed-sized pieces, i.e., pages. 分成固定大小的页</li>
+<li>The physical memory can be viewed as an array of fixed-sized slots called page frames; each of these frames can contain a single virtual-memory page.</li>
+</ul>
+<h3 id="why-paging-为什么使用分页？"><strong>Why Paging? / 为什么使用分页？</strong></h3>
+<ul>
+<li><strong>Flexibility / 灵活性</strong>: Supports sparse address spaces efficiently.</li>
+<li><strong>Simplicity / 简单性</strong>: Easier free-space management than segmentation.</li>
+<li>分页比分段更灵活，支持稀疏地址空间，且空闲空间管理更简单。</li>
+</ul>
+<h3 id="paging-overview-分页概述"><strong>Paging Overview / 分页概述</strong></h3>
+<p>将物理内存分成固定大小的页框Page Frames。将逻辑内存分成固定大小的页Pages</p>
+<ul>
+<li><strong>Pages / 页</strong>: Fixed-size chunks of virtual memory (e.g., 4KB).</li>
+<li><strong>Page Frames / 页框、帧</strong>: Physical memory slots that hold pages.</li>
+<li>虚拟内存被划分为固定大小的页，物理内存划分为页框。</li>
+</ul>
+<h3 id="address-translation-地址转换"><strong>Address Translation / 地址转换</strong></h3>
+<ul>
+<li><strong>Page Table / 页表</strong>: Maps <strong>Virtual Page Numbers (VPNs)</strong> to <strong>Physical Frame Numbers (PFNs)</strong></li>
+<li><strong>Virtual Address Structure / 虚拟地址结构</strong>:
+<ul>
+<li><code>VPN | Offset</code> (e.g., 20-bit VPN + 12-bit offset for 4KB pages).</li>
+</ul>
+</li>
+<li>页表存储虚拟页号到物理帧号的映射，虚拟地址由VPN和偏移量组成。
+<ul>
+<li>虚拟地址=虚页号（VPN）|页内偏移量</li>
+<li>物理地址=实页号（PFN）|页内偏移量</li>
+</ul>
+</li>
+</ul>
+<h4 id="example-示例"><strong>Example / 示例</strong></h4>
+<ul>
+<li>Virtual Address: <code>21 (0b010101)</code> → <code>VPN=01 (1)</code>, <code>Offset=0101 (5)</code>.</li>
+<li>Page Table Entry: <code>VP1 → PF7</code>.</li>
+<li>Physical Address: <code>PFN=7 (0b111)</code>, <code>Offset=5</code> → <code>0b1110101 = 117</code>.</li>
+</ul>
+<h3 id="page-table-storage-页表存储"><strong>Page Table Storage / 页表存储</strong></h3>
+<ul>
+<li><strong>Not in MMU</strong>: Too large (e.g., 4MB for 32-bit address space with 4KB pages).</li>
+<li><strong>In Physical Memory</strong>:
+<ul>
+<li><strong>Page-Table Base Register (PTBR)</strong>: Points to the page table.</li>
+<li><strong>Page-Table Length Register (PTLR)</strong>: Indicates its size.</li>
+</ul>
+</li>
+<li>页表存储在<strong>物理内存</strong>中，由PTBR和PTLR寄存器定位。</li>
+</ul>
+<h3 id="page-table-entry-pte-页表项"><strong>Page Table Entry (PTE) / 页表项</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Bit</strong></th>
+<th><strong>Purpose</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PFN (20 bits) 实页号</strong></td>
+<td>Physical Frame Number.</td>
+</tr>
+<tr>
+<td><strong>Valid Bit 有效位</strong></td>
+<td>Whether the translation is valid.</td>
+</tr>
+<tr>
+<td><strong>Present Bit 存在位 (P)</strong></td>
+<td>Whether the page is in physical memory.</td>
+</tr>
+<tr>
+<td><strong>Dirty Bit 脏位 (D)</strong></td>
+<td>Whether the page has been modified.</td>
+</tr>
+<tr>
+<td><strong>Reference Bit 引用位 (A)</strong></td>
+<td>Whether the page has been accessed.</td>
+</tr>
+<tr>
+<td><strong>User/Supervisor Bit (U/S)</strong></td>
+<td>User-mode access permissions.</td>
+</tr>
+<tr>
+<td>A few bits (PWT, PCD, PAT, and G)</td>
+<td>determine how hardware caching works for the page.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="7-translation-lookaside-buffer-tlb-转换后援缓冲器"><strong>7. Translation Lookaside Buffer (TLB) / 转换后援缓冲器</strong></h2>
+<h3 id="why-tlb-为什么需要tlb？"><strong>Why TLB? / 为什么需要TLB？</strong></h3>
+<ul>
+<li>A translation lookaside buffer, or TLB is
+<ul>
+<li>part of the chip’s <strong>memory-management unit (MMU)</strong>;<strong>在MMU中！</strong></li>
+<li>simply a hardware cache of popular virtual-to-physical address translation;</li>
+<li>also called an address-translation cache.
+<ul>
+<li>TLB hit</li>
+<li>TLB miss</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Without TLB, each memory access requires <strong>two memory lookups</strong>:
+<ol>
+<li>Page table lookup (to get PFN).</li>
+<li>Actual data access.</li>
+</ol>
+</li>
+<li>TLB缓存常用地址转换，避免每次内存访问都查询页表。</li>
+</ul>
+<h3 id="tlb-basic-algorithm-tlb基本算法"><strong>TLB Basic Algorithm / TLB基本算法</strong></h3>
+<ol>
+<li>Extract VPN from virtual address.</li>
+<li>Check TLB for VPN → PFN mapping.
+<ul>
+<li><strong>Hit</strong>: Use cached PFN.</li>
+<li><strong>Miss</strong>: Load PTE from memory and update TLB.</li>
+</ul>
+</li>
+<li>Compute physical address: <code>(PFN &lt;&lt; SHIFT) | Offset</code>.</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">// 1. 从虚拟地址中提取虚拟页号(VPN)：通过与操作和移位操作获取</span><br><span class="line">VPN = (VirtualAddress &amp; VPN.MASK) &gt;&gt;&gt; SHIFT</span><br><span class="line"></span><br><span class="line">// 2. 在TLB(快表)中查找该VPN的转换条目</span><br><span class="line">(Success, TlbEntry) = TLB.Lookup(VPN)</span><br><span class="line"></span><br><span class="line">if (Success == True)    // TLB命中</span><br><span class="line">    // 检查访问权限</span><br><span class="line">    if (CanAccess(TlbEntry.ProtectBits) == True)</span><br><span class="line">        // 计算偏移量</span><br><span class="line">        Offset = VirtualAddress &amp; OFFSET.MASK</span><br><span class="line">        // 构造物理地址：将PFN左移后与偏移量组合</span><br><span class="line">        PhysAddr = (TlbEntry.PFN&lt;&lt;SHIFT) | Offset</span><br><span class="line">        // 访问物理内存</span><br><span class="line">        AccessMemory(PhysAddr)</span><br><span class="line">    else</span><br><span class="line">        // 权限检查失败，抛出保护错误异常</span><br><span class="line">        RaiseException(PROTECTION.FAULT)</span><br><span class="line">    // TLB未命中</span><br><span class="line">else</span><br><span class="line">	// or RaiseException(TLB_MISS)</span><br><span class="line">    // 计算页表项(PTE)地址：PTBR是页表基址寄存器</span><br><span class="line">    PTEAddr = PTBR + (VPN * sizeof(PTE))</span><br><span class="line">    // 从内存中获取PTE</span><br><span class="line">    PTE = AccessMemory(PTEAddr)</span><br><span class="line">    if (PTE.Valid == False)</span><br><span class="line">        // 页表项无效，抛出段错误异常（例如缺页）</span><br><span class="line">        RaiseException(SEGMENTATION.FAULT)</span><br><span class="line">    else if (CanAccess(PTE.ProtectBits) == False)</span><br><span class="line">	        // 页表项有效但无访问权限，抛出保护错误异常</span><br><span class="line">        RaiseException(PROTECTION.FAULT)</span><br><span class="line">    else</span><br><span class="line">        // 将转换关系插入TLB</span><br><span class="line">        TLB_Insert(VPN, PTE.PFN, PTE.ProtectBits)</span><br><span class="line">        // 重试当前指令</span><br><span class="line">        RetryInstruction()</span><br></pre></td></tr></table></figure>
+<h3 id="issues">Issues</h3>
+<ul>
+<li>
+<p>Return-from-trap</p>
+<ul>
+<li>Normally the next, but here execute the instruction that caused the trap</li>
+</ul>
+</li>
+<li>
+<p>TLB miss-handling 防止无限循环</p>
+<ul>
+<li>TLB 缺失的无限循环，也就是在处理一个 TLB 缺失的过程中，又不断触发新的 TLB 缺失，进而陷入死循环。这种情况一般在以下情形下会发生：
+<ul>
+<li><strong>页表本身不在 TLB 中</strong>：处理 TLB 缺失时，需要从页表中查找物理地址。要是页表项不在 TLB 中，就会引发新的 TLB 缺失。要是每次查找页表项都导致新的 TLB 缺失，就可能形成无限循环。</li>
+<li><strong>TLB 缺失处理程序不在物理内存中</strong>：TLB 缺失处理程序是用来处理 TLB 缺失的代码。如果这个程序本身的代码或者数据不在物理内存中，在执行处理程序时就可能再次触发 TLB 缺失。要是每次执行处理程序都触发新的 TLB 缺失，就会出现无限循环。</li>
+</ul>
+</li>
+<li>解决方案
+<ul>
+<li><strong>将 TLB 缺失处理程序保留在物理内存中</strong>：把 TLB 缺失处理程序放在物理内存里，能保证在处理 TLB 缺失时，处理程序的代码和数据都能直接访问，不会再因为处理程序本身引发新的 TLB 缺失，从而避免无限循环的出现。</li>
+<li><strong>在 TLB 中预留一些条目用于永久性有效的地址转换</strong>：可以在 TLB 里预留一些条目，这些条目存储的映射关系始终有效，例如页表本身的映射关系。这样在处理 TLB 缺失时，就能直接使用这些永久性有效的条目来查找页表项，减少新的 TLB 缺失发生的概率，进而避免无限循环。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>为什么由操作系统完成？</p>
+<ul>
+<li>方便、简单</li>
+</ul>
+</li>
+<li>
+<p>What are TLB contents?<br>
+VPN | PFN | other bits</p>
+<ul>
+<li>A <strong>valid bit</strong>, whether the entry has a valid translation or not.</li>
+<li><strong>Protection bits</strong>, how a page can be accessed.</li>
+<li>A <strong>address-space identifier</strong>,</li>
+<li>A <strong>dirty bit</strong>, whether or not modified.</li>
+<li>etc.</li>
+</ul>
+</li>
+</ul>
+<h3 id="tlb-上下文切换">TLB 上下文切换</h3>
+<ul>
+<li>TLB存储了虚拟地址到物理地址的转换条目，但这些条目仅对当前运行的进程有效</li>
+<li>关键问题：如何确保即将运行的进程不会意外使用之前进程留下的TLB转换条目？</li>
+<li>Flush the TLB on context switches, thus emptying it before running the next process. OR</li>
+<li>上下文切换时清空TLB(Flush TLB)，或者</li>
+<li>Use an address space identifier (ASID).</li>
+<li>使用<strong>地址空间标识符</strong>(<strong>ASID</strong>)
+<ul>
+<li>为每个进程分配唯一的ASID</li>
+<li>TLB条目同时通过VPN和ASID来标识</li>
+</ul>
+</li>
+</ul>
+<h3 id="tlb共享内存-替换策略">TLB共享内存/替换策略</h3>
+<p><img src="./pictures/8-2.png" alt=""></p>
+<h3 id="tlb-handling-tlb处理"><strong>TLB Handling / TLB处理</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Scenario</strong></th>
+<th><strong>Solution</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TLB Miss</strong></td>
+<td>Hardware or OS loads the missing entry.</td>
+</tr>
+<tr>
+<td><strong>Context Switch</strong></td>
+<td>Flush TLB or use <strong>Address Space ID (ASID)</strong>.</td>
+</tr>
+<tr>
+<td><strong>Shared Pages</strong></td>
+<td>Multiple PTEs can map to the same PFN.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="effective-access-time-eat-有效访问时间"><strong>Effective Access Time (EAT) / 有效访问时间</strong></h3>
+<p>从进程发出指定逻辑地址的访问请求到在内存中找到对应的实际物理地址单元并取出数据所需的总时间</p>
+<ol>
+<li><strong>TLB查找时间( <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϵ</mi></mrow><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">ϵ</span></span></span></span> )</strong>：
+<ul>
+<li>图片中表示为 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϵ</mi></mrow><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">ϵ</span></span></span></span> 时间单位，一般表示相比较于内存访问的时间</li>
+<li>典型值：20ns(在示例中)</li>
+</ul>
+</li>
+<li><strong>命中率( <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi></mrow><annotation encoding="application/x-tex">\alpha</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.0037em;">α</span></span></span></span> )</strong>：
+<ul>
+<li>表示TLB查找成功的概率</li>
+<li>示例中给出两个场景：
+<ul>
+<li>80%命中率(较保守)</li>
+<li>99%命中率(更现实的高性能系统)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="有效访问时间-eat-计算">有效访问时间(EAT)计算</h2>
+<h3 id="基本公式">基本公式</h3>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mi>A</mi><mi>T</mi><mo>=</mo><mo stretchy="false">(</mo><mo stretchy="false">[</mo><mn>1</mn><mo stretchy="false">]</mo><mo>+</mo><mi>ϵ</mi><mo stretchy="false">)</mo><mi>α</mi><mo>+</mo><mo stretchy="false">(</mo><mo stretchy="false">[</mo><mn>2</mn><mo stretchy="false">]</mo><mo>+</mo><mn>2</mn><mi>ϵ</mi><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">EAT = ([1] + \epsilon)\alpha + ([2] + 2\epsilon)(1 - \alpha)
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="mord mathdefault">A</span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mopen">[</span><span class="mord">1</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">ϵ</span><span class="mclose">)</span><span class="mord mathdefault" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mopen">[</span><span class="mord">2</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">2</span><span class="mord mathdefault">ϵ</span><span class="mclose">)</span><span class="mopen">(</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.0037em;">α</span><span class="mclose">)</span></span></span></span></span></p>
+<p>其中：</p>
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi></mrow><annotation encoding="application/x-tex">\alpha</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.0037em;">α</span></span></span></span> 是命中率</li>
+<li>([1] + <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϵ</mi></mrow><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">ϵ</span></span></span></span>) ：TLB命中时的访问时间(1次内存访问 + TLB查找)
+<ul>
+<li>[1]表示1次内存访问需要的时间</li>
+<li>比如，内存访问为100ns，TLB搜索 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϵ</mi></mrow><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">ϵ</span></span></span></span> 为20ns，则([1]+<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϵ</mi></mrow><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">ϵ</span></span></span></span>)=120ns</li>
+</ul>
+</li>
+<li>([2] + 2<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϵ</mi></mrow><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">ϵ</span></span></span></span>)：TLB未命中时的访问时间(需要额外的页表访问)</li>
+</ul>
+<h3 id="计算示例1-alpha-80">计算示例1 ( <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi></mrow><annotation encoding="application/x-tex">\alpha</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.0037em;">α</span></span></span></span>  = 80%)</h3>
+<p>参数：</p>
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϵ</mi></mrow><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">ϵ</span></span></span></span> = 20ns (TLB查找时间)</li>
+<li>内存访问时间 = 100ns (标准化为1时间单位)<br>
+计算：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mi>A</mi><mi>T</mi><mo>=</mo><mn>0.80</mn><mo>×</mo><mn>120</mn><mo>+</mo><mn>0.20</mn><mo>×</mo><mn>240</mn><mo>=</mo><mn>96</mn><mo>+</mo><mn>48</mn><mo>=</mo><mn>144</mn><mtext> ns</mtext></mrow><annotation encoding="application/x-tex">EAT = 0.80 \times 120 + 0.20 \times 240 = 96 + 48 = 144 \ \text{ns}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="mord mathdefault">A</span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">0</span><span class="mord">.</span><span class="mord">8</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mord">2</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">0</span><span class="mord">.</span><span class="mord">2</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">2</span><span class="mord">4</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">9</span><span class="mord">6</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">4</span><span class="mord">8</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span><span class="mord">4</span><span class="mord">4</span><span class="mspace"> </span><span class="mord text"><span class="mord">ns</span></span></span></span></span></li>
+</ul>
+<h3 id="计算示例2-alpha-99">计算示例2 ( <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi></mrow><annotation encoding="application/x-tex">\alpha</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.0037em;">α</span></span></span></span>  = 99%)</h3>
+<p>相同参数下：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mi>A</mi><mi>T</mi><mo>=</mo><mn>0.99</mn><mo>×</mo><mn>120</mn><mo>+</mo><mn>0.01</mn><mo>×</mo><mn>240</mn><mo>=</mo><mn>118.8</mn><mo>+</mo><mn>2.4</mn><mo>=</mo><mn>121.2</mn><mtext> ns</mtext></mrow><annotation encoding="application/x-tex">EAT = 0.99 \times 120 + 0.01 \times 240 = 118.8 + 2.4 = 121.2 \ \text{ns}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="mord mathdefault">A</span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">0</span><span class="mord">.</span><span class="mord">9</span><span class="mord">9</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mord">2</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">0</span><span class="mord">.</span><span class="mord">0</span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">2</span><span class="mord">4</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mord">1</span><span class="mord">8</span><span class="mord">.</span><span class="mord">8</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">2</span><span class="mord">.</span><span class="mord">4</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span><span class="mord">2</span><span class="mord">1</span><span class="mord">.</span><span class="mord">2</span><span class="mspace"> </span><span class="mord text"><span class="mord">ns</span></span></span></span></span></p>
+<h2 id="性能分析">性能分析</h2>
+<ol>
+<li><strong>命中率的影响</strong>：
+<ul>
+<li>命中率从80%提高到99%，EAT从144ns降至121ns</li>
+<li>显示高命中率对系统性能的关键影响</li>
+</ul>
+</li>
+<li><strong>时间组成</strong>：
+<ul>
+<li>TLB命中时：只需1次内存访问(100ns) + TLB查找(20ns) = 120ns</li>
+<li>TLB未命中时：需要额外访问页表(再加100ns + 20ns) = 总240n</li>
+</ul>
+</li>
+<li><strong>实际系统考量</strong>：
+<ul>
+<li>现代处理器通过大TLB、智能替换策略实现高命中率(&gt;99%)</li>
+<li>多级TLB设计(L1 TLB和L2 TLB)进一步优化访问时间</li>
+</ul>
+</li>
+</ol>
+<h3 id="页面大小选择考量因素-page-size-selection-considerations">页面大小选择考量因素 / Page Size Selection Considerations</h3>
+<h4 id="1-内部碎片问题-internal-fragmentation">1. 内部碎片问题 / Internal Fragmentation</h4>
+<p><strong>Small Page</strong></p>
+<ul>
+<li><strong>小页面优势 / Small Page Advantage</strong>:<br>
+减少未使用的页内空间 / Reduces unused space within pages</li>
+<li><strong>大页面劣势 / Large Page Disadvantage</strong>:<br>
+可能造成更多内存浪费 / May lead to more memory waste (e.g. when a process only needs small data but occupies whole large page)</li>
+</ul>
+<h4 id="2-页表大小-缺页中断-page-table-size-page-faults">2. 页表大小/缺页中断 / Page Table Size/Page Faults</h4>
+<p><strong>Large Page</strong></p>
+<ul>
+<li><strong>大页面优势 / Large Page Advantage</strong>:<br>
+减少页表项数量 / Fewer page table entries (smaller page table memory footprint)<br>
+减少缺页中断次数 / Fewer page faults (more content loaded per fault)</li>
+<li><strong>小页面劣势 / Small Page Disadvantage</strong>:<br>
+页表更庞大 / Larger page tables<br>
+缺页中断更频繁 / More frequent page faults</li>
+</ul>
+<h4 id="3-io开销-io-overhead">3. IO开销 / IO Overhead</h4>
+<p><strong>Large Page</strong></p>
+<h4 id="4-局部性-粒度控制-locality-granularity-control">4. 局部性|粒度控制 / Locality|Granularity Control</h4>
+<p><strong>Small Page</strong></p>
+<ul>
+<li><strong>小页面优势 / Small Page Advantage</strong>:<br>
+更好匹配程序工作集 / Better matches program working sets<br>
+允许更精细的内存管理 / Enables finer-grained memory allocation</li>
+</ul>
+<h4 id="5-tlb覆盖范围-tlb大小-tlb-reach-tlb-size">5. TLB覆盖范围|TLB大小 / TLB Reach|TLB Size</h4>
+<p><strong>Large Page</strong></p>
+<ul>
+<li><strong>大页面优势 / Large Page Advantage</strong>:<br>
+相同TLB条目覆盖更大地址空间 / Same number of TLB entries covers larger address space<br>
+提高TLB命中率 / Improves TLB hit rate (reduces address translation overhead)</li>
+</ul>
+<hr>
+<h2 id="8-structure-of-the-page-table-页表结构"><strong>8. Structure of the Page Table / 页表结构</strong></h2>
+<h3 id="problems-with-linear-page-tables-线性页表的问题"><strong>Problems with Linear Page Tables / 线性页表的问题</strong></h3>
+<ul>
+<li><strong>Sparse Usage</strong>: Most PTEs are invalid (wasteful).</li>
+<li><strong>Size</strong>: 4MB for 32-bit address space with 4KB pages.
+<ul>
+<li>线性页表占用过多空间，因为大多数PTE无效。</li>
+</ul>
+</li>
+</ul>
+<h3 id="hybrid-approach-paging-and-segments-混合方法：分页分段">Hybrid Approach: Paging and Segments / 混合方法：分页分段</h3>
+<ul>
+<li>将进程的地址空间划分为多个逻辑段（如代码段、数据段、堆、栈等），<strong>每个段拥有独立的页表</strong>，而非整个进程共享一个页表。
+<ul>
+<li>先分段，段内分页</li>
+</ul>
+</li>
+<li>减少内部碎片（段的大小灵活，无需填充整个页表）</li>
+<li><strong>地址格式</strong>：<br>
+虚拟地址被划分为三部分（多了一个SEG）</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SEG | VPN | OFFSET</span><br></pre></td></tr></table></figure>
+<ul>
+<li>解释：
+<ul>
+<li><strong>SEG</strong>：段号（标识属于哪个逻辑段，如代码段、数据段等）。</li>
+<li><strong>VPN</strong>：虚拟页号（在段内进一步分页）。</li>
+<li><strong>OFFSET</strong>：页内偏移量。</li>
+</ul>
+</li>
+<li><strong>寄存器支持</strong>：<br>
+每个段对应一对<strong>基址-界限寄存器</strong>：
+<ul>
+<li><strong>基址寄存器</strong>：指向该段的页表起始地址。</li>
+<li><strong>界限寄存器</strong>：记录页表的大小（防止越界访问）。</li>
+</ul>
+</li>
+<li><strong>示例</strong>：<br>
+假设32位虚拟地址空间，4KB页大小，地址空间分为4个段（如代码、数据、堆、栈），则：
+<ul>
+<li>段号（SEG）占2位（4个段），VPN占剩余高位（18位），OFFSET占12位（4KB页）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="multi-level-paging-多级页表"><strong>Multi-Level Paging / 多级页表</strong></h3>
+<p>将页表<strong>按页大小切分</strong>为多个小块（即“页表的页”），并通过<strong>页目录（Page Directory）</strong> 动态管理这些小块。</p>
+<ul>
+<li><strong>关键优化</strong>：<br>
+如果某一页的页表项（PTEs）<strong>全部无效</strong>（对应地址未使用），则<strong>不分配该页的页表内存</strong>，仅标记为无效。<br>
+<strong>页目录（Page Directory Table）；外页表</strong></li>
+<li>作用：作为外层页表，记录页表的分配状态。</li>
+<li>A <strong>page directory</strong> is used to track whether a page of the page table is valid.</li>
+<li><strong>页目录项（PDE, Page Directory Entry）</strong>：
+<ul>
+<li>每个PDE对应<strong>页表划分出的一页</strong>。</li>
+</ul>
+</li>
+</ul>
+<h4 id="example-exercise-two-level-paging-示例-练习：二级页表"><strong>Example&amp;Exercise: Two-Level Paging / 示例&amp;练习：二级页表</strong></h4>
+<ul>
+<li>Imagine a small address space of size 16KB, with 64-byte pages.</li>
+<li>Thus, we have a ?-bit virtual address space, with ? bits for the VPN and ? bits for the offset. (why?)</li>
+<li>A linear page table would have ? entries, even if only a small portion of the address space is in use. (why?)</li>
+<li>Assume each PTE is 4 bytes in size.</li>
+<li>Thus, our page table is ? in size.</li>
+<li>Given that we have ?-byte pages, the 1KB page table can be divided into ? 64-byte pages; each page can hold ? PTEs. (why?)</li>
+<li>We need ? bits to indicate the page directory index, ? bits to indicate the page table index in each PDE, and ? bits to indicate the offset. (why?)</li>
+</ul>
+<p><strong>Answer</strong></p>
+<ul>
+<li>Imagine a small address space of size 16KB, with 64-byte pages.</li>
+<li>Thus, we have a 14-bit virtual address space, with 8 bits for the VPN and 6 bits for the offset.
+<ul>
+<li>地址空间为16KB，需要 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo><mi>log</mi><mo>⁡</mo></mo><mn>2</mn></msub><mrow><mn>16</mn><mi>K</mi></mrow><mo>=</mo><mn>14</mn></mrow><annotation encoding="application/x-tex">\log_2{16K}=14</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.93858em;vertical-align:-0.24414em;"></span><span class="mop"><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.20696799999999996em;"><span style="top:-2.4558600000000004em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.24414em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord">1</span><span class="mord">6</span><span class="mord mathdefault" style="margin-right:0.07153em;">K</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span><span class="mord">4</span></span></span></span> 位的地址，偏移量： <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo><mi>log</mi><mo>⁡</mo></mo><mn>2</mn></msub><mn>64</mn><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">\log_2{64}=6</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.93858em;vertical-align:-0.24414em;"></span><span class="mop"><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.20696799999999996em;"><span style="top:-2.4558600000000004em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.24414em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord">6</span><span class="mord">4</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">6</span></span></span></span> ，虚页号：14-6=8</li>
+</ul>
+</li>
+<li>A linear page table would have <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>8</mn></msup><mo>=</mo><mn>256</mn></mrow><annotation encoding="application/x-tex">2^8 = 256</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">8</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">2</span><span class="mord">5</span><span class="mord">6</span></span></span></span> entries, even if only a small portion of the address space is in use.
+<ul>
+<li>页表项个数=2^8=256</li>
+</ul>
+</li>
+<li>Assume each PTE is 4 bytes in size.</li>
+<li>Thus, our page table is 1KB (256 × 4 bytes) in size.</li>
+<li>Given that we have 64-byte pages, the 1KB page table can be divided into 16 64-byte pages; each page can hold 16 PTEs.
+<ul>
+<li>1KB/64B = 16</li>
+<li>一个页是64B，PTE是4B，页表分出的页共有64B/4B=16个PTE</li>
+</ul>
+</li>
+<li>We need 4 bits to indicate the page directory index, 4 bits to indicate the page table index in each PDE, and 6 bits to indicate the offset.
+<ul>
+<li>页目录的索引：一个页表分成了16个页，页表目录索引位 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo><mi>log</mi><mo>⁡</mo></mo><mn>2</mn></msub><mn>16</mn><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">\log_2{16}=4</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.93858em;vertical-align:-0.24414em;"></span><span class="mop"><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.20696799999999996em;"><span style="top:-2.4558600000000004em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.24414em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord">1</span><span class="mord">6</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">4</span></span></span></span>位</li>
+<li>在一个PDE对应的部分（即页表划分出的一个页），共分成了16个PTEs，需要 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo><mi>log</mi><mo>⁡</mo></mo><mn>2</mn></msub><mn>16</mn><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">\log_2{16}=4</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.93858em;vertical-align:-0.24414em;"></span><span class="mop"><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.20696799999999996em;"><span style="top:-2.4558600000000004em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.24414em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord">1</span><span class="mord">6</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">4</span></span></span></span>位</li>
+<li>偏移量与之前一致（6位）</li>
+</ul>
+</li>
+</ul>
+<h3 id="in-class-exercise">In Class Exercise</h3>
+<p><img src="pictures/8-3.png" alt=""><br>
+<strong>Answer</strong><br>
+<img src="pictures/8-4.png" alt=""></p>
+<h3 id="hashed-page-tables-哈希页表"><strong>Hashed Page Tables / 哈希页表</strong></h3>
+<p>哈希页表是一种用于<strong>大地址空间（&gt;32位）</strong> 的页表设计，通过<strong>哈希表（Hash Table）</strong> 结构优化传统线性/多级页表的内存占用问题。</p>
+<ul>
+<li><strong>核心思想</strong>：将虚拟页号（VPN）通过哈希函数映射到固定大小的哈希表中，解决稀疏地址空间导致的页表内存浪费。</li>
+<li>Each element contains (linked hash)
+<ol>
+<li>the virtual page number</li>
+<li>the value of the mapped page frame</li>
+<li>a pointer to the next element</li>
+</ol>
+</li>
+</ul>
+<h3 id="clustered-page-tables-聚簇页表"><strong>Clustered Page Tables / 聚簇页表</strong></h3>
+<p>聚簇页表是哈希页表的变种，通过 <strong>一个条目映射多个连续页</strong>（如16页），减少存储开销和哈希冲突。</p>
+<ol>
+<li><strong>哈希结构保留</strong>：
+<ul>
+<li>仍使用哈希函数将虚拟页号（VPN）映射到哈希表中的桶（Bucket）。</li>
+<li>但每个条目（Entry）不再对应单个页，而是 <strong>一组连续页的集群（Cluster）</strong>（例如16页）。</li>
+</ul>
+</li>
+<li><strong>条目内容</strong>：
+<ul>
+<li><strong>起始VPN</strong>：记录该集群的第一个虚拟页号。</li>
+<li><strong>物理页帧号数组</strong>：存储该集群所有页的PFN（若某页未分配，标记为无效）。</li>
+<li><strong>指针</strong>（可选）：指向冲突的下一个集群条目。</li>
+</ul>
+</li>
+</ol>
+<h3 id="inverted-page-tables-反向页表"><strong>Inverted Page Tables / 反向页表</strong></h3>
+<p>反向页表颠覆了传统页表的设计逻辑：</p>
+<ul>
+<li><strong>传统页表</strong>：每个进程维护一个页表，记录 <strong>虚拟页→物理页</strong> 的映射，导致内存开销随进程数量增加而线性增长。</li>
+<li><strong>反向页表</strong>：系统全局维护 <strong>一个</strong> 页表，记录 <strong>物理页→虚拟页</strong> 的映射，条目数仅与物理内存大小相关，与进程数无关。</li>
+<li><strong>条目内容</strong>：<br>
+每个物理页对应一个条目，包含：
+<ul>
+<li><strong>虚拟页号（VPN）</strong>：当前占用该物理页的虚拟页地址。</li>
+<li><strong>进程标识符（PID）</strong>：标记拥有该虚拟页的进程（解决多进程共享物理页的问题）。</li>
+<li><strong>保护位/状态位</strong>（如读写权限、脏位等）。</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-地址转换流程"><strong>3. 地址转换流程</strong></h4>
+<ol>
+<li><strong>虚拟地址拆分</strong>：<br>
+[ VPN | Offset ]</li>
+<li><strong>查找物理页</strong>：
+<ul>
+<li>遍历反向页表，查找匹配的 <code>(VPN, PID)</code> 对。</li>
+<li><strong>问题</strong>：线性搜索时间复杂度为 O(n)（n为物理页总数），效率极低。</li>
+</ul>
+</li>
+<li><strong>优化手段</strong>：
+<ul>
+<li><strong>哈希表加速</strong>：对 <code>(VPN, PID)</code> 哈希，直接定位可能对应的物理页条目（减少搜索范围）。</li>
+<li><strong>TLB缓存</strong>：高频访问的映射存于TLB，避免查表。<br>
+<strong>优势与劣势</strong></li>
+</ul>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th><strong>优势</strong></th>
+<th><strong>劣势</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>内存高效</strong>：仅需与物理页数相同的条目，与进程数无关。</td>
+<td><strong>查找慢</strong>：需搜索或哈希计算，比多级页表更耗时。</td>
+</tr>
+<tr>
+<td><strong>适合大地址空间</strong>：64位系统中避免多级页表的爆炸式增长。</td>
+<td><strong>共享内存实现复杂</strong>：需额外机制处理多进程映射同一物理页。</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="9-swapping-交换"><strong>9. Swapping / 交换</strong></h2>
+<ul>
+<li><strong>Purpose / 目的</strong>: Move inactive pages to disk to free up physical memory.</li>
+<li><strong>Page Tables</strong>: Can be swapped to disk if too large.
+<ul>
+<li><em>交换将不活跃的页面移至磁盘，页表本身也可被交换。</em></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="10-example-architectures-示例架构"><strong>10. Example Architectures / 示例架构</strong></h2>
+<h3 id="intel-ia-32-pae-page-address-extensions-intel-ia-32-pae-页地址扩展"><strong>Intel IA-32 PAE (Page Address Extensions) / Intel IA-32 PAE（页地址扩展）</strong></h3>
+<ul>
+<li><strong>3-Level Paging</strong>: Supports 36-bit physical addresses (64GB RAM).</li>
+<li><strong>Page Directory Pointer Table (PDPT)</strong>: Top-level structure.
+<ul>
+<li><em>IA-32 PAE使用三级页表支持大内存。</em></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="summary-总结"><strong>Summary / 总结</strong></h2>
+<h3 id="key-concepts-关键概念"><strong>Key Concepts / 关键概念</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>Concept</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Paging</strong></td>
+<td>Fixed-size pages, avoids external fragmentation.</td>
+</tr>
+<tr>
+<td><strong>TLB</strong></td>
+<td>Caches translations to speed up address resolution.</td>
+</tr>
+<tr>
+<td><strong>Multi-Level Page Tables</strong></td>
+<td>Reduces memory waste for sparse address spaces.</td>
+</tr>
+<tr>
+<td><strong>Swapping</strong></td>
+<td>Moves inactive pages to disk.</td>
+</tr>
+</tbody>
+</table>
+</article><!-- 笔记工具条--><div class="note-tools"><button class="tool-btn" id="toggle-dark"><i class="fas fa-moon"></i><span>Dark Mode</span></button><button class="tool-btn" id="print-note"><i class="fas fa-print"></i><span>Print This Note</span></button></div></main><!-- 页脚--><footer class="footer"><div class="footer-content"><p>© 2025 WeiKnight. All Rights Reserved. </p><div class="footer-links"><a href="/notes/about" target="_blank">About</a><a href="/notes/terms" target="_blank">Terms of Use</a><a href="/notes/privacy" target="_blank">Privacy Policy</a></div></div></footer><script src="/js/note.js"></script><script>document.querySelectorAll('figure.highlight').forEach((figure) => {
+  const langClass = Array.from(figure.classList).find(cls => cls !== 'highlight');
+  if (!langClass) return;
+
+  const langLabel = document.createElement('div');
+  langLabel.textContent = langClass;
+  langLabel.style.position = 'absolute';
+  langLabel.style.top = '0';
+  langLabel.style.right = '0';
+  langLabel.style.padding = '0.2em 0.5em';
+  langLabel.style.fontFamily = 'MapleMono-NF-CN';
+  langLabel.style.fontSize = '0.8em';
+  langLabel.style.borderRadius = '0 4px 0 4px';
+  langLabel.style.zIndex = '1';
+
+  // 设置初始样式（根据当前主题）
+  updateLabelTheme(langLabel);
+
+  figure.style.position = 'relative';
+  figure.prepend(langLabel);
+});
+
+// 更新标签主题的函数
+function updateLabelTheme(label) {
+  const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+  label.style.background = isDarkMode ? '#444' : '#eee';
+  label.style.color = isDarkMode ? '#ddd' : '#333';
+  //- console.log("更改了");
+}
+
+// 监听主题变化（仅更新标签）
+new MutationObserver(() => {
+  document.querySelectorAll('figure.highlight div').forEach(label => {
+    updateLabelTheme(label);
+    //- console.log("更改了2");
+  });
+}).observe(document.body, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});</script></body></html>

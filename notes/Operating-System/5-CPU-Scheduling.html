@@ -1,0 +1,389 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 5: CPU Scheduling | WeiKnight's Personnal Blogs</title><link rel="icon" href="https://avatars.githubusercontent.com/WeiKnight0"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><link rel="stylesheet" href="/css/note.css"><meta name="generator" content="Hexo 7.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head><body><!-- 导航栏--><header class="navbar"><div class="navbar-container"><div class="navbar-brand"><a class="avatar-link" target="_blank" rel="noopener" href="https://github.com/WeiKnight0"><img class="avatar" src="https://avatars.githubusercontent.com/WeiKnight0" alt="WeiKnight"></a><div class="navbar-info"><a class="name" target="_blank" rel="noopener" href="https://github.com/WeiKnight0">WeiKnight</a><div class="subject">Study Notes</div></div></div><div class="navbar-actions"><a class="nav-link" href="../" title="Return to Operating System"><i class="fas fa-arrow-left"></i><span>Return to Operating System</span></a><a class="nav-link" href="/"><i class="fas fa-home"></i><span>Return to Home Page</span></a></div></div></header><!-- 标题区域--><section class="title-section"><div class="title-container"><h1 class="chapter-title">Chapter 5: CPU Scheduling</h1><div class="chapter-meta"><span class="chapter-date"><i class="far fa-calendar-alt"></i>2025-07-24</span><span class="chapter-lang"><p>Language: English</p></span></div></div></section><!-- 内容区域--><main class="content-section"><article class="chapter-content"><hr>
+<h3 id="目录-table-of-contents">目录 / Table of Contents</h3>
+<ol>
+<li><strong>基本概念 / Basic Concepts</strong></li>
+<li><strong>调度标准 / Scheduling Criteria</strong></li>
+<li><strong>简单调度算法 / Simple Scheduling Algorithms</strong></li>
+<li><strong>多级反馈队列 (MLFQ) / Multilevel Feedback Queue</strong></li>
+</ol>
+<hr>
+<h2 id="1-基本概念-basic-concepts">1. 基本概念 / Basic Concepts</h2>
+<h3 id="cpu调度器-cpu-scheduler">CPU调度器 / CPU Scheduler</h3>
+<ul>
+<li><strong>短程调度器 (Short-term scheduler)</strong>
+<ul>
+<li>从就绪队列中选择进程并分配CPU / Selects processes from the ready queue and allocates the CPU.</li>
+<li>队列可按多种方式排序 / The queue may be ordered in various ways.</li>
+</ul>
+</li>
+<li><strong>调度时机 / Timing</strong>
+<ol>
+<li>进程从运行态切换到等待态 / Process switches from running to waiting state.</li>
+<li>进程从运行态切换到就绪态 / Process switches from running to ready state.</li>
+<li>进程从等待态切换到就绪态 / Process switches from waiting to ready.</li>
+<li>进程终止 / Process terminates.</li>
+</ol>
+</li>
+<li><strong>非抢占式调度</strong>：仅在第1、4种情况下调度 / Nonpreemptive scheduling (only under 1 and 4).</li>
+<li><strong>抢占式调度</strong>：其他情况均为抢占式 / Preemptive scheduling (all other cases).</li>
+</ul>
+<h3 id="分发器-dispatcher">分发器 / Dispatcher</h3>
+<ul>
+<li>Dispatcher module gives control of the CPU to the process selected by the short-term scheduler; this involves:
+<ul>
+<li>switching context</li>
+<li>switching to user mode</li>
+<li>jumping to the proper location in the user program to restart that program</li>
+</ul>
+</li>
+<li><strong>分发延迟 (Dispatch latency)</strong>：停止一个进程并启动另一个所需的时间 / Time to stop one process and start another.</li>
+</ul>
+<hr>
+<h2 id="2-调度标准-scheduling-criteria">2. 调度标准 / Scheduling Criteria</h2>
+<h3 id="评价指标-common-scheduling-criteria">评价指标 / Common Scheduling Criteria</h3>
+<ol>
+<li><strong>CPU利用率 (CPU utilization)</strong>
+<ul>
+<li>尽可能保持CPU繁忙 / Keep the CPU as busy as possible.</li>
+</ul>
+</li>
+<li><strong>吞吐量 (Throughput)</strong>
+<ul>
+<li>单位时间完成进程数 / Number of processes completed per time unit.</li>
+</ul>
+</li>
+<li><strong>周转时间 (Turnaround time)</strong>
+<ul>
+<li>进程从<strong>提交</strong>到<strong>完成</strong>的总时间 / Total time from <strong>submission</strong> to <strong>completion</strong>.</li>
+<li>Arrival Time: 提交的时间（到达）不是开始运行时间</li>
+<li>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext>turnaround</mtext></msub><mo>=</mo><msub><mi>T</mi><mtext>completion</mtext></msub><mo>−</mo><msub><mi>T</mi><mtext>arrival</mtext></msub></mrow><annotation encoding="application/x-tex">T_{\text{turnaround}} = T_{\text{completion}} - T_{\text{arrival}}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">turnaround</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.969438em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">completion</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">arrival</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+</li>
+</ul>
+</li>
+<li><strong>等待时间 (Waiting time)</strong>
+<ul>
+<li>进程在<strong>就绪队列</strong>中的总等待时间 / Time spent waiting in the <strong>ready queue</strong>.</li>
+</ul>
+</li>
+<li><strong>响应时间 (Response time)</strong>
+<ul>
+<li>从<strong>请求提交</strong>到<strong>首次响应</strong>的时间 / Time from <strong>submission</strong> to <strong>first response</strong> (e.g., in interactive systems).<br>
+<strong>注</strong>：</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li><strong>Burst Time</strong>: 进程在CPU上执行花费的时间，不包括I/O时间;</li>
+<li><strong>Arrival Time</strong>: 进程进入就绪态的时刻</li>
+</ul>
+<hr>
+<h2 id="3-简单调度算法-simple-scheduling-algorithms">3. 简单调度算法 / Simple Scheduling Algorithms</h2>
+<h3 id="先到先服务-fcfs-fifo">先到先服务 (FCFS/FIFO)</h3>
+<ul>
+<li><strong>规则</strong>：按到达顺序执行 / Execute jobs in arrival order.</li>
+<li><strong>示例</strong>：
+<ul>
+<li>三个作业A、B、C，运行时间均为10秒 / Three jobs (A, B, C) with 10s each.</li>
+<li>平均周转时间：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mn>10</mn><mo>+</mo><mn>20</mn><mo>+</mo><mn>30</mn></mrow><mn>3</mn></mfrac><mo>=</mo><mn>20</mn></mrow><annotation encoding="application/x-tex">\frac{10+20+30}{3} = 20</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.190108em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.845108em;"><span style="top:-2.6550000000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mtight">0</span><span class="mbin mtight">+</span><span class="mord mtight">2</span><span class="mord mtight">0</span><span class="mbin mtight">+</span><span class="mord mtight">3</span><span class="mord mtight">0</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">2</span><span class="mord">0</span></span></span></span>.</li>
+<li><strong>Gantt Chart</strong>:</li>
+<li><img src="./pictures/5-1.png" alt="5-1"></li>
+</ul>
+</li>
+<li><strong>缺点</strong>：护航效应 (Convoy effect) / 长作业阻塞短作业</li>
+</ul>
+<h3 id="最短作业优先-sjf">最短作业优先 (SJF)</h3>
+<ul>
+<li><strong>规则</strong>：优先运行最短作业 / Execute the shortest job first.</li>
+<li><strong>示例</strong>：
+<ul>
+<li>作业A运行10秒，B、C各1秒 / A (10s), B (1s), C (1s).</li>
+<li>平均周转时间：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mn>12</mn><mo>+</mo><mn>1</mn><mo>+</mo><mn>2</mn></mrow><mn>3</mn></mfrac><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">\frac{12+1+2}{3} = 5</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.190108em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.845108em;"><span style="top:-2.6550000000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">3</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mtight">2</span><span class="mbin mtight">+</span><span class="mord mtight">1</span><span class="mbin mtight">+</span><span class="mord mtight">2</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">5</span></span></span></span>.</li>
+<li><img src="./pictures/5-2.png" alt="5-2"></li>
+</ul>
+</li>
+<li>The SJF algorithm is a special case of the general <strong>priority-scheduling</strong> algorithm.
+<ul>
+<li><strong>规则</strong>：按优先级执行 / Execute jobs based on priority</li>
+<li><strong>示例</strong>：
+<ul>
+<li>进程表：P1(10,3), P2(1,1), P3(2,4), P4(1,5), P5(5,2).</li>
+<li>执行顺序：P2 → P5 → P1 → P3 → P4.</li>
+<li><img src="./pictures/5-3.png" alt="5-3"></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>问题</strong>：饥饿 (Starvation) / 低优先级进程可能永远无法运行</li>
+<li><strong>Solution</strong>: <strong>Aging</strong>: as time progresses increase the priority</li>
+<li><strong>Highest Response Ratio Next (HRRN)</strong>: the next job is not that with the shorted estimated run time, but that with the <strong>highest response ratio</strong> defined as<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mi>e</mi><mi>s</mi><mi>p</mi><mi>o</mi><mi>n</mi><mi>s</mi><mi>e</mi><mi mathvariant="normal">_</mi><mi>r</mi><mi>a</mi><mi>t</mi><mi>i</mi><mi>o</mi><mo>=</mo><mn>1</mn><mo>+</mo><mfrac><mrow><mi>w</mi><mi>a</mi><mi>i</mi><mi>t</mi><mi>i</mi><mi>n</mi><mi>g</mi><mi mathvariant="normal">_</mi><mi>t</mi><mi>i</mi><mi>m</mi><mi>e</mi></mrow><mrow><mi>e</mi><mi>s</mi><mi>t</mi><mi>i</mi><mi>m</mi><mi>a</mi><mi>t</mi><mi>e</mi><mi>d</mi><mi mathvariant="normal">_</mi><mi>r</mi><mi>u</mi><mi>n</mi><mi mathvariant="normal">_</mi><mi>t</mi><mi>i</mi><mi>m</mi><mi>e</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">response\_ratio = 1 +\frac{waiting\_time}{estimated\_run\_time}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9695199999999999em;vertical-align:-0.31em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">e</span><span class="mord mathdefault">s</span><span class="mord mathdefault">p</span><span class="mord mathdefault">o</span><span class="mord mathdefault">n</span><span class="mord mathdefault">s</span><span class="mord mathdefault">e</span><span class="mord" style="margin-right:0.02778em;">_</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">a</span><span class="mord mathdefault">t</span><span class="mord mathdefault">i</span><span class="mord mathdefault">o</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:2.35552em;vertical-align:-0.996em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3595199999999998em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault">e</span><span class="mord mathdefault">s</span><span class="mord mathdefault">t</span><span class="mord mathdefault">i</span><span class="mord mathdefault">m</span><span class="mord mathdefault">a</span><span class="mord mathdefault">t</span><span class="mord mathdefault">e</span><span class="mord mathdefault">d</span><span class="mord" style="margin-right:0.02778em;">_</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">u</span><span class="mord mathdefault">n</span><span class="mord" style="margin-right:0.02778em;">_</span><span class="mord mathdefault">t</span><span class="mord mathdefault">i</span><span class="mord mathdefault">m</span><span class="mord mathdefault">e</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.6999999999999997em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mord mathdefault">a</span><span class="mord mathdefault">i</span><span class="mord mathdefault">t</span><span class="mord mathdefault">i</span><span class="mord mathdefault">n</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord" style="margin-right:0.02778em;">_</span><span class="mord mathdefault">t</span><span class="mord mathdefault">i</span><span class="mord mathdefault">m</span><span class="mord mathdefault">e</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.996em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+</li>
+</ul>
+<h3 id="抢占式短作业优先-preemptive-sjf">抢占式短作业优先 (Preemptive SJF)</h3>
+<ul>
+<li>Preemptive, and non-preemptive schedulers: Whether a job can preempt another job</li>
+<li>All modern schedulers are preemptive.</li>
+<li>The dispatcher performs a context switch.</li>
+<li>Think of preemptive version of SJF and Priority.</li>
+<li><strong>Preemptive Shortest Job First</strong> (preemptive SJF, or Shortest Time-to-Completion First (STCF), or Shortest-Remaining-Time First (SRTF)</li>
+<li><img src="./pictures/5-4.png" alt="5-4"></li>
+<li><img src="./pictures/5-5.png" alt="5-5"></li>
+</ul>
+<h3 id="轮转调度-round-robin-rr">轮转调度 (Round-Robin, RR)</h3>
+<ul>
+<li>RR runs a job for a <strong>time slice 时间片</strong>(sometimes called a scheduling <strong>quantum</strong>) and then switches to the next job in the run queue.</li>
+<li><strong>示例</strong>：
+<ul>
+<li>三个作业A、B、C，时间片1秒 / Time quantum = 1s.</li>
+<li>平均响应时间：$$\frac{0+1+2}{3} = 1$$.</li>
+<li><img src="./pictures/5-6.png" alt="5-6"></li>
+</ul>
+</li>
+<li><strong>权衡</strong>：公平性 vs. 周转时间 / Trade-off between fairness and turnaround time.</li>
+<li>轮转算法在周转时间表现较差。RR is awful in <strong>turnaround time</strong>.<br>
+Any policy that is fair, performs poorly on performance metrics such as turnaround time.</li>
+</ul>
+<h3 id="a-hybrid-multilevel-queue">A Hybrid: Multilevel Queue</h3>
+<p><img src="./pictures/5-7.png" alt="5-7"></p>
+<h3 id="in-class-exercise">In Class Exercise</h3>
+<p><img src="./pictures/5-8.png" alt="5-8"><br>
+<strong>Answer</strong><br>
+<img src="./pictures/5-9.png" alt="5-9"></p>
+<hr>
+<h2 id="4-多级反馈队列-multilevel-feedback-queue-mlfq">4. 多级反馈队列 / Multilevel Feedback Queue (MLFQ)</h2>
+<h3 id="核心思想-core-idea">核心思想 / Core Idea</h3>
+<ul>
+<li><strong>多级队列</strong>：按优先级划分队列 / Multiple queues with different priorities.</li>
+<li><strong>反馈机制</strong>：根据进程行为动态调整优先级 / Adjust priority based on job behavior.</li>
+</ul>
+<h3 id="规则-rules">规则 / Rules</h3>
+<ol>
+<li><strong>优先级比较</strong>：高优先级队列的进程优先运行 / Higher priority jobs run first.<br>
+If Priority(A) &gt; Priority(B), A runs (B doesn’t)</li>
+<li><strong>同优先级轮转</strong>：同队列内使用轮转调度 / RR within the same priority.<br>
+If Priority(A) = Priority(B), A &amp; B run in RR<br>
+注：如果题目明确指出用什么算法就按照题目来</li>
+<li><strong>新进程入队</strong>：初始置于最高优先级队列 / New jobs enter the topmost queue.<br>
+When a job enters the system, it is placed at the highest priority (the topmost queue).</li>
+<li><strong>时间配额耗尽后降级</strong>：若进程用完时间配额，优先级降低 / Demote priority if time slice is fully used.<br>
+Once a job uses up its time allotment at a given level (regardless of how many times it has given up the CPU), its priority is reduced (i.e., it moves down one queue).</li>
+<li><strong>周期优先级提升</strong>：定期将所有进程重置到最高队列 / Periodically boost all jobs to the top queue.<br>
+After some time periods, move all the jobs in the system to the topmost queue.</li>
+</ol>
+<h3 id="优化-optimizations">优化 / Optimizations</h3>
+<ul>
+<li><strong>避免饥饿</strong>：周期优先级提升解决长作业饥饿 / Priority boost prevents starvation.</li>
+<li><strong>防止作弊</strong>：精确记录CPU时间防止进程滥用 / Track CPU time to prevent gaming.</li>
+</ul>
+<h3 id="in-class-exercise">In Class Exercise</h3>
+<p><img src="./pictures/5-10.png" alt="5-10"></p>
+<p><strong>Answer</strong></p>
+<p><img src="./pictures/5-11.png" alt="5-11"></p>
+<h2 id="5-lottery-scheduling">5. Lottery Scheduling</h2>
+<h3 id="比例份额调度-proportional-share-scheduling">比例份额调度 (Proportional-Share Scheduling)</h3>
+<ul>
+<li><strong>核心思想</strong>：按比例分配CPU时间，而非优化周转时间或响应时间。
+<ul>
+<li><strong>应用场景</strong>：虚拟化数据中心（如为Windows VM分配25% CPU，其余给Linux）。</li>
+</ul>
+</li>
+<li><strong>公平性指标 (Unfairness Metric U)</strong>：
+<ul>
+<li>定义：两个相同任务完成时间的比值（理想时U=1）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="彩票调度-lottery-scheduling">彩票调度 (Lottery Scheduling)</h3>
+<ul>
+<li><strong>机制</strong>：
+<ul>
+<li>通过“彩票”随机选择下一个运行的任务，高优先级任务获得更多彩票。</li>
+<li><strong>关键特性</strong>：
+<ul>
+<li><strong>彩票货币 (Ticket Currency)</strong>：用户自定义子任务间的彩票分配。</li>
+<li><strong>彩票转让 (Ticket Transfer)</strong>：临时转移彩票给其他任务。</li>
+<li><strong>彩票膨胀 (Ticket Inflation)</strong>：临时调整自身彩票数量。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>优点</strong>：无全局状态，动态适应新任务加入。</li>
+</ul>
+<h3 id="步幅调度-stride-scheduling">步幅调度 (Stride Scheduling)</h3>
+<ul>
+<li><strong>确定性算法</strong>：
+<ul>
+<li>每个任务的步幅（Stride）= 总票数 / 该任务票数</li>
+<li>Every time a process runs, we will increment a counter for it (called its <strong>pass</strong> value) by its stride to track its global progress</li>
+<li>At any given time, pick the process to run that has the lowest pass value so far 选择Pass最小的进程</li>
+<li><strong>示例</strong>：  <img src="./pictures/5-12.png" alt="5-12"></li>
+</ul>
+</li>
+<li><strong>缺点</strong>：新任务加入需全局状态调整（Pass值初始化问题）</li>
+</ul>
+<hr>
+<h2 id="6-thread-scheduling">6. Thread Scheduling</h2>
+<h3 id="用户线程-vs-内核线程-user-level-vs-kernel-level-threads">用户线程 vs 内核线程 (User-Level vs Kernel-Level Threads)</h3>
+<ul>
+<li><strong>内核线程调度 (SCS - System-Contention Scope)</strong>：
+<ul>
+<li>由OS调度到CPU核心，全系统范围内竞争资源。</li>
+</ul>
+</li>
+<li><strong>用户线程调度 (PCS - Process-Contention Scope)</strong>：
+<ul>
+<li>线程库将用户线程映射到LWP（轻量级进程），进程内优先级竞争。</li>
+<li><strong>模型</strong>：
+<ul>
+<li>Many-to-One：用户线程阻塞导致进程阻塞（已淘汰）。</li>
+<li>Many-to-Many：动态平衡并发与效率（现代主流）。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="调度策略对比">调度策略对比</h3>
+<table>
+<thead>
+<tr>
+<th><strong>特性</strong></th>
+<th><strong>用户线程 (PCS)</strong></th>
+<th><strong>内核线程 (SCS)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>管理方</strong></td>
+<td>用户态线程库</td>
+<td>操作系统内核</td>
+</tr>
+<tr>
+<td><strong>阻塞影响</strong></td>
+<td>阻塞整个进程</td>
+<td>仅阻塞当前线程</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>高并发但无需多核</td>
+<td>需多核并行或实时性要求</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="7-multiple-processor-scheduling">7. Multiple-Processor Scheduling</h2>
+<h3 id="缓存亲和性-cache-affinity">缓存亲和性 (Cache Affinity)</h3>
+<ul>
+<li><strong>局部性原理</strong>：
+<ul>
+<li><strong>时间局部性 (Temporal Locality)</strong>：频繁访问相同数据。</li>
+<li><strong>空间局部性 (Spatial Locality)</strong>：访问邻近数据。</li>
+</ul>
+</li>
+<li><strong>亲和性优势</strong>：任务在相同CPU上运行可复用缓存状态，减少延迟。</li>
+</ul>
+<h3 id="多处理器调度模型">多处理器调度模型</h3>
+<h4 id="非对称多处理-asymmetric-multiprocessing-sqms">非对称多处理 (Asymmetric Multiprocessing - SQMS)</h4>
+<ul>
+<li><strong>单队列调度 (Single Queue)</strong>：
+<ul>
+<li>
+<p>Simply reuse the basic framework for single processor scheduling, by putting all jobs that need to be scheduled into a single queue</p>
+</li>
+<li>
+<p>所有任务放入全局队列，轮流分配到各CPU。</p>
+</li>
+<li>
+<p><strong>问题</strong>：缓存亲和性差（任务频繁切换CPU）。</p>
+</li>
+<li>
+<p><strong>示例</strong>：（采用FCFS）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Queue → A → B → C → D → E → NULL</span><br><span class="line">CPU0: A → E → D → C → B </span><br><span class="line">CPU1: B → A → E → D → C </span><br><span class="line">CPU2: C → B → A → E → D</span><br><span class="line">CPU3: D → C → B → A → E</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="对称多处理-symmetric-multiprocessing-mqms">对称多处理 (Symmetric Multiprocessing - MQMS)</h4>
+<ul>
+<li><strong>多队列调度 (Per-CPU Queue)</strong>：
+<ul>
+<li>One queue per CPU. Each queue will likely follow a particular scheduling discipline, such as round robin</li>
+<li>每个CPU维护独立队列（如轮转调度）。</li>
+<li><strong>问题</strong>：负载不均（需任务迁移平衡）。</li>
+<li><strong>示例</strong>：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Queue0: A → C → NULL  </span><br><span class="line">Queue1: B → D → NULL  </span><br><span class="line">CPU0: A → C → A → C → (迁移B)  </span><br><span class="line">CPU1: B → D → B → D  </span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="8-real-time-cpu-scheduling">8. Real-Time CPU Scheduling</h2>
+<h3 id="实时系统分类">实时系统分类</h3>
+<ul>
+<li><strong>软实时 (Soft Real-Time)</strong>：尽力满足截止时间，无严格保证（如视频流）。</li>
+<li><strong>硬实时 (Hard Real-Time)</strong>：必须在截止时间内完成（如航天控制）。</li>
+</ul>
+<h3 id="延迟类型-latencies">延迟类型 (Latencies)</h3>
+<table>
+<thead>
+<tr>
+<th><strong>延迟类型</strong></th>
+<th><strong>定义</strong></th>
+<th><strong>影响因素</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>中断延迟 Interrupt latency</strong></td>
+<td>中断发生到服务例程启动的时间</td>
+<td>内核态代码禁用中断。</td>
+</tr>
+<tr>
+<td><strong>调度延迟 Dispatch latency</strong></td>
+<td>从停止当前任务到启动新任务的时间</td>
+<td>内核态抢占、低优先级任务释放资源。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="调度过程示例">调度过程示例</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">事件 → [中断延迟] → 中断处理 → [调度延迟] → 任务切换 → 响应完成  </span><br><span class="line">          |__临界区阻塞中断        |__资源冲突或优先级调整  </span><br></pre></td></tr></table></figure>
+</article><!-- 笔记工具条--><div class="note-tools"><button class="tool-btn" id="toggle-dark"><i class="fas fa-moon"></i><span>Dark Mode</span></button><button class="tool-btn" id="print-note"><i class="fas fa-print"></i><span>Print This Note</span></button></div></main><!-- 页脚--><footer class="footer"><div class="footer-content"><p>© 2025 WeiKnight. All Rights Reserved. </p><div class="footer-links"><a href="/notes/about" target="_blank">About</a><a href="/notes/terms" target="_blank">Terms of Use</a><a href="/notes/privacy" target="_blank">Privacy Policy</a></div></div></footer><script src="/js/note.js"></script><script>document.querySelectorAll('figure.highlight').forEach((figure) => {
+  const langClass = Array.from(figure.classList).find(cls => cls !== 'highlight');
+  if (!langClass) return;
+
+  const langLabel = document.createElement('div');
+  langLabel.textContent = langClass;
+  langLabel.style.position = 'absolute';
+  langLabel.style.top = '0';
+  langLabel.style.right = '0';
+  langLabel.style.padding = '0.2em 0.5em';
+  langLabel.style.fontFamily = 'MapleMono-NF-CN';
+  langLabel.style.fontSize = '0.8em';
+  langLabel.style.borderRadius = '0 4px 0 4px';
+  langLabel.style.zIndex = '1';
+
+  // 设置初始样式（根据当前主题）
+  updateLabelTheme(langLabel);
+
+  figure.style.position = 'relative';
+  figure.prepend(langLabel);
+});
+
+// 更新标签主题的函数
+function updateLabelTheme(label) {
+  const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+  label.style.background = isDarkMode ? '#444' : '#eee';
+  label.style.color = isDarkMode ? '#ddd' : '#333';
+  //- console.log("更改了");
+}
+
+// 监听主题变化（仅更新标签）
+new MutationObserver(() => {
+  document.querySelectorAll('figure.highlight div').forEach(label => {
+    updateLabelTheme(label);
+    //- console.log("更改了2");
+  });
+}).observe(document.body, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});</script></body></html>

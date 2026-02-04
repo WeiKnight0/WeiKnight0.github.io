@@ -1,0 +1,222 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Z-Function Z函数 | WeiKnight's Personnal Blogs</title><link rel="icon" href="https://avatars.githubusercontent.com/WeiKnight0"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><link rel="stylesheet" href="/css/note.css"><meta name="generator" content="Hexo 7.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head><body><!-- 导航栏--><header class="navbar"><div class="navbar-container"><div class="navbar-brand"><a class="avatar-link" target="_blank" rel="noopener" href="https://github.com/WeiKnight0"><img class="avatar" src="https://avatars.githubusercontent.com/WeiKnight0" alt="WeiKnight"></a><div class="navbar-info"><a class="name" target="_blank" rel="noopener" href="https://github.com/WeiKnight0">WeiKnight</a><div class="subject">Study Notes</div></div></div><div class="navbar-actions"><a class="nav-link" href="../" title="Return to String"><i class="fas fa-arrow-left"></i><span>Return to String</span></a><a class="nav-link" href="/"><i class="fas fa-home"></i><span>Return to Home Page</span></a></div></div></header><!-- 标题区域--><section class="title-section"><div class="title-container"><h1 class="chapter-title">Z-Function Z函数</h1><div class="chapter-meta"><span class="chapter-date"><i class="far fa-calendar-alt"></i>2026-01-22</span><span class="chapter-lang"><p>Language: 简体中文</p></span></div></div></section><!-- 内容区域--><main class="content-section"><article class="chapter-content"><h2 id="一-核心定义-definition">一、核心定义 (Definition)</h2>
+<p><strong>Z函数</strong>（Z-function）是针对字符串定义的一种前缀匹配函数，对于长度为n的字符串s，其Z函数值组成的数组z[]满足：z[i]表示字符串s中，以第i个字符（下标从0或1开始，本文统一采用0下标）为起点的非空后缀，与字符串s的前缀的最长匹配长度。若s[i..i+z[i]-1] = s[0..z[0]-1]且z[i]为满足该等式的最大值，则z[i]即为第i位的Z函数值，特别规定z[0] = 0（或无定义，本文统一记为0，不参与前缀匹配计算）。</p>
+<p>Z函数的概念起源于字符串算法的高效匹配需求，由以色列计算机科学家Amir、Landau等人在研究字符串模式匹配问题时逐步完善，是KMP算法的重要补充，其核心价值在于能在线性时间内完成计算，为字符串前缀后缀匹配、重复子串检测、多模式匹配等问题提供高效解决方案，广泛应用于文本处理、生物信息学（如基因序列匹配）、编译器设计等领域。</p>
+<h2 id="二-关键要素-key-components">二、关键要素 (Key Components)</h2>
+<p>Z函数的核心要素围绕其定义、计算约束及核心特性展开，共4点，具体解析如下：</p>
+<h3 id="1-字符串下标约定">1. 字符串下标约定</h3>
+<p>本文统一采用0下标约定，即字符串s的字符依次为s[0], s[1], ..., s[n-1]（n为字符串长度）。该约定是Z函数计算逻辑的基础，确保前缀与后缀的匹配范围能够精准对应，避免下标混淆导致的计算错误。</p>
+<h3 id="2-z数组的取值规则">2. Z数组的取值规则</h3>
+<p>Z数组的长度与原字符串长度一致，每个元素z[i]的取值范围为[0, n-i]：</p>
+<ul>
+<li>
+<p>当z[i] = 0时，说明以s[i]为起点的后缀与s的前缀无任何非空字符匹配；</p>
+</li>
+<li>
+<p>当z[i] = k（k &gt; 0）时，说明s[i] = s[0]、s[i+1] = s[1]、...、s[i+k-1] = s[k-1]，且s[i+k] ≠ s[k]（若i+k &lt; n）。</p>
+</li>
+</ul>
+<h3 id="3-线性时间计算的核心前提">3. 线性时间计算的核心前提</h3>
+<p>Z函数能够在O(n)时间内完成计算，核心前提是利用“已匹配区间的信息复用”——通过维护一个当前匹配的有效区间[L, R]（表示以s[L]为起点的后缀，与前缀匹配的区间终点为R），避免对每个位置i都从头进行前缀匹配，从而降低时间复杂度。</p>
+<h3 id="4-特殊位置的z值">4. 特殊位置的Z值</h3>
+<p>除z[0] = 0的约定外，当i = 0时不参与后缀匹配；当字符串为全相同字符（如s = &quot;aaaaa&quot;）时，对于任意i ≥ 1，z[i] = n - i，这是Z函数的极端情况，也是判断字符串重复性的重要特征。</p>
+<h2 id="三-原理-机制-mechanism">三、原理/机制 (Mechanism)</h2>
+<p>Z函数的核心运作机制是“区间维护+信息复用”，通过线性遍历字符串，逐步计算每个位置的Z值，具体步骤（基于0下标，时间复杂度O(n)）如下：</p>
+<h3 id="步骤1：初始化参数">步骤1：初始化参数</h3>
+<p>设字符串s长度为n，初始化Z数组z[]（长度为n），z[0] = 0；维护有效匹配区间[L, R]，初始值L = R = -1（表示无有效匹配区间）。</p>
+<h3 id="步骤2：遍历字符串-i从1到n-1">步骤2：遍历字符串（i从1到n-1）</h3>
+<p>对每个位置i，分两种情况计算z[i]：</p>
+<ul>
+<li>
+<p>情况1：i &gt; R（当前位置不在有效匹配区间内）</p>
+<ul>
+<li>
+<p>令L = R = i，此时从s[R]与s[R - L] = s[0]开始逐字符匹配；</p>
+</li>
+<li>
+<p>若s[R] == s[R - L]，则R += 1，重复该过程，直到R ≥ n或s[R] ≠ s[R - L]；</p>
+</li>
+<li>
+<p>计算z[i] = R - L，更新有效区间[L, R] = [i, R - 1]（因为最后一次R递增后不满足匹配条件，故终点为R-1）。</p>
+</li>
+</ul>
+</li>
+<li>
+<p>情况2：i ≤ R（当前位置在有效匹配区间内）</p>
+<ul>
+<li>
+<p>令k = i - L（表示i在有效区间内的相对位置，对应前缀的位置为k）；</p>
+</li>
+<li>
+<p>若z[k] &lt; R - i + 1（前缀中k位置的Z值，小于i在有效区间内的剩余长度），则z[i] = z[k]，无需更新[L, R]（因为当前i的匹配长度不会超过k的匹配长度）；</p>
+</li>
+<li>
+<p>若z[k] ≥ R - i + 1（前缀中k位置的Z值，大于等于i在有效区间内的剩余长度），则需要扩展有效区间：令L = i，从R + 1开始，与s[R + 1 - L] = s[R + 1 - i]逐字符匹配，直到R ≥ n或s[R] ≠ s[R - L]；</p>
+</li>
+<li>
+<p>更新z[i] = R - L，更新有效区间[L, R] = [i, R - 1]。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="步骤3：输出z数组">步骤3：输出Z数组</h3>
+<p>遍历结束后，z[]即为字符串s的Z函数值数组，每个z[i]对应第i位的最长前缀匹配长度。</p>
+<h3 id="核心逻辑说明">核心逻辑说明</h3>
+<p>有效区间[L, R]的作用是“复用已匹配的信息”：当i在[L, R]内时，i对应的后缀与前缀的匹配情况，可通过其相对位置k = i - L的Z值快速判断，无需从头匹配，从而实现线性时间计算。</p>
+<h2 id="四-详细示例-detailed-examples">四、详细示例 (Detailed Examples)</h2>
+<p>以下两个示例分别覆盖“普通字符串Z函数计算”和“Z函数在字符串匹配中的核心应用”，均基于0下标，确保步骤清晰、可复现。</p>
+<h3 id="示例1：普通字符串的z函数计算">示例1：普通字符串的Z函数计算</h3>
+<p>给定字符串s = &quot;abacaba&quot;（n = 7），计算其Z数组，步骤如下：</p>
+<ul>
+<li>
+<p>初始化：z[0] = 0，L = R = -1；</p>
+</li>
+<li>
+<p>i = 1：i &gt; R，L = R = 1，匹配s[1]（b）与s[0]（a），不匹配，z[1] = 0，[L, R] = [1, 0]（无效，后续自动更新）；</p>
+</li>
+<li>
+<p>i = 2：i &gt; R，L = R = 2，匹配s[2]（a）与s[0]（a）（匹配），R = 3；s[3]（c）与s[1]（b）（不匹配），z[2] = 3 - 2 = 1，[L, R] = [2, 2]；</p>
+</li>
+<li>
+<p>i = 3：i &gt; R，L = R = 3，匹配s[3]（c）与s[0]（a）（不匹配），z[3] = 0，[L, R] = [3, 2]（无效）；</p>
+</li>
+<li>
+<p>i = 4：i &gt; R，L = R = 4，匹配s[4]（a）与s[0]（a）（匹配），R = 5；s[5]（b）与s[1]（b）（匹配），R = 6；s[6]（a）与s[2]（a）（匹配），R = 7（≥n），z[4] = 7 - 4 = 3，[L, R] = [4, 6]；</p>
+</li>
+<li>
+<p>i = 5：i ≤ R，k = 5 - 4 = 1，z[k] = z[1] = 0 &lt; R - i + 1 = 6 - 5 + 1 = 2，故z[5] = 0；</p>
+</li>
+<li>
+<p>i = 6：i ≤ R，k = 6 - 4 = 2，z[k] = z[2] = 1 &lt; R - i + 1 = 6 - 6 + 1 = 1（不成立，1不小于1），扩展L = 6，R = 6，匹配s[6]（a）与s[0]（a）（匹配），R = 7（≥n），z[6] = 7 - 6 = 1；</p>
+</li>
+</ul>
+<p>最终Z数组：z = [0, 0, 1, 0, 3, 0, 1]。</p>
+<h3 id="示例2：z函数在模式匹配中的应用-单模式匹配">示例2：Z函数在模式匹配中的应用（单模式匹配）</h3>
+<p>问题：给定文本串t = &quot;ababacaba&quot;，模式串p = &quot;aba&quot;，判断p是否是t的子串，若存在，输出所有匹配的起始位置（0下标）。</p>
+<p>核心思路：构造新字符串s = p + '#' + t（'#'为分隔符，需保证不在p和t中出现），计算s的Z数组；若Z数组中存在某位置i，使得z[i] = len(p)，则该位置i对应的t中的起始位置为i - len(p) - 1。</p>
+<p>具体步骤：</p>
+<ul>
+<li>
+<ol>
+<li>构造s = &quot;aba#ababacaba&quot;，len(p) = 3，分隔符'#'下标为3；</li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li>计算s的Z数组（关键部分）：</li>
+</ol>
+<ul>
+<li>
+<p>下标4（t的第0位）：z[4] = 2（s[4..5] = &quot;ab&quot;，与p[0..1] = &quot;ab&quot;匹配，s[6] = &quot;a&quot; ≠ p[2] = &quot;a&quot;？修正：s[4] = 'a'，s[5] = 'b'，s[6] = 'a'，匹配p[0..2]，故z[4] = 3 = len(p)；</p>
+</li>
+<li>
+<p>下标7（t的第3位）：z[7] = 3 = len(p)（s[7..9] = &quot;aba&quot;，与p完全匹配）；</p>
+</li>
+</ul>
+</li>
+<li>
+<ol start="3">
+<li>匹配位置计算：</li>
+</ol>
+<ul>
+<li>
+<p>i = 4：对应t的起始位置 = 4 - 3 - 1 = 0；</p>
+</li>
+<li>
+<p>i = 7：对应t的起始位置 = 7 - 3 - 1 = 3；</p>
+</li>
+</ul>
+</li>
+<li>
+<ol start="4">
+<li>结论：模式串p是t的子串，匹配起始位置为0和3。</li>
+</ol>
+</li>
+</ul>
+<h2 id="五-对比分析-comparison">五、对比分析 (Comparison)</h2>
+<p>Z函数与字符串匹配中常用的**KMP算法的前缀函数（prefix function）**极易混淆，二者均用于线性时间字符串处理，但核心用途、定义逻辑存在本质差异，具体对比如下（表格中“前缀函数”记为π函数）：</p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>Z函数（Z-function）</th>
+<th>前缀函数（π函数）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>核心定义</td>
+<td>z[i]：以i为起点的后缀，与整个字符串前缀的最长匹配长度</td>
+<td>π[i]：以i为终点的前缀，其最长相等前缀与后缀的长度</td>
+</tr>
+<tr>
+<td>关注对象</td>
+<td>后缀与整个字符串的前缀匹配</td>
+<td>前缀自身的前缀与后缀匹配</td>
+</tr>
+<tr>
+<td>特殊位置取值</td>
+<td>z[0] = 0（约定，不参与匹配）</td>
+<td>π[0] = 0（以0为终点的前缀无前后缀）</td>
+</tr>
+<tr>
+<td>核心用途</td>
+<td>单模式匹配、重复子串检测、多模式匹配</td>
+<td>KMP算法核心、字符串最小周期计算、括号匹配</td>
+</tr>
+<tr>
+<td>计算逻辑</td>
+<td>维护后缀匹配的有效区间[L, R]，复用区间信息</td>
+<td>基于前一位π值，逐步递推当前π值，复用前缀匹配信息</td>
+</tr>
+<tr>
+<td>时间复杂度</td>
+<td>O(n)（n为字符串长度）</td>
+<td>O(n)（n为字符串长度）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="六-总结-summary">六、总结 (Summary)</h2>
+<p>Z函数是字符串中以某位置为起点的后缀与字符串前缀的最长匹配长度构成的数组，核心价值在于通过线性时间计算实现高效字符串匹配及相关问题求解，其本质是“区间维护与信息复用”的算法思想。</p>
+<blockquote>
+<p>（注：文档部分内容可能由 AI 生成）</p>
+</blockquote>
+</article><!-- 笔记工具条--><div class="note-tools"><button class="tool-btn" id="toggle-dark"><i class="fas fa-moon"></i><span>Dark Mode</span></button><button class="tool-btn" id="print-note"><i class="fas fa-print"></i><span>Print This Note</span></button></div></main><!-- 页脚--><footer class="footer"><div class="footer-content"><p>© 2025 WeiKnight. All Rights Reserved. </p><div class="footer-links"><a href="/notes/about" target="_blank">About</a><a href="/notes/terms" target="_blank">Terms of Use</a><a href="/notes/privacy" target="_blank">Privacy Policy</a></div></div></footer><script src="/js/note.js"></script><script>document.querySelectorAll('figure.highlight').forEach((figure) => {
+  const langClass = Array.from(figure.classList).find(cls => cls !== 'highlight');
+  if (!langClass) return;
+
+  const langLabel = document.createElement('div');
+  langLabel.textContent = langClass;
+  langLabel.style.position = 'absolute';
+  langLabel.style.top = '0';
+  langLabel.style.right = '0';
+  langLabel.style.padding = '0.2em 0.5em';
+  langLabel.style.fontFamily = 'MapleMono-NF-CN';
+  langLabel.style.fontSize = '0.8em';
+  langLabel.style.borderRadius = '0 4px 0 4px';
+  langLabel.style.zIndex = '1';
+
+  // 设置初始样式（根据当前主题）
+  updateLabelTheme(langLabel);
+
+  figure.style.position = 'relative';
+  figure.prepend(langLabel);
+});
+
+// 更新标签主题的函数
+function updateLabelTheme(label) {
+  const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+  label.style.background = isDarkMode ? '#444' : '#eee';
+  label.style.color = isDarkMode ? '#ddd' : '#333';
+  //- console.log("更改了");
+}
+
+// 监听主题变化（仅更新标签）
+new MutationObserver(() => {
+  document.querySelectorAll('figure.highlight div').forEach(label => {
+    updateLabelTheme(label);
+    //- console.log("更改了2");
+  });
+}).observe(document.body, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});</script></body></html>

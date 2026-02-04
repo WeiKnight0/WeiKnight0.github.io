@@ -1,0 +1,455 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 10: Mass-Storage Structure | WeiKnight's Personnal Blogs</title><link rel="icon" href="https://avatars.githubusercontent.com/WeiKnight0"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><link rel="stylesheet" href="/css/note.css"><meta name="generator" content="Hexo 7.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head><body><!-- 导航栏--><header class="navbar"><div class="navbar-container"><div class="navbar-brand"><a class="avatar-link" target="_blank" rel="noopener" href="https://github.com/WeiKnight0"><img class="avatar" src="https://avatars.githubusercontent.com/WeiKnight0" alt="WeiKnight"></a><div class="navbar-info"><a class="name" target="_blank" rel="noopener" href="https://github.com/WeiKnight0">WeiKnight</a><div class="subject">Study Notes</div></div></div><div class="navbar-actions"><a class="nav-link" href="../" title="Return to Operating System"><i class="fas fa-arrow-left"></i><span>Return to Operating System</span></a><a class="nav-link" href="/"><i class="fas fa-home"></i><span>Return to Home Page</span></a></div></div></header><!-- 标题区域--><section class="title-section"><div class="title-container"><h1 class="chapter-title">Chapter 10: Mass-Storage Structure</h1><div class="chapter-meta"><span class="chapter-date"><i class="far fa-calendar-alt"></i>2025-07-24</span><span class="chapter-lang"><p>Language: English</p></span></div></div></section><!-- 内容区域--><main class="content-section"><article class="chapter-content"><hr>
+<h4 id="1-warm-up-预热"><strong>1. Warm-up 预热</strong></h4>
+<p><strong>Storage Device Hierarchy 存储设备层次结构</strong></p>
+<ul>
+<li><strong>Registers 寄存器</strong>: The fastest and smallest storage, directly accessible by the CPU.<br>
+最快且最小的存储，CPU直接访问。</li>
+<li><strong>Cache 缓存</strong>: Faster than main memory, used to reduce access latency.<br>
+比主存更快，用于减少访问延迟。</li>
+<li><strong>Main memory (RAM) 主存</strong>: Volatile storage for currently running programs.<br>
+易失性存储，用于当前运行的程序。</li>
+<li><strong>Solid-state disk (SSD) 固态硬盘</strong>: Non-volatile, faster than magnetic disks.<br>
+非易失性，比机械硬盘更快。</li>
+<li><strong>Magnetic disk (HDD) 机械硬盘</strong>: Non-volatile, slower but higher capacity.<br>
+非易失性，速度较慢但容量大。</li>
+<li><strong>Optical disk (e.g., CD/DVD) 光盘</strong>: Read-only or writable optical storage.<br>
+只读或可写的光学存储。</li>
+<li><strong>Magnetic tapes 磁带</strong>: Sequential access, used for backups.<br>
+顺序访问，用于备份。</li>
+</ul>
+<hr>
+<h4 id="2-disk-structure-磁盘结构"><strong>2. Disk Structure 磁盘结构</strong></h4>
+<p><img src="pictures/10-1.png" alt=""><br>
+<strong>Moving-head Disk Mechanism 移动磁头磁盘机制</strong></p>
+<ul>
+<li><strong>Track 磁道</strong>: Concentric circles on a platter where data is stored.<br>
+盘片上的同心圆，用于存储数据。</li>
+<li><strong>Sector 扇区</strong>: The smallest addressable unit (typically 512 bytes).<br>
+最小可寻址单元（通常512字节）。</li>
+<li><strong>Cylinder 柱面</strong>: Set of tracks at the same position across multiple platters.<br>
+多个盘片上同一位置的磁道集合。</li>
+<li><strong>Platter 盘片</strong>: Circular disk coated with magnetic material.<br>
+涂有磁性材料的圆形盘片。</li>
+<li><strong>Read-write head 读写头</strong>: Reads/writes data by magnetizing sectors.<br>
+通过磁化扇区读写数据。</li>
+</ul>
+<p><strong>Disk Interface 磁盘接口</strong></p>
+<ul>
+<li>Disks are addressed as 1D arrays of <strong>logical blocks</strong> (512-byte sectors).<br>
+磁盘被寻址为一维逻辑块（512字节扇区）数组。</li>
+<li><strong>Low-level formatting 低级格式化</strong>: Creates logical blocks on physical media.<br>
+在物理介质上创建逻辑块。</li>
+<li>Multi-sector operations (e.g., 4KB transfers) are common.<br>
+多扇区操作（如4KB传输）常见。</li>
+</ul>
+<p><strong>Disk I/O Time 磁盘I/O时间</strong></p>
+<ul>
+<li>First a <strong>seek</strong>, then a remaining <strong>rotation</strong>, and finally the <strong>transfer</strong>.</li>
+<li>Formula:<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mrow><mi>I</mi><mi mathvariant="normal">/</mi><mi>O</mi></mrow></msub><mo>=</mo><msub><mi>T</mi><mrow><mi>s</mi><mi>e</mi><mi>e</mi><mi>k</mi></mrow></msub><mo>+</mo><msub><mi>T</mi><mrow><mi>r</mi><mi>o</mi><mi>t</mi><mi>a</mi><mi>t</mi><mi>i</mi><mi>o</mi><mi>n</mi></mrow></msub><mo>+</mo><msub><mi>T</mi><mrow><mi>t</mi><mi>r</mi><mi>a</mi><mi>n</mi><mi>s</mi><mi>f</mi><mi>e</mi><mi>r</mi></mrow></msub></mrow><annotation encoding="application/x-tex">T_{I/O} = T_{seek} + T_{rotation} + T_{transfer}  
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.03853em;vertical-align:-0.3551999999999999em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.34480000000000005em;"><span style="top:-2.5198em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.07847em;">I</span><span class="mord mtight">/</span><span class="mord mathdefault mtight" style="margin-right:0.02778em;">O</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3551999999999999em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">s</span><span class="mord mathdefault mtight">e</span><span class="mord mathdefault mtight">e</span><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.02778em;">r</span><span class="mord mathdefault mtight">o</span><span class="mord mathdefault mtight">t</span><span class="mord mathdefault mtight">a</span><span class="mord mathdefault mtight">t</span><span class="mord mathdefault mtight">i</span><span class="mord mathdefault mtight">o</span><span class="mord mathdefault mtight">n</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.969438em;vertical-align:-0.286108em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="mord mathdefault mtight" style="margin-right:0.02778em;">r</span><span class="mord mathdefault mtight">a</span><span class="mord mathdefault mtight">n</span><span class="mord mathdefault mtight">s</span><span class="mord mathdefault mtight" style="margin-right:0.10764em;">f</span><span class="mord mathdefault mtight">e</span><span class="mord mathdefault mtight" style="margin-right:0.02778em;">r</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span></span></span></span></span></p>
+<ul>
+<li><strong>Seek time 寻道时间</strong>: Time to move the head to the correct track.<br>
+磁头移动到正确磁道的时间。</li>
+<li><strong>Rotational delay 旋转延迟</strong>: Time for the desired sector to rotate under the head.<br>
+目标扇区旋转到磁头下的时间。</li>
+<li><strong>Transfer time 传输时间</strong>: Time to read/write data.<br>
+读写数据的时间。</li>
+</ul>
+</li>
+<li>The rate of I/O is often more easily used for comparison between drives.</li>
+<li>Formula:</li>
+</ul>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mrow><mi>I</mi><mi mathvariant="normal">/</mi><mi>O</mi></mrow></msub><mo>=</mo><mfrac><mrow><mi>S</mi><mi>i</mi><mi>z</mi><msub><mi>e</mi><mtext>Transfer</mtext></msub></mrow><msub><mi>T</mi><mrow><mi>I</mi><mi mathvariant="normal">/</mi><mi>O</mi></mrow></msub></mfrac></mrow><annotation encoding="application/x-tex">  R_{I/O}=\frac{Size_{\text{Transfer}}}{T_{I/O}}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.03853em;vertical-align:-0.3551999999999999em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.34480000000000005em;"><span style="top:-2.5198em;margin-left:-0.00773em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.07847em;">I</span><span class="mord mtight">/</span><span class="mord mathdefault mtight" style="margin-right:0.02778em;">O</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3551999999999999em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.40153em;vertical-align:-1.0412em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.36033em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.34480000000000005em;"><span style="top:-2.5198em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.07847em;">I</span><span class="mord mtight">/</span><span class="mord mathdefault mtight" style="margin-right:0.02778em;">O</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3551999999999999em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="mord mathdefault">i</span><span class="mord mathdefault" style="margin-right:0.04398em;">z</span><span class="mord"><span class="mord mathdefault">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">Transfer</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:1.0412em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></p>
+<p><strong>Seek Time Phases 寻道时间阶段</strong></p>
+<ol>
+<li><strong>Acceleration 加速</strong>: First an acceleration phase as the disk arm gets moving<br>
+机械臂开始移动。</li>
+<li><strong>Coasting 匀速</strong>: Then coasting as the arm is moving at full speed<br>
+机械臂全速移动。</li>
+<li><strong>Deceleration 减速</strong>: Then deceleration as the arm slows down<br>
+机械臂减速。</li>
+<li><strong>Settling 稳定</strong>: Finally settling as the head is positioned over the correct track
+<ul>
+<li>The settling time is often quite significant, e.g., 0.5 to 2 ms, as the drive must be certain to find the right track.</li>
+<li>磁头对准磁道</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>
+<p><strong>寻道时间 Seek Time</strong></p>
+<ul>
+<li>磁盘臂移动到正确磁道所需的时间</li>
+<li>平均磁盘寻道时间大约是最大寻道时间的三分之一</li>
+</ul>
+</li>
+<li>
+<p><strong>旋转延迟 Rotational delay</strong></p>
+<ul>
+<li>等待目标扇区旋转到磁盘磁头下方所需的时间。</li>
+<li>平均旋转延迟是最大旋转延迟的一半。</li>
+</ul>
+</li>
+<li>
+<p><strong>Rotational</strong> and <strong>Seek</strong> (<strong>NOT transfer</strong>) 是最耗时的磁盘操作。</p>
+</li>
+</ul>
+<p><strong>Workload Assumptions 工作负载假设</strong></p>
+<ul>
+<li><strong>Random workload 随机负载</strong>: Small reads to random locations (high seek/rotation overhead).<br>
+小规模随机读取（寻道/旋转开销大）。</li>
+<li><strong>Sequential workload 顺序负载</strong>: Consecutive sector reads (minimal overhead).<br>
+连续扇区读取（开销最小）。</li>
+</ul>
+<p><strong>Track Skew 磁道偏斜</strong></p>
+<ul>
+<li>to make sure that sequential reads can be properly serviced even when crossing track boundaries.<br>
+调整扇区编号以确保跨磁道的顺序读取。</li>
+</ul>
+<p><strong>Multi-zoned Drives 多区域磁盘</strong></p>
+<ul>
+<li>多区域磁盘驱动器：外磁道的扇区数多于内磁道。 磁盘被划分为多个区域，每个区域是磁盘表面上连续的一组磁道。每个区域内的磁道具有相同的扇区数，且外层区域的扇区数多于内层区域。
+<ul>
+<li>恒定角速度（CAV）和恒定线速度（CLV）</li>
+</ul>
+</li>
+<li>缓存或磁道缓冲区：驱动器配备的少量内存（通常为64或256 MB左右），用于暂存从磁盘读取或向磁盘写入的数据。</li>
+</ul>
+<hr>
+<h4 id="3-disk-scheduling-磁盘调度"><strong>3. Disk Scheduling 磁盘调度</strong></h4>
+<p><strong>Goals 目标</strong></p>
+<ul>
+<li>Minimize <strong>seek time</strong> (≈ seek distance) and maximize <strong>disk bandwidth</strong>.<br>
+最小化寻道时间（≈寻道距离）并最大化磁盘带宽。</li>
+<li>磁盘I/O请求有多种来源
+<ul>
+<li>操作系统</li>
+<li>系统进程</li>
+<li>用户进程</li>
+</ul>
+</li>
+<li>I/O请求包括输入或输出模式、磁盘地址、内存地址、传输的扇区数 - 操作系统按磁盘或设备维护请求队列</li>
+<li>空闲磁盘可立即处理I/O请求，繁忙磁盘则需将请求排队
+<ul>
+<li>优化算法仅在存在队列时才有意义</li>
+</ul>
+</li>
+<li>我们用一个请求队列（0-199）说明调度算法：98；183；37；122；14；124；65；67，磁头指针初始位于53</li>
+</ul>
+<p><strong>Scheduling Algorithms 调度算法</strong><br>
+以98；183；37；122；14；124；65；67、磁头初始位于53</p>
+<ul>
+<li><strong>FCFS (First-Come-First-Serve) 先到先服务</strong>:
+<ul>
+<li><img src="pictures/10-2.png" alt=""></li>
+</ul>
+</li>
+<li><strong>SSTF (Shortest Seek Time First) 最短寻道时间优先</strong>:
+<ul>
+<li><img src="pictures/10-3.png" alt=""></li>
+</ul>
+</li>
+<li><strong>SCAN (Elevator Algorithm) 扫描算法</strong>:
+<ul>
+<li><img src="pictures/10-4.png" alt=""></li>
+<li>必须到达柱面的一端</li>
+</ul>
+</li>
+<li><strong>C-SCAN 循环扫描</strong>:
+<ul>
+<li><img src="pictures/10-5.png" alt=""></li>
+<li>只能沿着一个方向，当到达“结束端”时必须立即返回“开始端”</li>
+</ul>
+</li>
+<li><strong>LOOK/C-LOOK 查看算法</strong>:
+<ul>
+<li><img src="pictures/10-14.png" alt=""></li>
+<li>不需要到达最底端，只需要到达最小或最大的磁道即可</li>
+</ul>
+</li>
+<li><strong>SPTF (Shortest Positioning Time First) 最短定位时间优先</strong>
+<ul>
+<li>Considers both seek and rotation time (used internally by modern disks).<br>
+同时考虑寻道和旋转时间（现代磁盘内部使用）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>In-Class Exercise 课堂练习</strong><br>
+<img src="pictures/10-6.png" alt=""><br>
+<strong>Answer</strong><br>
+<img src="pictures/10-13.png" alt=""></p>
+<hr>
+<h4 id="4-raid-structure-磁盘阵列结构"><strong>4. RAID Structure 磁盘阵列结构</strong></h4>
+<p><strong>Redundant Arrays of Independent Disks (RAIDs)</strong></p>
+<ul>
+<li>A technique to use multiple disks in concert to build a faster, bigger, and more reliable disk system.</li>
+<li>从外部来看，磁盘阵列（RAID）就像一块磁盘：是一组可供读取或写入的块。
+<ul>
+<li>这种透明性提高了磁盘阵列的可部署性。</li>
+</ul>
+</li>
+<li>从内部来看，磁盘阵列由多个磁盘、内存（包括易失性和非易失性内存）以及一个或多个用于管理系统的处理器组成。
+<ul>
+<li>磁盘阵列具有多种优势。<br>
+<strong>Why RAID? 为什么使用RAID?</strong></li>
+</ul>
+</li>
+<li><strong>Performance 性能</strong>: Parallel I/O across multiple disks speeds up transfers.<br>
+多磁盘并行I/O加速传输。</li>
+<li><strong>Capacity 容量</strong>: Combines disks into a larger logical volume.<br>
+将多磁盘合并为更大逻辑卷。</li>
+<li><strong>Reliability 可靠性</strong>: With some form of redundancy, RAIDs can tolerate the loss of a disk and keep operating as if nothing were wrong<br>
+冗余设计容忍磁盘故障。</li>
+</ul>
+<p><strong>RAID Levels RAID级别</strong></p>
+<ol>
+<li>
+<p><strong>RAID-0: Striping 条带化</strong></p>
+<ul>
+<li><img src="pictures/10-7.png" alt=""></li>
+<li><strong>Description</strong>: Blocks striped across disks <strong>without redundancy</strong>.<br>
+数据块跨磁盘条带化<strong>无冗余</strong>。</li>
+<li><strong>块大小 Chunk Size</strong> 主要影响磁盘阵列的性能。
+<ul>
+<li>小块大小意味着许多文件会被条带化分布在多个磁盘上，从而提高对单个文件读写的并行性。</li>
+<li>然而，跨多个磁盘访问数据块的定位时间会增加，因为整个请求的定位时间由所有磁盘驱动器中请求定位时间的最大值决定。</li>
+<li>反之亦然。</li>
+</ul>
+</li>
+<li><strong>Capacity</strong>: Perfect, given N disks each of size B blocks, striping delivers N × B blocks of useful capacity.</li>
+<li><strong>Reliability</strong>: <strong>None</strong>—any disk failure causes data loss.<br>
+无容错—任一磁盘故障导致数据丢失。</li>
+<li><strong>Performance</strong>:
+<ul>
+<li>单请求延迟
+<ul>
+<li>单块请求的延迟应与单个磁盘的延迟几乎相同，因为RAID-0会简单地将该请求重定向到其某个磁盘。</li>
+</ul>
+</li>
+<li>We will assume that a disk can transfer data at S MB/s under a sequential workload, and R MB/s when under a random workload (S &gt;&gt; R)</li>
+<li>Sequential: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">N \times S</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span></span></span></span> MB/s.</li>
+<li>Random: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">N \times R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span> MB/s.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>RAID-1: Mirroring 镜像</strong></p>
+<ul>
+<li><img src="pictures/10-8.png" alt=""></li>
+<li><strong>Description</strong>: Duplicates data on <strong>two or more disks</strong>.<br>
+数据<strong>完全复制</strong>到多磁盘。</li>
+<li><strong>Capacity</strong>: Expensive, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>B</mi><mi mathvariant="normal">/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">N \times B/2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span><span class="mord">/</span><span class="mord">2</span></span></span></span> (50% utilization for 2 disks).</li>
+<li><strong>Reliability</strong>: Tolerates up to <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi mathvariant="normal">/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">N/2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mord">/</span><span class="mord">2</span></span></span></span> disk failures.<br>
+容忍最多<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi mathvariant="normal">/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">N/2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mord">/</span><span class="mord">2</span></span></span></span>磁盘故障。</li>
+<li><strong>Performance</strong>:
+<ul>
+<li>Single-request latency
+<ul>
+<li>Read: The same as the latency on a single disk.</li>
+<li>Write: Two writes in parallel. Thus suffers the worst-case seek and rotational delay of the two.</li>
+</ul>
+</li>
+<li>Steady-state throughput
+<ul>
+<li>Sequential
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>S</mi><mi mathvariant="normal">/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">N \times S/2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="mord">/</span><span class="mord">2</span></span></span></span> MB/s, for both reads and writes</li>
+</ul>
+</li>
+<li>Random:
+<ul>
+<li>Read: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">N \times R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span> MB/s (parallel reads).</li>
+<li>Write: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>R</mi><mi mathvariant="normal">/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">N \times R/2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mord">/</span><span class="mord">2</span></span></span></span> MB/s (mirroring overhead).</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>RAID 0+1 or RAID 1+0</strong></p>
+<ul>
+<li><img src="pictures/10-9.png" alt=""></li>
+<li><img src="pictures/10-10.png" alt=""></li>
+</ul>
+</li>
+<li>
+<p><strong>RAID Level-4: Parity 奇偶校验</strong></p>
+<ul>
+<li><img src="pictures/10-11.png" alt=""></li>
+<li><strong>Parity block</strong>: 奇偶校验块，等于一条数据的异或</li>
+<li><strong>Description</strong>: Dedicated parity disk for each stripe.<br>
+每条纹带专用奇偶校验磁盘。</li>
+<li><strong>Capacity</strong>: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo><mo>×</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">(N-1) \times B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span></span></span></span> (1 disk for parity).</li>
+<li><strong>Reliability</strong>: Tolerates <strong>1 disk failure</strong>.<br>
+容忍1个磁盘故障。</li>
+<li><strong>Performance</strong>:
+<ul>
+<li>Single-request latency
+<ul>
+<li>Read: The same as the latency on a single disk.</li>
+<li>Write: Twice as the latency on a single disk 因为要写入校验</li>
+</ul>
+</li>
+<li>Steady-state throughput
+<ul>
+<li>Sequential
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo><mo>×</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">(N-1) \times S</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span></span></span></span> MB/s, for both reads and writes</li>
+<li>顺序写入时校验计算可流水线化，吞吐量仍由数据盘数量决定</li>
+</ul>
+</li>
+<li>Random
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mtext>−</mtext><mn>1</mn><mo stretchy="false">)</mo><mo>×</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">(N − 1) \times R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mord">−</span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span> MB/s for reads, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mi mathvariant="normal">/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">R/2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mord">/</span><span class="mord">2</span></span></span></span> MB/s for writes.</li>
+<li>每次随机写入需 <strong>两次读取（旧数据+旧校验） + 两次写入（新数据+新校验）</strong>，校验盘成为严重瓶颈：校验盘的读写必须严格串行。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>全条带写入是RAID-4向磁盘写入数据的最高效方式。
+<ul>
+<li>对于随机写入：</li>
+<li><strong>加法奇偶校验</strong>：要计算新奇偶校验块的值，需并行读取条带中的所有其他数据块。</li>
+<li><strong>减法奇偶校验</strong>：仅使用已修改的块。</li>
+<li>新奇偶校验值 = 旧数据 XOR 新数据 XOR 旧奇偶校验值</li>
+<li>使用减法方法时，每次写入操作需要RAID执行4次物理I/O（两次读取旧数据和两次写入新数据）。</li>
+</ul>
+</li>
+<li><strong>Small-write problem</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>RAID Level-5: Rotating Parity 旋转奇偶校验</strong></p>
+<ul>
+<li>相比于RAID-4：Rotate the parity block across drives</li>
+<li><img src="pictures/10-12.png" alt=""></li>
+<li><strong>Description</strong>: Parity blocks distributed across all disks.<br>
+奇偶校验块分布所有磁盘。</li>
+<li><strong>Capacity</strong>: Same as RAID-4, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo><mo>×</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">(N-1) \times B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span></span></span></span>.</li>
+<li><strong>Reliability</strong>: Same as RAID-4, tolerates <strong>1 disk failure</strong>.</li>
+<li><strong>Performance</strong>:
+<ul>
+<li>Single-request latency
+<ul>
+<li>Read: The same as the latency on a single disk.</li>
+<li>Write: Twice as the latency on a single disk.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Steady-state throughput
+<ul>
+<li>Sequential
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mtext>−</mtext><mn>1</mn><mo stretchy="false">)</mo><mo>×</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">(N − 1) \times S</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mord">−</span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span></span></span></span> MB/s, for both reads and writes.</li>
+</ul>
+</li>
+<li>Random
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">N \times R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span> MB/s for reads
+<ul>
+<li><strong>所有磁盘</strong>（包括校验盘）均可参与数据读取（因校验块分布轮换），吞吐量接近 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span></span></span></span> 倍单盘随机读带宽。</li>
+</ul>
+</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mi mathvariant="normal">/</mi><mn>4</mn><mo stretchy="false">)</mo><mo>×</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">(N/4) × R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mord">/</span><span class="mord">4</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span> MB/s for writes
+<ul>
+<li>校验块分散在所有磁盘上，虽然仍需仍需 4 次 I/O，但不同条带的写入可<strong>并行更新校验值</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>RAID Comparison 对比</strong></p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>RAID-0</th>
+<th>RAID-1</th>
+<th>RAID-4</th>
+<th>RAID-5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Capacity</strong></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">N \times B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span></span></span></span></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>B</mi><mi mathvariant="normal">/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">N \times B/2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span><span class="mord">/</span><span class="mord">2</span></span></span></span></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo><mo>×</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">(N-1) \times B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span></span></span></span></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo><mo>×</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">(N-1) \times B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span></span></span></span></td>
+</tr>
+<tr>
+<td><strong>Fault Tolerance</strong></td>
+<td>0 disks</td>
+<td>1 to <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi mathvariant="normal">/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">N/2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mord">/</span><span class="mord">2</span></span></span></span> disks</td>
+<td>1 disk</td>
+<td>1 disk</td>
+</tr>
+<tr>
+<td><strong>Sequential Read</strong></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">N \times S</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span></span></span></span></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mi mathvariant="normal">/</mi><mn>2</mn><mo stretchy="false">)</mo><mo>×</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">(N/2) \times S</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mord">/</span><span class="mord">2</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span></span></span></span></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo><mo>×</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">(N-1) \times S</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span></span></span></span></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo><mo>×</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">(N-1) \times S</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span></span></span></span></td>
+</tr>
+<tr>
+<td><strong>Random Write</strong></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>×</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">N \times R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mi mathvariant="normal">/</mi><mn>2</mn><mo stretchy="false">)</mo><mo>×</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">(N/2) \times R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mord">/</span><span class="mord">2</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mi mathvariant="normal">/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">R/2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mord">/</span><span class="mord">2</span></span></span></span></td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>N</mi><mi mathvariant="normal">/</mi><mn>4</mn><mo stretchy="false">)</mo><mo>×</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">(N/4) \times R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="mord">/</span><span class="mord">4</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span></td>
+</tr>
+</tbody>
+</table>
+<p><img src="pictures/10-15.jpg" alt=""></p>
+</article><!-- 笔记工具条--><div class="note-tools"><button class="tool-btn" id="toggle-dark"><i class="fas fa-moon"></i><span>Dark Mode</span></button><button class="tool-btn" id="print-note"><i class="fas fa-print"></i><span>Print This Note</span></button></div></main><!-- 页脚--><footer class="footer"><div class="footer-content"><p>© 2025 WeiKnight. All Rights Reserved. </p><div class="footer-links"><a href="/notes/about" target="_blank">About</a><a href="/notes/terms" target="_blank">Terms of Use</a><a href="/notes/privacy" target="_blank">Privacy Policy</a></div></div></footer><script src="/js/note.js"></script><script>document.querySelectorAll('figure.highlight').forEach((figure) => {
+  const langClass = Array.from(figure.classList).find(cls => cls !== 'highlight');
+  if (!langClass) return;
+
+  const langLabel = document.createElement('div');
+  langLabel.textContent = langClass;
+  langLabel.style.position = 'absolute';
+  langLabel.style.top = '0';
+  langLabel.style.right = '0';
+  langLabel.style.padding = '0.2em 0.5em';
+  langLabel.style.fontFamily = 'MapleMono-NF-CN';
+  langLabel.style.fontSize = '0.8em';
+  langLabel.style.borderRadius = '0 4px 0 4px';
+  langLabel.style.zIndex = '1';
+
+  // 设置初始样式（根据当前主题）
+  updateLabelTheme(langLabel);
+
+  figure.style.position = 'relative';
+  figure.prepend(langLabel);
+});
+
+// 更新标签主题的函数
+function updateLabelTheme(label) {
+  const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+  label.style.background = isDarkMode ? '#444' : '#eee';
+  label.style.color = isDarkMode ? '#ddd' : '#333';
+  //- console.log("更改了");
+}
+
+// 监听主题变化（仅更新标签）
+new MutationObserver(() => {
+  document.querySelectorAll('figure.highlight div').forEach(label => {
+    updateLabelTheme(label);
+    //- console.log("更改了2");
+  });
+}).observe(document.body, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});</script></body></html>

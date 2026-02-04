@@ -1,0 +1,359 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 13: I/O Systems | WeiKnight's Personnal Blogs</title><link rel="icon" href="https://avatars.githubusercontent.com/WeiKnight0"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><link rel="stylesheet" href="/css/note.css"><meta name="generator" content="Hexo 7.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head><body><!-- 导航栏--><header class="navbar"><div class="navbar-container"><div class="navbar-brand"><a class="avatar-link" target="_blank" rel="noopener" href="https://github.com/WeiKnight0"><img class="avatar" src="https://avatars.githubusercontent.com/WeiKnight0" alt="WeiKnight"></a><div class="navbar-info"><a class="name" target="_blank" rel="noopener" href="https://github.com/WeiKnight0">WeiKnight</a><div class="subject">Study Notes</div></div></div><div class="navbar-actions"><a class="nav-link" href="../" title="Return to Operating System"><i class="fas fa-arrow-left"></i><span>Return to Operating System</span></a><a class="nav-link" href="/"><i class="fas fa-home"></i><span>Return to Home Page</span></a></div></div></header><!-- 标题区域--><section class="title-section"><div class="title-container"><h1 class="chapter-title">Chapter 13: I/O Systems</h1><div class="chapter-meta"><span class="chapter-date"><i class="far fa-calendar-alt"></i>2025-07-24</span><span class="chapter-lang"><p>Language: English</p></span></div></div></section><!-- 内容区域--><main class="content-section"><article class="chapter-content"><hr>
+<h4 id="1-i-o-hardware"><strong>1. I/O Hardware</strong></h4>
+<p><strong>1.1 设备连接与总线</strong></p>
+<ul>
+<li><strong>Port (端口)</strong>
+<ul>
+<li>The device communicates with the machine via a connection point, i.e., <strong>port</strong>.</li>
+<li>设备通过连接点（即<strong>端口</strong>）与机器通信。</li>
+</ul>
+</li>
+<li><strong>Bus (总线)</strong>
+<ul>
+<li>If devices share a common set of wires, the connection is called a <strong>bus</strong> (wires + protocols).</li>
+<li>如果设备共享一组导线，这种连接称为<strong>总线</strong>（导线 + 协议）。</li>
+</ul>
+</li>
+<li><strong>Daisy Chain (菊花链)</strong>
+<ul>
+<li>When device A plugs into device B, which plugs into device C, and C plugs into a port, this is a <strong>daisy chain</strong>. It usually operates as a bus.</li>
+<li>设备A连接设备B，B连接设备C，C连接到计算机端口，这种结构称为<strong>菊花链</strong>，通常作为总线运行。</li>
+</ul>
+</li>
+</ul>
+<p><strong>1.2 常见总线类型</strong></p>
+<ul>
+<li><strong>PCI Bus (PCI总线)</strong>
+<ul>
+<li>Connects the processor-memory subsystem to fast devices.</li>
+<li>连接处理器-内存子系统与高速设备。</li>
+</ul>
+</li>
+<li><strong>Expansion Bus (扩展总线)</strong>
+<ul>
+<li>Connects slow devices (e.g., keyboard, USB ports).</li>
+<li>连接低速设备（如键盘、USB端口）。</li>
+</ul>
+</li>
+<li><strong>SCSI Bus (SCSI总线) Small Computer System Interface</strong>
+<ul>
+<li>Connects disks via a SCSI controller.</li>
+<li>通过SCSI控制器连接磁盘。</li>
+</ul>
+</li>
+<li><strong>PCIe (PCI Express)</strong>
+<ul>
+<li>PCIe: Throughput up to 16 GB/s.</li>
+</ul>
+</li>
+<li><strong>HyperTransport</strong>
+<ul>
+<li>HyperTransport: Throughput up to 25 GB/s.</li>
+</ul>
+</li>
+</ul>
+<p><strong>1.3 控制器（Controller）</strong></p>
+<ul>
+<li>A controller operates a port, bus, or device.</li>
+<li>控制器是控制端口、总线或设备的电子组件。</li>
+<li>Example:
+<ul>
+<li>SCSI bus controller is often implemented as a separate circuit board.</li>
+<li>某些设备（如磁盘）内置控制器（e.g., SATA控制器）。</li>
+</ul>
+</li>
+</ul>
+<p><strong>1.4 标准设备结构（Canonical Device）</strong></p>
+<ul>
+<li>A device has two important components.
+<ul>
+<li>The first is the hardware interface it presents to the rest of the system</li>
+<li>The second part of any device is its internal structure, which is implementation specific.</li>
+</ul>
+</li>
+<li><strong>硬件接口（Hardware Interface）</strong>
+<ul>
+<li>Registers:
+<ul>
+<li><strong>Status Register (状态寄存器)</strong>: 读取设备状态。</li>
+<li><strong>Command Register (命令寄存器)</strong>: 发送任务指令。</li>
+<li><strong>Data Register (数据寄存器)</strong>: 传输数据。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>内部结构（Internal Structure）</strong>
+<ul>
+<li>Micro-controller, memory (DRAM/SRAM), hardware-specific chips.</li>
+</ul>
+</li>
+</ul>
+<p><strong>1.5 轮询 vs. 中断（Polling vs. Interrupts）</strong></p>
+<ul>
+<li><strong>Polling (轮询)</strong><pre><code class="language-c">while (STATUS == BUSY); // 等待设备空闲  
+Write data to DATA register;  
+Write command to COMMAND register;  
+  （Doing so starts the device and executes the command.）
+while (STATUS == BUSY); // 等待操作完成  
+</code></pre>
+<ul>
+<li>效率低（Inefficient）。</li>
+</ul>
+</li>
+<li><strong>Interrupt-Driven (中断驱动)</strong>
+<ul>
+<li>OS issues a request, sleeps the process, and switches tasks.</li>
+<li>操作系统可以发出请求，让调用进程进入睡眠状态，然后通过上下文切换执行其他任务，而不必反复轮询设备。当设备最终完成操作时，会触发一个硬件中断，使CPU跳转到操作系统中预先设定的中断服务程序（ISR），或者更简单地说，跳转到中断处理程序。</li>
+<li>避免CPU空转。</li>
+</ul>
+</li>
+<li><strong>Hybrid Approach (混合方法)</strong>
+<ul>
+<li>如果设备速度快，轮询可能是最佳选择；如果设备速度慢，中断则更为合适。</li>
+<li>如果设备的速度未知，或者时快时慢，最好采用混合方式：先轮询一段时间，若设备尚未完成操作，则改用中断方式。</li>
+</ul>
+</li>
+<li><strong>Livelock (活锁)</strong>
+<ul>
+<li>高频率中断导致OS无法处理用户请求（e.g., 网络流量激增）。</li>
+<li><strong>Coalescing (合并中断)</strong>: 将多个中断合并为单个。</li>
+</ul>
+</li>
+</ul>
+<p><strong>1.6 直接内存访问（Direct Memory Access, DMA）</strong></p>
+<ul>
+<li><strong>Problem</strong>: CPU负担过重（如大数据传输）。</li>
+<li>DMA引擎本质上是系统内一种特殊的设备，它能够在无需CPU过多干预的情况下，协调 orchestrate 设备与主内存之间的数据传输。</li>
+<li><strong>Solution</strong>: DMA引擎协调设备与内存间的传输，无需CPU干预。<pre><code class="language-plaintext">CPU -&gt; DMA -&gt; Disk (高效传输)  
+</code></pre>
+</li>
+<li><strong>设备通信方式</strong>
+<ul>
+<li><strong>I/O Instructions (I/O指令)</strong>
+<ul>
+<li>e.g., x86的<code>in</code>/<code>out</code>指令。</li>
+<li>Such instructions are usually privileged.</li>
+</ul>
+</li>
+<li><strong>Memory-Mapped I/O (内存映射I/O)</strong>
+<ul>
+<li>设备寄存器映射为内存地址，直接读写。</li>
+<li>The hardware makes device registers available as if they were memory locations.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>1.7 设备驱动（Device Driver）</strong></p>
+<ul>
+<li>Lowest-level OS software that knows device details.</li>
+<li>最底层的OS软件，负责设备的具体操作。</li>
+</ul>
+<hr>
+<h4 id="2-application-i-o-interface"><strong>2. Application I/O Interface</strong></h4>
+<p><strong>2.1 设备分类维度</strong></p>
+<ul>
+<li><strong>Character-stream vs. Block</strong>
+<ul>
+<li>字符流设备（如键盘）逐字节传输，块设备（如磁盘）按块传输。</li>
+</ul>
+</li>
+<li><strong>Sequential vs. Random Access</strong>
+<ul>
+<li>顺序设备（如磁带）按固定顺序传输，随机访问设备（如CD-ROM）可寻址。</li>
+</ul>
+</li>
+<li><strong>Synchronous vs. Asynchronous</strong>
+<ul>
+<li>同步设备（如磁带）响应时间可预测，异步设备（如键盘）响应不规则。</li>
+</ul>
+</li>
+<li><strong>Sharable vs. Dedicated</strong>
+<ul>
+<li>共享设备（如键盘）允许多进程并发使用，独占设备（如磁带）不能。</li>
+</ul>
+</li>
+</ul>
+<p><strong>2.2 块设备接口（Block-Device Interface）</strong></p>
+<ul>
+<li><strong>Raw I/O (原始I/O)</strong>: 操作系统本身以及数据库管理系统等特殊应用程序，可能更倾向于将块设备作为简单的线性块数组来访问。</li>
+<li><strong>Direct I/O (直接I/O)</strong>: 操作系统允许对文件采用一种禁用缓冲和锁定的操作模式。</li>
+</ul>
+<p><strong>2.3 网络设备（Network Devices）</strong></p>
+<ul>
+<li><strong>Socket Interface (套接字接口)</strong>: 进程通过套接字发送/接收数据包。</li>
+</ul>
+<p><strong>2.4 时钟与定时器（Clocks and Timers）</strong></p>
+<ul>
+<li>功能：
+<ul>
+<li>Give the current time.</li>
+<li>Give the elapsed time.</li>
+<li>Set a timer to trigger operation X at time T</li>
+</ul>
+</li>
+<li><strong>Programmable Interval Timer (可编程间隔定时器)</strong>
+<ul>
+<li>The hardware to measure elapsed time 持续时间 and to trigger operations is called a <strong>programmable interval timer</strong>.</li>
+<li>On many computers, the interrupt rate generated by the hardware clock is 18 ∼ 60 ticks per second.</li>
+</ul>
+</li>
+</ul>
+<p><strong>2.5 非阻塞与异步I/O（Nonblocking &amp; Asynchronous I/O）</strong></p>
+<ul>
+<li><strong>Asynchronous I/O (异步I/O)</strong>
+<ul>
+<li>接口使应用程序能够发出输入/输出（I/O）请求，并在I/O完成之前立即将控制权返回给调用方</li>
+<li>附加接口（I/O中断）使应用程序能够确定各种I/O操作是否已完成</li>
+</ul>
+</li>
+<li><strong>AIO Control Block (异步I/O控制块)</strong>:<pre><code class="language-c">struct aiocb &#123;  
+  int aio_fildes;     // 文件描述符  
+  off_t aio_offset;   // 文件偏移量  
+  void* aio_buf;      // 缓冲区地址  
+  size_t aio_nbytes;  // 传输长度  
+&#125;;  
+</code></pre>
+</li>
+</ul>
+<p><strong>2.6 向量I/O（Vectored I/O）</strong></p>
+<ul>
+<li>Vectored I/O allows one system call to perform multiple I/O operations involving multiple locations.</li>
+<li>单次系统调用执行多缓冲区I/O操作（如UNIX的<code>readv</code>/<code>writev</code>）。</li>
+</ul>
+<hr>
+<h4 id="3-kernel-i-o-subsystem"><strong>3. Kernel I/O Subsystem</strong></h4>
+<p><strong>3.1 I/O调度（I/O Scheduling）</strong></p>
+<ul>
+<li>决定I/O请求的执行顺序以优化性能。<br>
+<strong>3.2 缓冲（Buffering）</strong></li>
+<li>解决生产者与消费者的速度不匹配问题。</li>
+<li>支持不同传输大小的设备适配。<br>
+<strong>3.3 缓存（Caching）</strong></li>
+<li>快速内存区域存储数据副本，加速访问。<br>
+<strong>3.4 假脱机与设备预留（Spooling &amp; Device Reservation）</strong></li>
+<li><strong>Spooling</strong>: 缓冲输出到磁盘（如打印机无法交错数据流）。</li>
+<li><strong>Device Reservation</strong>: 协调并发应用对独占设备的访问。<br>
+<strong>3.5 错误处理（Error Handling）</strong></li>
+<li>系统调用返回状态位（成功/失败）。<br>
+<strong>3.6 I/O保护（I/O Protection）</strong></li>
+<li>I/O指令为特权指令，内存映射I/O受内存保护系统限制。<br>
+<strong>3.7 内核数据结构（Kernel Data Structures）</strong></li>
+<li>UNIX: 文件系统统一访问文件、原始设备、进程地址空间。</li>
+<li>Windows: 基于消息传递的I/O实现（请求转为消息传递给I/O管理器）。<br>
+<strong>3.8 性能优化（Performance Optimization）</strong></li>
+<li><strong>Reducing Context Switches (减少上下文切换)</strong>
+<ul>
+<li>Minimize switches between user and kernel modes during I/O.</li>
+<li>减少I/O过程中用户态与内核态的切换。</li>
+</ul>
+</li>
+<li><strong>Zero-Copy I/O (零拷贝I/O)</strong>
+<ul>
+<li>Data is copied directly from disk to network buffers without intermediate kernel buffers.</li>
+<li>数据直接从磁盘到网络缓冲区，避免内核缓冲区的中间拷贝。</li>
+</ul>
+</li>
+<li><strong>Kernel Bypass (内核旁路)</strong>
+<ul>
+<li>Allow user-space applications to directly access hardware (e.g., RDMA in high-speed networks).</li>
+<li>用户态程序直接访问硬件（如高速网络中的RDMA）。<br>
+<strong>3.9 设备管理（Device Management）</strong></li>
+</ul>
+</li>
+<li><strong>Plug and Play (PnP, 即插即用)</strong>
+<ul>
+<li>Automatically detect and configure devices without user intervention.</li>
+<li>自动检测和配置设备，无需用户干预。</li>
+</ul>
+</li>
+<li><strong>Hot Swapping (热插拔)</strong>
+<ul>
+<li>Devices can be added/removed while the system is running (e.g., USB drives).</li>
+<li>系统运行时动态添加/移除设备（如USB驱动器）。<br>
+<strong>3.10 电源管理（Power Management）</strong></li>
+</ul>
+</li>
+<li><strong>Advanced Configuration and Power Interface (ACPI)</strong>
+<ul>
+<li>OS controls device power states (e.g., sleep, hibernation) to save energy.</li>
+<li>操作系统控制设备电源状态（如睡眠、休眠）以节省能耗。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h4 id="4-summary-of-key-concepts"><strong>4. Summary of Key Concepts</strong></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Concept</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Port vs. Bus</strong></td>
+<td>Port: Single connection point; Bus: Shared wires with protocols.</td>
+</tr>
+<tr>
+<td><strong>DMA</strong></td>
+<td>Offloads data transfer from CPU to dedicated engine.</td>
+</tr>
+<tr>
+<td><strong>Interrupts vs. Polling</strong></td>
+<td>Interrupts efficient for slow devices; polling for fast devices.</td>
+</tr>
+<tr>
+<td><strong>Block vs. Character</strong></td>
+<td>Block devices (e.g., disks) transfer fixed-size units; character devices (e.g., keyboards) stream bytes.</td>
+</tr>
+<tr>
+<td><strong>Asynchronous I/O</strong></td>
+<td>Non-blocking calls with completion notifications.</td>
+</tr>
+<tr>
+<td><strong>Kernel Buffering</strong></td>
+<td>Resolves speed mismatches between producers and consumers.</td>
+</tr>
+</tbody>
+</table>
+</article><!-- 笔记工具条--><div class="note-tools"><button class="tool-btn" id="toggle-dark"><i class="fas fa-moon"></i><span>Dark Mode</span></button><button class="tool-btn" id="print-note"><i class="fas fa-print"></i><span>Print This Note</span></button></div></main><!-- 页脚--><footer class="footer"><div class="footer-content"><p>© 2025 WeiKnight. All Rights Reserved. </p><div class="footer-links"><a href="/notes/about" target="_blank">About</a><a href="/notes/terms" target="_blank">Terms of Use</a><a href="/notes/privacy" target="_blank">Privacy Policy</a></div></div></footer><script src="/js/note.js"></script><script>document.querySelectorAll('figure.highlight').forEach((figure) => {
+  const langClass = Array.from(figure.classList).find(cls => cls !== 'highlight');
+  if (!langClass) return;
+
+  const langLabel = document.createElement('div');
+  langLabel.textContent = langClass;
+  langLabel.style.position = 'absolute';
+  langLabel.style.top = '0';
+  langLabel.style.right = '0';
+  langLabel.style.padding = '0.2em 0.5em';
+  langLabel.style.fontFamily = 'MapleMono-NF-CN';
+  langLabel.style.fontSize = '0.8em';
+  langLabel.style.borderRadius = '0 4px 0 4px';
+  langLabel.style.zIndex = '1';
+
+  // 设置初始样式（根据当前主题）
+  updateLabelTheme(langLabel);
+
+  figure.style.position = 'relative';
+  figure.prepend(langLabel);
+});
+
+// 更新标签主题的函数
+function updateLabelTheme(label) {
+  const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+  label.style.background = isDarkMode ? '#444' : '#eee';
+  label.style.color = isDarkMode ? '#ddd' : '#333';
+  //- console.log("更改了");
+}
+
+// 监听主题变化（仅更新标签）
+new MutationObserver(() => {
+  document.querySelectorAll('figure.highlight div').forEach(label => {
+    updateLabelTheme(label);
+    //- console.log("更改了2");
+  });
+}).observe(document.body, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});</script></body></html>

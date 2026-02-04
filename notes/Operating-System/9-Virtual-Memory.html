@@ -1,0 +1,577 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Chapter 9: Virtual Memory | WeiKnight's Personnal Blogs</title><link rel="icon" href="https://avatars.githubusercontent.com/WeiKnight0"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&amp;family=Roboto:wght@400;500;700&amp;display=swap"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"><link rel="stylesheet" href="/css/note.css"><meta name="generator" content="Hexo 7.3.0"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head><body><!-- 导航栏--><header class="navbar"><div class="navbar-container"><div class="navbar-brand"><a class="avatar-link" target="_blank" rel="noopener" href="https://github.com/WeiKnight0"><img class="avatar" src="https://avatars.githubusercontent.com/WeiKnight0" alt="WeiKnight"></a><div class="navbar-info"><a class="name" target="_blank" rel="noopener" href="https://github.com/WeiKnight0">WeiKnight</a><div class="subject">Study Notes</div></div></div><div class="navbar-actions"><a class="nav-link" href="../" title="Return to Operating System"><i class="fas fa-arrow-left"></i><span>Return to Operating System</span></a><a class="nav-link" href="/"><i class="fas fa-home"></i><span>Return to Home Page</span></a></div></div></header><!-- 标题区域--><section class="title-section"><div class="title-container"><h1 class="chapter-title">Chapter 9: Virtual Memory</h1><div class="chapter-meta"><span class="chapter-date"><i class="far fa-calendar-alt"></i>2025-07-24</span><span class="chapter-lang"><p>Language: English</p></span></div></div></section><!-- 内容区域--><main class="content-section"><article class="chapter-content"><hr>
+<h4 id="1-warm-up-预热"><strong>1. Warm-up (预热)</strong></h4>
+<p><strong>What Happens When OS is Booting? (操作系统启动时发生了什么？)</strong></p>
+<ul>
+<li><strong>OS @boot (kernel mode):</strong>
+<ul>
+<li>Initialize trap table (初始化陷阱表)</li>
+<li>Start interrupt timer (启动中断计时器)</li>
+<li>Initialize process table (初始化进程表)</li>
+<li>Initialize free list (初始化空闲列表)</li>
+</ul>
+</li>
+<li><strong>Hardware:</strong>
+<ul>
+<li>Remember addresses of handlers (记录处理程序的地址):
+<ul>
+<li>System call handler (系统调用处理程序)</li>
+<li>Timer handler (计时器处理程序)</li>
+<li>Illegal memory-access handler (非法内存访问处理程序)</li>
+<li>Illegal instruction handler (非法指令处理程序)</li>
+</ul>
+</li>
+<li>Start timer; interrupt after X ms (启动计时器，X毫秒后中断)<br>
+<strong>What Happens When OS is Running? (操作系统运行时发生了什么？)</strong></li>
+</ul>
+</li>
+<li><strong>OS @run (kernel mode):</strong>
+<ul>
+<li>Allocate entry in process table (在进程表中分配条目)</li>
+<li>Allocate memory for program (为程序分配内存)</li>
+<li>Set base/limit registers (设置基址/界限寄存器)</li>
+<li>Return-from-trap (into Process A) (从陷阱返回到进程A)</li>
+</ul>
+</li>
+<li><strong>Hardware:</strong>
+<ul>
+<li>Restore registers of A (恢复进程A的寄存器)</li>
+<li>Move to user mode (切换到用户模式)</li>
+<li>Jump to A’s initial PC (跳转到进程A的程序计数器)</li>
+</ul>
+</li>
+<li><strong>Program (user mode):</strong>
+<ul>
+<li>Fetch/execute instructions (取指/执行指令)</li>
+<li>Translate virtual addresses (虚拟地址转换)<br>
+<strong>What Happens During an Exception? (异常发生时发生了什么？)</strong></li>
+</ul>
+</li>
+<li><strong>Timer interrupt → OS handles trap:</strong>
+<ul>
+<li>Save/restore process registers (保存/恢复寄存器)</li>
+<li>Terminate process if needed (必要时终止进程)</li>
+</ul>
+</li>
+<li><strong>Invalid memory access → Segmentation fault (非法内存访问 → 段错误)</strong></li>
+<li><strong>Page fault → Load missing page (缺页 → 加载缺失页)</strong></li>
+</ul>
+<hr>
+<h4 id="2-background-背景"><strong>2. Background (背景)</strong></h4>
+<ul>
+<li><strong>Virtual memory</strong>: an additional level in the memory hierarchy, separation of user logical memory from physical memory</li>
+<li>Benefits:
+<ul>
+<li>程序执行时只需部分驻留在内存中</li>
+<li>因此，逻辑地址空间可以远大于物理地址空间</li>
+<li>允许地址空间被多个进程共享</li>
+<li>支持更高效的进程创建</li>
+<li>可同时运行更多程序</li>
+<li>加载或交换进程所需的I/O操作更少<br>
+<strong>Key Concepts (关键概念):</strong></li>
+</ul>
+</li>
+<li><strong>Backing Store (后备存储):</strong> Reserved disk space for swapping (用于交换的磁盘空间).</li>
+<li><strong>Demand Paging (按需分页):</strong> Pages loaded only when accessed (页仅在访问时加载).<br>
+<img src="pictures/9-1.png" alt=""></li>
+</ul>
+<hr>
+<h4 id="3-swapping-mechanisms-交换机制"><strong>3. Swapping Mechanisms (交换机制)</strong></h4>
+<p><strong>Swap Space (交换空间):</strong></p>
+<ul>
+<li>the reserved space on the backing store for moving pages back and forth.</li>
+<li>OS can read from and write to the swap space, in <strong>page-sized units</strong>.</li>
+<li>OS needs to remember the <strong>disk address</strong> of a given page.<br>
+<strong>Page Fault Handling (缺页处理):</strong><br>
+If there is a reference to a page, first reference to that page will trap to operating system.</li>
+</ul>
+<ol>
+<li>Operating system looks at an internal table to decide:
+<ul>
+<li>Valid bit = 0 -&gt; abort (<strong>segmentation fault</strong>)</li>
+<li>Present bit = 0 -&gt; just not in memory (page fault).</li>
+</ul>
+</li>
+<li>Handler:
+<ul>
+<li>Find free frame (找到空闲帧).</li>
+<li>Swap page into frame via scheduled disk operation(调入页).</li>
+<li>Reset tables to indicate page now in physical memory (i.e., set Present bit = 1)</li>
+<li>Restart instruction (重启指令).<br>
+<img src="pictures/9-2.png" alt=""><br>
+<strong>Hardware Algorithm (硬件算法):</strong></li>
+</ul>
+</li>
+</ol>
+<pre><code class="language-python">if TLB_hit and access_allowed:  
+    Access memory  
+else if page_not_present:  
+    Raise PAGE_FAULT  
+</code></pre>
+<p><strong>Software Algorithm (软件算法):</strong></p>
+<pre><code class="language-python">PFN = FindFreePage()  
+if no_free_page:  
+    EvictPage()  
+DiskRead(PTE.DiskAddr, PFN)  
+UpdatePageTable()  
+RetryInstruction()  
+</code></pre>
+<hr>
+<h4 id="4-swapping-policies-page-replacement-交换机制：页替换策略"><strong>4. Swapping Policies: Page Replacement (交换机制：页替换策略)</strong></h4>
+<ul>
+<li>通过修改页面错误服务例程以包含页面置换功能，防止内存过度分配</li>
+<li>使用修改（脏）位来减少页面传输开销：仅将已修改的页面写入磁盘</li>
+<li>页面置换实现了逻辑内存与物理内存的完全分离：可在较小的物理内存上提供大容量虚拟内存<br>
+<strong>Basic Page Replacement</strong></li>
+</ul>
+<ol>
+<li>在磁盘上找到目标页面的位置</li>
+<li>查找一个空闲帧：
+<ul>
+<li>若存在空闲帧，使用该帧</li>
+<li>若无空闲帧，使用页面置换算法选择一个被替换帧</li>
+<li>若被替换帧为脏页（已修改），将其写入磁盘</li>
+</ul>
+</li>
+<li>将目标页面载入（新释放的）空闲帧；更新页表和帧表</li>
+<li>重新启动导致陷阱的指令以继续进程</li>
+</ol>
+<ul>
+<li>注意：如果没有空闲帧，此时页面错误可能涉及 2 次页面传输（调出、调入）: 增加有效访问时间（EAT）<br>
+<strong>Reference String 引用串</strong></li>
+<li>页面编号，不是完整地址</li>
+<li>Repeated access to the same page does not cause a page fault</li>
+</ul>
+<h5 id="algorithms-算法"><strong>Algorithms (算法):</strong></h5>
+<p>以Reference String = [7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 0, 3, 2, 1, 2, 0, 1, 7, 0, 1] ，内存中 3 frames为例：</p>
+<ol>
+<li><strong>Optimal (OPT):</strong> Replace page unused longest (替换最长时间不会使用的页).
+<ul>
+<li><img src="pictures/9-3.png" alt=""></li>
+<li>9 page faults</li>
+<li>无法知道未来，不可实现</li>
+</ul>
+</li>
+<li><strong>FIFO:</strong> Replace oldest page (替换最早进入的页).
+<ul>
+<li><img src="pictures/9-4.png" alt=""></li>
+<li>15 page faults</li>
+<li>Suffers from <strong>Bélády’s Anomaly</strong>
+<ul>
+<li><strong>Adding more frames can cause more page faults</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>LRU:</strong> Replace least recently used page (替换最长**时间（不是次数）**没有使用的页).
+<ul>
+<li><img src="pictures/9-5.png" alt=""></li>
+<li>12 page faults</li>
+<li>实现：
+<ul>
+<li>Counter implementation 计数器实现
+<ul>
+<li>每个页表项都有一个计数器；每当通过该表项引用页面时，将<strong>时钟值</strong>复制到计数器中</li>
+<li>当需要更换页面时，查看计数器以找到最小值
+<ul>
+<li>需要遍历页表进行搜索</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Stack implementation</li>
+<li>以双向链表形式维护一个页号栈</li>
+<li>当页面被引用时：
+<ul>
+<li>将其移至栈顶</li>
+<li>需要修改6个指针（为什么？）：</li>
+<li>假设双向链表中每个节点包含前驱（<code>prev</code>）和后继（<code>next</code>）指针，移动节点时需操作以下指针： 1. 节点原前驱的<code>next</code>指针 2. 节点原后继的<code>prev</code>指针 3. 栈顶节点的<code>prev</code>指针 4. 节点新前驱（原栈顶）的<code>next</code>指针 5. 节点自身的<code>prev</code>指针（指向原栈顶） 6. 节点自身的<code>next</code>指针（置为<code>null</code>，因成为新栈顶）</li>
+</ul>
+</li>
+<li>每次更新代价更高：
+<ul>
+<li>需频繁操作双向指针，时间复杂度为 (O(1))，但常数因子较大。</li>
+</ul>
+</li>
+<li>无需搜索置换页面（为什么？）：
+<ul>
+<li><strong>LRU页面始终位于链表底部</strong>（尾节点），置换时直接删除尾节点即可，无需遍历链表查找。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>LRU和OPT算法没有Belady异常</li>
+</ul>
+</li>
+<li><strong>近似LRU算法/LRU Approximation Algorithms</strong>
+<ol>
+<li><strong>Reference bit</strong>
+<ul>
+<li>With each page associate a bit, initially = 0</li>
+<li><strong>When page is referenced, bit set to 1</strong></li>
+<li>Replace any with reference bit = 0 (if one exists)</li>
+</ul>
+</li>
+<li><strong>Additional-Reference-Bits Algorithm 额外引用位算法</strong>
+<ul>
+<li>为每个页面保留一个8位字节</li>
+<li>定期将各位右移1位，将引用位（Reference Bit）移入最高位，舍弃最低位
+<ul>
+<li>此时被引用的高位为1，较大；没被引用的高位为0，较小</li>
+</ul>
+</li>
+<li>将这些8位字节解释为无符号整数，数值最小的页面即为LRU页面</li>
+</ul>
+</li>
+<li><strong>Second-chance algorithm 第二次机会算法</strong>
+<ul>
+<li>Generally FIFO, plus hardware-provided reference bit</li>
+<li>若要置换的页面满足：
+<ul>
+<li><strong>引用位 = 0</strong> → 直接置换该页面</li>
+<li><strong>引用位 = 1</strong> →
+<ul>
+<li>将引用位设置为0，保留页面在内存中</li>
+<li>按相同规则置换下一个页面</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Enhanced Second-Chance Algorithm</strong>
+<ul>
+<li>Improve algorithm by using reference bit and modify bit (if available) in concert</li>
+<li>采用有序对（引用位，修改位）分类页面：
+<ol>
+<li><strong>(0, 0)</strong>：近期未使用且未修改： <strong>最适合置换的页面</strong></li>
+<li><strong>(0, 1)</strong>：近期未使用但已修改： <strong>置换优先级次之，置换前必须先写回磁盘</strong>
+<ul>
+<li><strong>问题：页面如何在未被使用的情况下被修改？</strong></li>
+<li>解释：可能通过后台进程或DMA（直接内存访问）操作修改（如内存映射I/O），无需CPU访问页面即被修改。</li>
+</ul>
+</li>
+<li><strong>(1, 0)</strong>：近期使用过但未修改： <strong>很可能很快会被再次使用</strong></li>
+<li><strong>(1, 1)</strong>：近期使用过且已修改： <strong>很可能很快会被再次使用，且置换前需先写回磁盘</strong></li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>基于计数的页面替换
+<ul>
+<li>为每个页面维护一个引用次数计数器</li>
+<li>（该方法）并不常见</li>
+<li><strong>最不常用算法（Least Frequently Used, LFU）</strong>：置换计数器值最小的页面</li>
+<li><strong>最常用算法（Most Frequently Used, MFU）</strong>：基于以下论点 —— 计数器值最小的页面可能刚被调入内存，尚未被使用</li>
+</ul>
+</li>
+<li>页面缓冲算法
+<ul>
+<li>始终维护一个空闲帧池
+<ul>
+<li>这样在需要时可直接获取空闲帧，而无需在缺页时临时查找</li>
+<li>将页面读入空闲帧，选择待淘汰的页面并将其加入空闲池</li>
+<li>在方便时淘汰目标页面</li>
+</ul>
+</li>
+<li>可能需要维护一个已修改页面列表
+<ul>
+<li>当后备存储处于空闲状态时，将这些页面写入并标记为非脏页</li>
+</ul>
+</li>
+<li>可能需要保留空闲帧的内容并记录其存储的页面
+<ul>
+<li>若在重新使用前再次引用该页面，则无需从磁盘重新加载内容</li>
+<li>总体而言，这有助于减少因错误选择淘汰帧而导致的性能损耗</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>应用程序与页面置换
+<ul>
+<li>所有这些算法都需要操作系统对未来的页面访问进行猜测</li>
+<li>某些应用程序（如数据库）对自身的页面访问模式有更清晰的认知</li>
+<li>内存密集型应用可能导致双重缓冲问题
+<ul>
+<li>操作系统将页面副本保留在内存中作为I/O缓冲区</li>
+<li>应用程序为自身工作也会将页面保留在内存中</li>
+</ul>
+</li>
+<li>操作系统可以让应用程序直接访问磁盘，避免中间干扰
+<ul>
+<li>原始磁盘模式</li>
+</ul>
+</li>
+<li>绕过缓冲、锁定等操作<br>
+<strong>In class Exercise</strong><br>
+<img src="pictures/9-6.png" alt=""><br>
+<strong>Answer:</strong><br>
+<img src="pictures/9-7.png" alt=""></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h4 id="5-allocation-of-frames-帧分配"><strong>5. Allocation of Frames (帧分配)</strong></h4>
+<p><strong>Fixed Allocation (固定分配):</strong></p>
+<ul>
+<li><strong>Equal Allocation (均等分配):</strong>
+<ul>
+<li>Each process gets equal frames (e.g., 100 frames ÷ 5 processes = 20 frames each).</li>
+<li>每个进程获得相同数量的帧（例如：100帧 ÷ 5进程 = 每进程20帧）.</li>
+</ul>
+</li>
+<li><strong>Proportional Allocation (比例分配):</strong>
+<ul>
+<li>Allocate based on process size (按进程大小分配).</li>
+<li>Formula:<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>i</mi></msub><mo>=</mo><mrow><mo fence="true">(</mo><mfrac><msub><mi>s</mi><mi>i</mi></msub><mrow><mo>∑</mo><msub><mi>s</mi><mi>i</mi></msub></mrow></mfrac><mo fence="true">)</mo></mrow><mo>×</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">a_i = \left( \frac{s_i}{\sum s_i} \right) \times m  
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">a</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:2.40003em;vertical-align:-0.95003em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.1075599999999999em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop op-symbol small-op" style="position:relative;top:-0.0000050000000000050004em;">∑</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord"><span class="mord mathdefault">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathdefault">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.93601em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">m</span></span></span></span></span></p>
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">s_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.58056em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>: Size of process <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">P_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.13889em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>.</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">m</span></span></span></span>: Total frames available.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>Priority Allocation (优先级分配):</strong></p>
+<ul>
+<li>Higher-priority processes get more frames (高优先级进程获得更多帧).</li>
+<li>Page replacement can steal frames from lower-priority processes (可从低优先级进程抢占帧).</li>
+</ul>
+<p><strong>Global vs. Local Replacement (全局 vs. 本地替换):</strong></p>
+<ul>
+<li><strong>Global:</strong> Replacement from all frames (higher throughput).
+<ul>
+<li>从所有帧中选择替换（吞吐量更高）.</li>
+</ul>
+</li>
+<li><strong>Local:</strong> Replacement only from process’s own frames (consistent performance).
+<ul>
+<li>仅从进程自身帧中选择替换（性能稳定）.</li>
+</ul>
+</li>
+</ul>
+<p><strong>NUMA (Non-Uniform Memory Access):</strong></p>
+<ul>
+<li>Memory access speed varies by CPU proximity (内存访问速度因CPU距离而异).</li>
+<li>OS optimizes by allocating &quot;close&quot; memory (e.g., Solaris uses <strong>lgroups</strong>).</li>
+</ul>
+<hr>
+<h4 id="6-thrashing-抖动"><strong>6. Thrashing (抖动)</strong></h4>
+<p><strong>Definition:</strong></p>
+<ul>
+<li>Excessive page faults → Low CPU utilization (频繁缺页 → CPU利用率低).</li>
+<li>OS responds by adding more processes, worsening thrashing (恶性循环).</li>
+</ul>
+<p><strong>Locality Model (局部性模型):</strong></p>
+<ul>
+<li>Processes alternate between <strong>locality sets</strong> (pages actively used).
+<ul>
+<li>进程在多个<strong>局部性集合</strong>间切换（活跃使用的页）.</li>
+</ul>
+</li>
+<li>Thrashing occurs if <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∑</mo><mtext>locality sizes</mtext><mo>&gt;</mo><mtext>physical memory</mtext></mrow><annotation encoding="application/x-tex">\sum \text{locality sizes} &gt; \text{physical memory}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.00001em;vertical-align:-0.25001em;"></span><span class="mop op-symbol small-op" style="position:relative;top:-0.0000050000000000050004em;">∑</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord text"><span class="mord">locality sizes</span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord text"><span class="mord">physical memory</span></span></span></span></span>.</li>
+</ul>
+<p><strong>Working-Set Model (工作集模型):</strong></p>
+<ul>
+<li><strong>Working-Set Window (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi></mrow><annotation encoding="application/x-tex">\varDelta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord"><span class="mord mathit">Δ</span></span></span></span></span>):</strong> Tracks pages referenced in last <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi></mrow><annotation encoding="application/x-tex">\varDelta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord"><span class="mord mathit">Δ</span></span></span></span></span> accesses.
+<ul>
+<li>工作集窗口：记录最近 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi></mrow><annotation encoding="application/x-tex">\varDelta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord"><span class="mord mathit">Δ</span></span></span></span></span> 次页面引用</li>
+<li>如果一个页面处于活动使用状态，那么它处在工作集中；如果它不再使用，那么他在最后一次引用的 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Δ</mi></mrow><annotation encoding="application/x-tex">\varDelta</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord"><span class="mord mathit">Δ</span></span></span></span></span> 时间单位后，会从工作集中删除</li>
+</ul>
+</li>
+<li><strong>Working-Set Size (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mi>S</mi><msub><mi>S</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">WSS_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">W</span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.05764em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>):</strong> Pages in current locality (当前局部性的页数).</li>
+<li>If total demand <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>=</mo><mo>∑</mo><mi>W</mi><mi>S</mi><msub><mi>S</mi><mi>i</mi></msub><mo>&gt;</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">D = \sum WSS_i &gt; m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">D</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.00001em;vertical-align:-0.25001em;"></span><span class="mop op-symbol small-op" style="position:relative;top:-0.0000050000000000050004em;">∑</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">W</span><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.31166399999999994em;"><span style="top:-2.5500000000000003em;margin-left:-0.05764em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">&gt;</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">m</span></span></span></span>, suspend a processes (若总需求 &gt; 内存，挂起一个进程).</li>
+</ul>
+<p><strong>Page-Fault Frequency (PFF):</strong></p>
+<ul>
+<li>Directly control fault rate by adjusting frames (动态调整帧数以控制缺页率).
+<ul>
+<li>Too high → Allocate more frames.</li>
+<li>Too low → Reclaim frames.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h4 id="7-other-concepts-其他概念"><strong>7. Other Concepts (其他概念)</strong></h4>
+<p><strong>Copy-on-Write (COW, 写时复制):</strong></p>
+<ul>
+<li><strong>Mechanism:</strong> Share pages until modification triggers copy (共享页直到修改时复制).
+<ul>
+<li>Used in <code>fork()</code>: Child shares parent’s pages initially.</li>
+<li>用于 <code>fork()</code>：子进程初始共享父进程页.</li>
+</ul>
+</li>
+<li><code>vfork()</code>: Parent pauses until child calls <code>exec()</code> (父进程暂停，直到子进程调用 <code>exec()</code>).</li>
+</ul>
+<p><strong>Memory-Mapped Files (内存映射文件):</strong></p>
+<ul>
+<li>Map file to memory region via <code>mmap()</code> (通过 <code>mmap()</code> 将文件映射到内存).</li>
+<li>Access file via pointers (e.g., <code>*p</code>) instead of <code>read()</code>/<code>write()</code>.
+<ul>
+<li>通过指针（如 <code>*p</code>）访问文件，替代 <code>read()</code>/<code>write()</code>.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Kernel Memory Allocation (内核内存分配):</strong></p>
+<ul>
+<li><strong>Buddy Allocator:</strong> Splits memory into power-of-2 chunks (按2的幂分配).
+<ul>
+<li>Example: 256KB → 128KB + 128KB → ... → 32KB for request.</li>
+<li>示例：256KB → 128KB + 128KB → ... → 满足32KB请求.</li>
+</ul>
+</li>
+<li><strong>Slab Allocator:</strong> Pre-allocates objects for kernel structures (e.g., inodes).
+<ul>
+<li>预分配内核对象（如inode），避免碎片.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h4 id="8-linux-specific-optimizations-linux优化"><strong>8. Linux-Specific Optimizations (Linux优化)</strong></h4>
+<p><strong>Page Cache (页缓存):</strong></p>
+<ul>
+<li>Caches file data, metadata, and heap/stack pages (缓存文件数据、元数据、堆栈页).</li>
+<li>Uses <strong>2Q algorithm</strong> for replacement (近似LRU):
+<ul>
+<li><strong>Inactive List:</strong> First-time accessed pages (首次访问的页).</li>
+<li><strong>Active List:</strong> Promoted on re-access (再次访问时升级).</li>
+</ul>
+</li>
+</ul>
+<p><strong>Security (安全机制):</strong></p>
+<ul>
+<li><strong>NX Bit:</strong> Marks stack as non-executable (防止栈溢出攻击).</li>
+<li><strong>ASLR:</strong> Randomizes memory layout to thwart ROP attacks (地址空间布局随机化).</li>
+<li><strong>KPTI:</strong> Isolates kernel pages to mitigate Meltdown/Spectre (内核页表隔离).</li>
+</ul>
+<h4 id="9-performance-optimization-case-studies"><strong>9. Performance Optimization &amp; Case Studies</strong></h4>
+<h5 id="demand-paging-optimization-按需分页优化"><strong>Demand Paging Optimization (按需分页优化)</strong></h5>
+<ol>
+<li>
+<p><strong>Swap Space vs. File I/O:</strong></p>
+<ul>
+<li>Swap I/O is faster than file system I/O (even on same device).</li>
+<li>交换空间I/O比文件系统I/O更快（即使在同一设备上）.</li>
+<li>Reason: Swap uses larger contiguous blocks (交换空间使用更大的连续块).</li>
+</ul>
+</li>
+<li>
+<p><strong>Prepaging (预分页):</strong></p>
+<ul>
+<li>Load predicted pages before they are referenced (提前加载可能需要的页).</li>
+<li>Risk: Wasted I/O if predictions are wrong (预测错误会导致浪费).</li>
+</ul>
+</li>
+<li>
+<p><strong>Mobile Systems:</strong></p>
+<ul>
+<li>No swap space; reclaim read-only pages directly (无交换空间，直接回收只读页).</li>
+</ul>
+</li>
+</ol>
+<h5 id="inverted-page-tables-反向页表"><strong>Inverted Page Tables (反向页表)</strong></h5>
+<ul>
+<li><strong>Challenge:</strong>
+<ul>
+<li>Requires external page tables to locate non-resident pages (需外部页表定位未驻留页).</li>
+<li>May trigger additional page faults during lookup (查找时可能引发额外缺页).</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h4 id="10-program-structure-performance"><strong>10. Program Structure &amp; Performance</strong></h4>
+<p><strong>(程序结构与性能影响)</strong></p>
+<h5 id="example-row-major-vs-column-major-access"><strong>Example: Row-Major vs. Column-Major Access</strong></h5>
+<pre><code class="language-c">int data[128][128];  // Each row stored in one page (每行占一页)  
+
+// Program 1: Column-wise access → 16,384 page faults  
+for (int j = 0; j &lt; 128; j++)  
+    for (int i = 0; i &lt; 128; i++)  
+        data[i][j] = 0;  
+
+// Program 2: Row-wise access → 128 page faults  
+for (int i = 0; i &lt; 128; i++)  
+    for (int j = 0; j &lt; 128; j++)  
+        data[i][j] = 0;  
+</code></pre>
+<ul>
+<li><strong>Key Insight:</strong> Access patterns affect page fault rates (访问模式影响缺页率).</li>
+</ul>
+<h5 id="i-o-interlock-i-o-锁"><strong>I/O Interlock (I/O 锁)</strong></h5>
+<ul>
+<li>Pages involved in I/O must be locked in memory (禁止被替换).</li>
+<li>Prevents corruption during device transfers (防止数据传输期间的错误).</li>
+</ul>
+<hr>
+<h4 id="11-after-class-exercises-课后练习"><strong>11. After-Class Exercises (课后练习)</strong></h4>
+<p><img src="pictures/9-8.png" alt=""></p>
+<hr>
+<h4 id="12-summary-总结"><strong>12. Summary (总结)</strong></h4>
+<table>
+<thead>
+<tr>
+<th><strong>Concept</strong></th>
+<th><strong>Key Point</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Virtual Memory</td>
+<td>Decouples logical vs. physical memory (逻辑内存 ≠ 物理内存)</td>
+</tr>
+<tr>
+<td>Page Replacement</td>
+<td>LRU ≈ Optimal but hard to implement (LRU接近OPT但难实现)</td>
+</tr>
+<tr>
+<td>Thrashing Prevention</td>
+<td>Working-Set Model or PFF (工作集模型或缺页频率控制)</td>
+</tr>
+<tr>
+<td>Linux Implementations</td>
+<td>2Q algorithm + KPTI (2Q算法 + 内核页表隔离)</td>
+</tr>
+</tbody>
+</table>
+</article><!-- 笔记工具条--><div class="note-tools"><button class="tool-btn" id="toggle-dark"><i class="fas fa-moon"></i><span>Dark Mode</span></button><button class="tool-btn" id="print-note"><i class="fas fa-print"></i><span>Print This Note</span></button></div></main><!-- 页脚--><footer class="footer"><div class="footer-content"><p>© 2025 WeiKnight. All Rights Reserved. </p><div class="footer-links"><a href="/notes/about" target="_blank">About</a><a href="/notes/terms" target="_blank">Terms of Use</a><a href="/notes/privacy" target="_blank">Privacy Policy</a></div></div></footer><script src="/js/note.js"></script><script>document.querySelectorAll('figure.highlight').forEach((figure) => {
+  const langClass = Array.from(figure.classList).find(cls => cls !== 'highlight');
+  if (!langClass) return;
+
+  const langLabel = document.createElement('div');
+  langLabel.textContent = langClass;
+  langLabel.style.position = 'absolute';
+  langLabel.style.top = '0';
+  langLabel.style.right = '0';
+  langLabel.style.padding = '0.2em 0.5em';
+  langLabel.style.fontFamily = 'MapleMono-NF-CN';
+  langLabel.style.fontSize = '0.8em';
+  langLabel.style.borderRadius = '0 4px 0 4px';
+  langLabel.style.zIndex = '1';
+
+  // 设置初始样式（根据当前主题）
+  updateLabelTheme(langLabel);
+
+  figure.style.position = 'relative';
+  figure.prepend(langLabel);
+});
+
+// 更新标签主题的函数
+function updateLabelTheme(label) {
+  const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+  label.style.background = isDarkMode ? '#444' : '#eee';
+  label.style.color = isDarkMode ? '#ddd' : '#333';
+  //- console.log("更改了");
+}
+
+// 监听主题变化（仅更新标签）
+new MutationObserver(() => {
+  document.querySelectorAll('figure.highlight div').forEach(label => {
+    updateLabelTheme(label);
+    //- console.log("更改了2");
+  });
+}).observe(document.body, {
+  attributes: true,
+  attributeFilter: ['data-theme']
+});</script></body></html>
