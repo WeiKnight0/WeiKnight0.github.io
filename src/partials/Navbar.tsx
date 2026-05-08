@@ -1,44 +1,270 @@
+import { Profile } from '@/utils/Profile';
 import {
-  Logo,
-  NavbarTwoColumns,
-  NavMenu,
-  NavMenuItem,
-  Section,
-} from 'astro-boilerplate-components';
+  getLanguagePath,
+  getLocalizedPath,
+  i18n,
+  locales,
+  type Locale,
+} from '@/utils/i18n';
 
-const Navbar = () => (
-  <Section>
-    <NavbarTwoColumns>
-      <a href="/">
-        <Logo
-          icon={
-            <svg
-              className="mr-1 h-10 w-10 stroke-cyan-600"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M0 0h24v24H0z" stroke="none"></path>
-              <rect x="3" y="12" width="6" height="8" rx="1"></rect>
-              <rect x="9" y="8" width="6" height="12" rx="1"></rect>
-              <rect x="15" y="4" width="6" height="16" rx="1"></rect>
-              <path d="M4 20h14"></path>
-            </svg>
+const realLinks = [
+  { href: '/real/', label: 'Overview' },
+  { href: '/real/resume/', label: 'Resume' },
+  { href: '/real/projects/', label: 'Projects' },
+  { href: '/real/notes/', label: 'Notes' },
+  { href: '/real/blog/', label: 'Blog' },
+];
+
+const fictionLinks = [
+  { href: '/fiction/', label: 'Overview' },
+  { href: '/fiction/oc/', label: 'OCs' },
+  { href: '/fiction/world/', label: 'World' },
+  { href: '/fiction/novels/', label: 'Stories' },
+  { href: '/fiction/commissions/', label: 'Commissions' },
+];
+
+const languageLabels: Record<Locale, string> = {
+  en: 'English',
+  'zh-cn': '简体中文',
+};
+
+const dropdownScript = `
+(() => {
+  const setupDropdowns = () => {
+    document.querySelectorAll('[data-dropdown-scope]').forEach((scope) => {
+      const dropdowns = Array.from(scope.querySelectorAll('details[data-dropdown]'));
+
+      dropdowns.forEach((dropdown) => {
+        if (dropdown.dataset.dropdownReady === 'true') {
+          return;
+        }
+
+        dropdown.dataset.dropdownReady = 'true';
+        dropdown.addEventListener('toggle', () => {
+          if (!dropdown.open) {
+            return;
           }
-          name="Ixartz's Blog"
+
+          dropdowns.forEach((otherDropdown) => {
+            if (otherDropdown !== dropdown) {
+              otherDropdown.open = false;
+            }
+          });
+        });
+      });
+    });
+  };
+
+  setupDropdowns();
+  document.addEventListener('astro:page-load', setupDropdowns);
+})();
+`;
+
+const LinkGroup = ({
+  label,
+  links,
+}: {
+  label: string;
+  links: typeof realLinks;
+}) => (
+  <details className="group relative" data-dropdown name="desktop-nav-dropdown">
+    <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white">
+      {label}
+      <span className="text-xs text-slate-500 transition group-open:rotate-180">
+        ⌄
+      </span>
+    </summary>
+    <div className="nav-dropdown-panel absolute right-0 top-12 z-30 grid w-48 gap-1 rounded-2xl border border-white/10 bg-slate-950/95 p-2 shadow-2xl shadow-black/40 backdrop-blur">
+      {links.map((link) => (
+        <a
+          key={link.href}
+          href={link.href}
+          className="rounded-xl px-3 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
+        >
+          {link.label}
+        </a>
+      ))}
+    </div>
+  </details>
+);
+
+const MobileGroup = ({
+  label,
+  links,
+}: {
+  label: string;
+  links: typeof realLinks;
+}) => (
+  <details
+    className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 md:hidden"
+    data-dropdown
+    name="mobile-nav-dropdown"
+  >
+    <summary className="cursor-pointer list-none font-semibold text-white">
+      {label}
+    </summary>
+    <div className="nav-dropdown-panel mt-3 grid gap-2">
+      {links.map((link) => (
+        <a
+          key={link.href}
+          href={link.href}
+          className="rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-white/10"
+        >
+          {link.label}
+        </a>
+      ))}
+    </div>
+  </details>
+);
+
+const LanguageGroup = ({
+  label,
+  locale,
+  pathname,
+}: {
+  label: string;
+  locale: Locale;
+  pathname: string;
+}) => (
+  <details className="group relative" data-dropdown name="desktop-nav-dropdown">
+    <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-sm font-bold text-slate-300 transition hover:bg-white/10 hover:text-white">
+      {label}
+      <span className="text-xs text-slate-500 transition group-open:rotate-180">
+        ⌄
+      </span>
+    </summary>
+    <div className="nav-dropdown-panel absolute right-0 top-12 z-30 grid w-40 gap-1 rounded-2xl border border-white/10 bg-slate-950/95 p-2 shadow-2xl shadow-black/40 backdrop-blur">
+      {locales.map((targetLocale) => (
+        <a
+          key={targetLocale}
+          href={getLanguagePath(pathname, targetLocale)}
+          aria-current={targetLocale === locale ? 'page' : undefined}
+          className="rounded-xl px-3 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white aria-[current=page]:bg-white/10 aria-[current=page]:text-white"
+        >
+          {languageLabels[targetLocale]}
+        </a>
+      ))}
+    </div>
+  </details>
+);
+
+const MobileLanguageGroup = ({
+  label,
+  locale,
+  pathname,
+}: {
+  label: string;
+  locale: Locale;
+  pathname: string;
+}) => (
+  <details
+    className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 md:hidden"
+    data-dropdown
+    name="mobile-nav-dropdown"
+  >
+    <summary className="cursor-pointer list-none font-semibold text-white">
+      {label}
+    </summary>
+    <div className="nav-dropdown-panel mt-3 grid gap-2">
+      {locales.map((targetLocale) => (
+        <a
+          key={targetLocale}
+          href={getLanguagePath(pathname, targetLocale)}
+          aria-current={targetLocale === locale ? 'page' : undefined}
+          className="rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-white/10 aria-[current=page]:bg-white/10 aria-[current=page]:text-white"
+        >
+          {languageLabels[targetLocale]}
+        </a>
+      ))}
+    </div>
+  </details>
+);
+
+const Navbar = ({ locale, pathname }: { locale: Locale; pathname: string }) => {
+  const text = i18n[locale].nav;
+  const localizedRealLinks = realLinks.map((link) => ({
+    ...link,
+    href: getLocalizedPath(link.href, locale),
+  }));
+  const localizedFictionLinks = fictionLinks.map((link) => ({
+    ...link,
+    href: getLocalizedPath(link.href, locale),
+  }));
+  const homeHref = getLocalizedPath('/', locale);
+
+  return (
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+    <nav
+      className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8"
+      aria-label="Primary navigation"
+    >
+      <a href={homeHref} className="flex items-center gap-3">
+        <img
+          src={Profile.avatar}
+          alt={`${Profile.name} avatar`}
+          className="h-9 w-9 rounded-2xl border border-white/10"
         />
+        <span className="text-base font-black tracking-tight text-white">
+          WeiKnight's Homepage
+        </span>
       </a>
 
-      <NavMenu>
-        <NavMenuItem href="/posts/">Blogs</NavMenuItem>
-        <NavMenuItem href="/">GitHub</NavMenuItem>
-        <NavMenuItem href="/">Twitter</NavMenuItem>
-      </NavMenu>
-    </NavbarTwoColumns>
-  </Section>
-);
+      <div className="hidden items-center gap-2 md:flex" data-dropdown-scope>
+        <a
+          href={homeHref}
+          className="rounded-full px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
+        >
+          {text.home}
+        </a>
+        <LinkGroup label={text.real} links={localizedRealLinks} />
+        <LinkGroup label={text.fiction} links={localizedFictionLinks} />
+        <LanguageGroup label={text.language} locale={locale} pathname={pathname} />
+      </div>
+
+      <details className="md:hidden">
+        <summary className="cursor-pointer list-none rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white">
+          Menu
+        </summary>
+        <div
+          className="absolute inset-x-4 top-16 grid gap-3 rounded-3xl border border-white/10 bg-slate-950/95 p-4 shadow-2xl shadow-black/40 backdrop-blur"
+          data-dropdown-scope
+        >
+          <a
+            href={homeHref}
+            className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10"
+          >
+            {text.home}
+          </a>
+          <MobileGroup label={text.real} links={localizedRealLinks} />
+          <MobileGroup label={text.fiction} links={localizedFictionLinks} />
+          <MobileLanguageGroup
+            label={text.language}
+            locale={locale}
+            pathname={pathname}
+          />
+        </div>
+      </details>
+    </nav>
+    <style>{`
+      details[open] > .nav-dropdown-panel {
+        animation: nav-dropdown-in 180ms ease-out both;
+      }
+
+      @keyframes nav-dropdown-in {
+        from {
+          opacity: 0;
+          transform: translateY(-0.4rem) scale(0.98);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+    `}</style>
+    <script dangerouslySetInnerHTML={{ __html: dropdownScript }} />
+  </header>
+  );
+};
 
 export { Navbar };

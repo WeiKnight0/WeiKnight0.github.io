@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+
+import FictionPage from '@/templates/FictionPage.astro';
+
+const items = (await getCollection('world')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<FictionPage
+  title='世界观 | 个人主页'
+  description='世界观设定档案。'
+  locale='zh-cn'
+>
+  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
+    <p
+      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-fiction-gold'
+    >
+      Worldbuilding
+    </p>
+    <h1
+      class='font-fiction text-6xl font-black leading-none tracking-[-0.05em] text-fiction-ink md:text-8xl'
+    >
+      世界观
+    </h1>
+    <div class='mt-14 grid gap-5 md:grid-cols-3'>
+      {items.map((item) => (
+        <article class="rounded-[2rem] border border-fiction-gold/30 bg-black/20 p-7">
+          <h2 class="font-fiction text-3xl font-black text-fiction-ink">
+            {item.data.title}
+          </h2>
+          <p class="mt-4 leading-8 text-fuchsia-100/70">
+            {item.data.description}
+          </p>
+        </article>
+      ))}
+    </div>
+  </section>
+</FictionPage>

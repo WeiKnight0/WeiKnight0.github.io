@@ -1,16 +1,14 @@
 ---
 import Base from '@/templates/Base.astro';
-import { AppConfig } from '@/utils/AppConfig';
 import { Profile } from '@/utils/Profile';
 
-const { title, description } = AppConfig;
+const title = 'WEIKNIGHT | 个人主页';
+const description = 'WEIKNIGHT 的个人主页，记录现实技术与幻想档案。';
 ---
 
-<Base head={{ title, description }} theme='home'>
+<Base head={{ title, description }} theme='home' locale='zh-cn'>
   <main>
-    <!-- Hero: 对立渐变舞台 -->
     <section class='relative min-h-screen overflow-hidden bg-slate-950'>
-      <!-- 左右渐变 -->
       <div class='pointer-events-none absolute inset-0'>
         <div
           class='absolute left-0 top-0 h-full w-1/2 bg-gradient-to-br from-cyan-500/20 via-blue-600/10 to-transparent'
@@ -26,11 +24,9 @@ const { title, description } = AppConfig;
         </div>
       </div>
 
-      <!-- 中部内容 -->
       <div
         class='relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-5 py-24 text-center lg:px-8'
       >
-        <!-- 主标题 -->
         <h1
           class='font-jp max-w-5xl text-4xl font-black leading-[0.94] tracking-[-0.03em] text-white md:text-6xl lg:text-7xl'
         >
@@ -42,27 +38,25 @@ const { title, description } = AppConfig;
           </span>
         </h1>
 
-        <!-- 副标题 -->
         <div class='mt-16 max-w-3xl space-y-3 text-lg leading-relaxed text-slate-300 md:text-xl'>
           <p class='font-jp-serif'>
             <span class='text-cyan-300'>技術記録</span>と<span class='text-fuchsia-300'>物語世界</span>を行き来する者
           </p>
           <p>
-            One who governs both <span class='font-readable-mono text-cyan-300'>code archives</span> and <span class='font-fiction text-fuchsia-300'>fictional worlds</span>.
+            在 <span class='font-readable-mono text-cyan-300'>code archives</span> 与 <span class='font-fiction text-fuchsia-300'>fictional worlds</span> 之间往返。
           </p>
         </div>
 
-        <!-- 按钮组 -->
         <div class='mt-14 flex flex-wrap items-center justify-center gap-5'>
           <a
-            href='/real/'
+            href='/zh-cn/real/'
             class='rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-4 text-sm font-black text-white shadow-lg shadow-cyan-500/25 transition hover:shadow-cyan-500/40'
-            >Enter Real</a
+            >进入现实侧</a
           >
           <a
-            href='/fiction/'
+            href='/zh-cn/fiction/'
             class='rounded-full border-2 border-fuchsia-400/50 px-8 py-4 text-sm font-black text-fuchsia-200 transition hover:border-fuchsia-400 hover:bg-fuchsia-500/20'
-            >Enter Fiction</a
+            >进入幻想侧</a
           >
           <a
             href={Profile.github}
@@ -83,7 +77,6 @@ const { title, description } = AppConfig;
       </style>
     </section>
 
-    <!-- 个人介绍 -->
     <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
       <div class='grid gap-12 lg:grid-cols-[1fr_360px]'>
         <div>
@@ -98,7 +91,7 @@ const { title, description } = AppConfig;
             {Profile.name}
           </h2>
           <p class='mt-6 max-w-2xl text-lg leading-relaxed text-slate-400'>
-            {Profile.tagline}. Based in {Profile.location}. Currently tied to {Profile.school}.
+            {Profile.tagline}。现居 {Profile.location}，目前就读于 {Profile.school}。
           </p>
           <div class='mt-8 flex flex-wrap gap-3'>
             <a
@@ -138,13 +131,11 @@ const { title, description } = AppConfig;
       </div>
     </section>
 
-    <!-- 双入口大卡片 -->
     <section
       class='mx-auto grid max-w-7xl gap-5 px-5 pb-28 lg:grid-cols-2 lg:px-8'
     >
-      <!-- Real 卡片 -->
       <a
-        href='/real/'
+        href='/zh-cn/real/'
         class='group relative overflow-hidden rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-slate-900 to-slate-950 p-8 font-readable-mono shadow-2xl shadow-cyan-950/30 transition hover:-translate-y-1 hover:border-cyan-400/40 md:p-12'
       >
         <div
@@ -159,15 +150,14 @@ const { title, description } = AppConfig;
         <h2
           class='text-4xl font-black leading-tight tracking-[-0.04em] text-white md:text-5xl'
         >
-          Projects, resume, and learning notes
+          项目、简历与学习笔记
         </h2>
         <p class='mt-6 max-w-xl text-lg leading-relaxed text-slate-400'>
-          A professional-facing area for resume, projects, study notes, and blog
-          posts.
+          面向现实世界的区域，用于整理简历、项目、学习记录与博客文章。
         </p>
         <div class='mt-8 flex flex-wrap gap-2'>
           {
-            ['Resume', 'Projects', 'Notes', 'Blog'].map((tag) => (
+            ['简历', '项目', '笔记', '博客'].map((tag) => (
               <span class='rounded-full border border-cyan-500/30 px-3 py-1 text-xs font-bold text-cyan-300'>
                 {tag}
               </span>
@@ -176,9 +166,8 @@ const { title, description } = AppConfig;
         </div>
       </a>
 
-      <!-- Fiction 卡片 -->
       <a
-        href='/fiction/'
+        href='/zh-cn/fiction/'
         class='group relative overflow-hidden rounded-3xl border border-fuchsia-500/20 bg-gradient-to-br from-purple-950 to-slate-950 p-8 shadow-2xl shadow-fuchsia-950/30 transition hover:-translate-y-1 hover:border-fuchsia-400/40 md:p-12'
       >
         <div
@@ -193,15 +182,14 @@ const { title, description } = AppConfig;
         <h2
           class='font-fiction text-4xl font-black leading-tight tracking-[-0.04em] text-white md:text-5xl'
         >
-          Characters, worlds, and story archives
+          角色、世界观与故事档案
         </h2>
         <p class='mt-6 max-w-xl text-lg leading-relaxed text-slate-400'>
-          A creative archive for original characters, worldbuilding, story
-          chapters, and commissioned artwork.
+          存放原创角色、世界观设定、故事章节与委托图像的创作档案。
         </p>
         <div class='mt-8 flex flex-wrap gap-2'>
           {
-            ['OC', 'World', 'Story', 'Gallery'].map((tag) => (
+            ['OC', '世界观', '故事', '画廊'].map((tag) => (
               <span class='rounded-full border border-fuchsia-500/30 px-3 py-1 text-xs font-bold text-fuchsia-300'>
                 {tag}
               </span>

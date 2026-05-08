@@ -1,0 +1,45 @@
+---
+import { getCollection } from 'astro:content';
+
+import RealPage from '@/templates/RealPage.astro';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<RealPage
+  title='项目 | 个人主页'
+  description='项目与作品集条目。'
+  locale='zh-cn'
+>
+  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
+    <p
+      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-cyan-300'
+    >
+      Projects
+    </p>
+    <h1
+      class='text-6xl font-black leading-none tracking-[-0.08em] text-white md:text-8xl'
+    >
+      项目
+    </h1>
+    <div class='mt-14 grid gap-5 md:grid-cols-3'>
+      {projects.map((project) => (
+        <article class="rounded-3xl border border-white/10 bg-white/[0.04] p-7">
+          <h2 class="text-2xl font-black text-white">{project.data.title}</h2>
+          <p class="mt-4 leading-7 text-slate-400">
+            {project.data.description}
+          </p>
+          <div class="mt-6 flex flex-wrap gap-2">
+            {project.data.tags.map((tag) => (
+              <span class="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-slate-300">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</RealPage>

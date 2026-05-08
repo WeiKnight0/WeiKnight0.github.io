@@ -2,20 +2,25 @@
 import { Footer } from '@/partials/Footer';
 import { Navbar } from '@/partials/Navbar';
 import { AppConfig } from '@/utils/AppConfig';
+import { defaultLocale, type Locale } from '@/utils/i18n';
 
 export interface Props {
   head: {
     title: string;
     description: string;
   };
+  theme?: 'home' | 'real' | 'fiction';
+  locale?: Locale;
 }
 
 const {
   head: { title, description },
+  theme = 'home',
+  locale = defaultLocale,
 } = Astro.props as Props;
 ---
 
-<html lang='en'>
+<html lang={locale === 'zh-cn' ? 'zh-CN' : 'en'}>
   <head>
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
@@ -26,11 +31,15 @@ const {
     <link rel='alternate' type='application/rss+xml' href='/rss.xml' />
     <link rel='icon' type='image/x-icon' href='/favicon.ico' />
   </head>
-  <body class='bg-slate-900 text-gray-100'>
-    <Navbar />
+  <body
+    class={`flex min-h-screen flex-col bg-slate-950 text-gray-100 ${theme}-theme`}
+  >
+    <Navbar locale={locale} pathname={Astro.url.pathname} />
 
-    <slot></slot>
+    <div class='flex-1'>
+      <slot></slot>
+    </div>
 
-    <Footer />
+    <Footer locale={locale} />
   </body>
 </html>

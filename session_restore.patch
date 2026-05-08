@@ -1,0 +1,2318 @@
+Index: .gitignore
+===================================================================
+--- .gitignore	
++++ .gitignore	
+@@ -1,29 +1,30 @@
+ # build output
+ dist/
+ .output/
+ .astro/
++.deploy_git/
+ 
+ # dependencies
+ node_modules/
+ 
+ # test and tooling output
+ coverage/
+ .cache/
+ .turbo/
+ 
+ # logs
+ npm-debug.log*
+ yarn-debug.log*
+-yarn-error.log*
+-pnpm-debug.log*
+-
+-# environment variables
+-.env*.local
+-
+-# macOS-specific files
+-.DS_Store
+-
+-# misc
+-*.pem
+-Thumbs.db
++yarn-error.log*
++pnpm-debug.log*
++
++# environment variables
++.env*.local
++
++# macOS-specific files
++.DS_Store
++
++# misc
++*.pem
++Thumbs.db
+ .history
+
+Index: .idea/workspace.xml
+===================================================================
+--- .idea/workspace.xml	
++++ .idea/workspace.xml	
+@@ -1,123 +1,125 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="AutoImportSettings">
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="e7af0f2e-8a35-450a-be78-d3c180141af9" name="Changes" comment="">
+       <change beforePath="$PROJECT_DIR$/.eslintrc" beforeDir="false" afterPath="$PROJECT_DIR$/.eslintrc" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/astro.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/astro.config.mjs" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/env.d.ts" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/pages/index.astro" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/index.astro" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/pages/posts/[...page].astro" beforeDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/pages/posts/fifth-post.md" beforeDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/pages/posts/first-post.md" beforeDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/pages/posts/forth-post.md" beforeDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/pages/posts/hello-world.md" beforeDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/pages/posts/second-post.md" beforeDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/pages/posts/sixth-post.md" beforeDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/pages/posts/third-post.md" beforeDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/pages/rss.xml.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/rss.xml.ts" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/partials/Footer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/partials/Footer.tsx" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/partials/Navbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/partials/Navbar.tsx" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/templates/Base.astro" beforeDir="false" afterPath="$PROJECT_DIR$/src/templates/Base.astro" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/src/utils/AppConfig.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/AppConfig.ts" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/tailwind.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/tailwind.config.js" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+     <option name="LAST_RESOLUTION" value="IGNORE" />
+   </component>
+   <component name="CopilotPersistence">
+     <persistenceIdMap>
+       <entry key="_D:/local_projects/mygithubpage" value="3DQZzI1X0uXKt9clhplvx1C1FCg" />
+     </persistenceIdMap>
+   </component>
+   <component name="Git.Settings">
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+   </component>
+   <component name="ProjectColorInfo">{
+   &quot;associatedIndex&quot;: 8,
+   &quot;fromUser&quot;: false
+ }</component>
+   <component name="ProjectId" id="3DQZzI1X0uXKt9clhplvx1C1FCg" />
+   <component name="ProjectViewState">
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent">{
+-  &quot;keyToString&quot;: {
+-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+-    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;24.13.0&quot;,
+-    &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;24.12.3&quot;,
+-    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+-    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+-    &quot;npm.preview.executor&quot;: &quot;Run&quot;,
+-    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;,
+-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\WebStorm 2026.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
++  <component name="PropertiesComponent"><![CDATA[{
++  "keyToString": {
++    "ModuleVcsDetector.initialDetectionPerformed": "true",
++    "RunOnceActivity.ShowReadmeOnStart": "true",
++    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
++    "RunOnceActivity.git.unshallow": "true",
++    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
++    "codeWithMe.voiceChat.enabledByDefault": "false",
++    "git-widget-placeholder": "main",
++    "javascript.nodejs.core.library.configured.version": "24.13.0",
++    "javascript.nodejs.core.library.typings.version": "24.12.3",
++    "javascript.preferred.runtime.type.id": "node",
++    "node.js.detected.package.eslint": "true",
++    "node.js.detected.package.tslint": "true",
++    "node.js.selected.package.eslint": "(autodetect)",
++    "node.js.selected.package.tslint": "(autodetect)",
++    "nodejs_interpreter_path": "node",
++    "nodejs_package_manager_path": "npm",
++    "npm.preview.executor": "Run",
++    "settings.editor.selected.configurable": "terminal",
++    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\WebStorm 2026.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
++    "vue.rearranger.settings.migration": "true"
+   }
+-}</component>
++}]]></component>
+   <component name="RunManager">
+     <configuration name="preview" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+       <package-json value="$PROJECT_DIR$/package.json" />
+       <command value="run" />
+       <scripts>
+         <script value="preview" />
+       </scripts>
+       <node-interpreter value="project" />
+       <envs />
+       <method v="2" />
+     </configuration>
+     <recent_temporary>
+       <list>
+         <item itemvalue="npm.preview" />
+       </list>
+     </recent_temporary>
+   </component>
+   <component name="SharedIndexes">
+     <attachedChunks>
+       <set>
+         <option value="bundled-js-predefined-d6986cc7102b-3bd3a6803838-JavaScript-WS-261.22158.274" />
+       </set>
+     </attachedChunks>
+   </component>
+   <component name="TaskManager">
+     <task active="true" id="Default" summary="Default task">
+       <changelist id="e7af0f2e-8a35-450a-be78-d3c180141af9" name="Changes" comment="" />
+       <created>1778216515649</created>
+       <option name="number" value="Default" />
+       <option name="presentableId" value="Default" />
+       <updated>1778216515649</updated>
+       <workItem from="1778216516643" duration="1462000" />
+       <workItem from="1778234580219" duration="4597000" />
++      <workItem from="1778247567623" duration="3313000" />
+     </task>
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+     <option name="version" value="3" />
+   </component>
+   <component name="github-copilot-workspace">
+     <instructionFileLocations>
+       <option value=".github/instructions" />
+     </instructionFileLocations>
+     <promptFileLocations>
+       <option value=".github/prompts" />
+     </promptFileLocations>
+   </component>
+ </project>
+\ No newline at end of file
+
+Index: README.md
+===================================================================
+--- README.md	
++++ README.md	
+@@ -1,66 +1,71 @@
+ # WeiKnight's Homepage
+ 
+ Personal homepage for WeiKnight, currently under development.
+ 
+ The site is being rebuilt as a two-sided personal space:
+ 
+ - Real side: resume, projects, notes, and blog.
+ - Fiction side: original characters, worldbuilding, stories, and commissions.
+ 
+ The homepage currently experiments with a Real/Fiction contrast, Japanese title styling, ruby text, and separate visual languages for technical and fictional content.
+ 
+ ## Status
+ 
+ Work in progress. Content, layout, and visual direction are still changing.
+ 
+ ## Tech Stack
+ 
+ - Astro
+ - React
+ - Tailwind CSS
+ - TypeScript
+ 
+ ## Development
+ 
+ Install dependencies:
+ 
+ ```bash
+ npm install
+ ```
+ 
+ Start the dev server:
+ 
+ ```bash
+ npm run dev
+ ```
+ 
+ Build the site:
+ 
+ ```bash
+ npm run build
+ ```
+ 
+-Deploy the built site to a target repository:
++Deploy the built site to a target repository with a Hexo-style deploy worktree.
+ 
+-```powershell
+-$env:DEPLOY_REPO="git@github.com:WeiKnight0/WeiKnight0.github.io.git"
+-npm run deploy
++Deployment is configured in `deploy.config.json`:
++
++```json
++{
++  "repo": "git@github.com:WeiKnight0/WeiKnight0.github.io.git",
++  "branch": "main",
++  "message": "deploy homepage"
++}
+ ```
+ 
+-Optional target branch:
++Then deploy:
+ 
+-```powershell
+-$env:DEPLOY_REPO="git@github.com:WeiKnight0/WeiKnight0.github.io.git"
+-$env:DEPLOY_BRANCH="main"
++```bash
+ npm run deploy
+ ```
+ 
++The deploy command builds `dist/`, copies it into `.deploy_git/`, commits changes, and pushes normally without force push.
++
+ Preview the production build:
+ 
+ ```bash
+ npm run preview
+ ```
+ 
+ ## Notes
+ 
+ This project started from an Astro boilerplate, but the structure and content are being customized for a personal homepage.
+
+Index: deploy.config.json
+===================================================================
+--- deploy.config.json	
++++ deploy.config.json	
+@@ -0,0 +1,5 @@
++{
++  "repo": "git@github.com:WeiKnight0/WeiKnight0.github.io.git",
++  "branch": "main",
++  "message": "deploy homepage"
++}
+
+Index: scripts/deploy.mjs
+===================================================================
+--- scripts/deploy.mjs	
++++ scripts/deploy.mjs	
+@@ -1,34 +1,146 @@
+-import { existsSync, rmSync } from 'node:fs';
+-import { join } from 'node:path';
+-import { execFileSync } from 'node:child_process';
++import {
++  cpSync,
++  existsSync,
++  mkdirSync,
++  readdirSync,
++  readFileSync,
++  rmSync,
++} from 'node:fs';
++import { dirname, join } from 'node:path';
++import { execFileSync, spawnSync } from 'node:child_process';
++import { fileURLToPath } from 'node:url';
+ 
+-const deployRepo = process.env.DEPLOY_REPO;
+-const deployBranch = process.env.DEPLOY_BRANCH || 'main';
+-const distDir = join(process.cwd(), 'dist');
++const rootDir = process.cwd();
++const distDir = join(rootDir, 'dist');
++const deployDir = join(rootDir, '.deploy_git');
++const configPath = join(rootDir, 'deploy.config.json');
+ 
+-if (!deployRepo) {
+-  console.error('Missing DEPLOY_REPO. Example:');
+-  console.error('  $env:DEPLOY_REPO="git@github.com:WeiKnight0/WeiKnight0.github.io.git"; npm run deploy');
+-  process.exit(1);
+-}
+-
+ const run = (command, args, options = {}) => {
+   execFileSync(command, args, { stdio: 'inherit', ...options });
+ };
+ 
+-run('npm', ['run', 'build']);
++const capture = (command, args, options = {}) => {
++  return spawnSync(command, args, {
++    encoding: 'utf8',
++    stdio: ['ignore', 'pipe', 'pipe'],
++    ...options,
++  });
++};
+ 
+-const gitDir = join(distDir, '.git');
++const readConfig = () => {
++  if (!existsSync(configPath)) {
++    console.error('Missing deploy.config.json.');
++    process.exit(1);
++  }
+ 
+-if (existsSync(gitDir)) {
+-  rmSync(gitDir, { recursive: true, force: true });
+-}
++  const config = JSON.parse(readFileSync(configPath, 'utf8'));
+ 
+-run('git', ['init'], { cwd: distDir });
+-run('git', ['checkout', '-B', deployBranch], { cwd: distDir });
+-run('git', ['add', '.'], { cwd: distDir });
+-run('git', ['commit', '-m', 'deploy homepage'], { cwd: distDir });
+-run('git', ['remote', 'add', 'origin', deployRepo], { cwd: distDir });
+-run('git', ['push', '--force', 'origin', deployBranch], { cwd: distDir });
++  if (!config.repo) {
++    console.error('Missing "repo" in deploy.config.json.');
++    process.exit(1);
++  }
+ 
+-console.log(`Deployed dist/ to ${deployRepo}#${deployBranch}`);
++  return {
++    repo: config.repo,
++    branch: config.branch || 'main',
++    message: config.message || 'deploy homepage',
++  };
++};
++
++const removeDeployContents = () => {
++  for (const entry of readdirSync(deployDir, { withFileTypes: true })) {
++    if (entry.name === '.git') {
++      continue;
++    }
++
++    rmSync(join(deployDir, entry.name), { recursive: true, force: true });
++  }
++};
++
++const assertCleanDeployDir = () => {
++  const status = capture('git', ['status', '--porcelain'], { cwd: deployDir });
++
++  if (status.status !== 0) {
++    console.error(status.stderr || 'Failed to inspect .deploy_git status.');
++    process.exit(status.status || 1);
++  }
++
++  if (status.stdout.trim()) {
++    console.error('.deploy_git has uncommitted changes. Commit, discard, or delete .deploy_git before deploying.');
++    process.exit(1);
++  }
++};
++
++const ensureDeployWorktree = ({ repo, branch }) => {
++  if (!existsSync(deployDir)) {
++    mkdirSync(dirname(deployDir), { recursive: true });
++    const clone = capture('git', ['clone', '--branch', branch, '--single-branch', repo, deployDir]);
++
++    if (clone.status === 0) {
++      return;
++    }
++
++    run('git', ['clone', repo, deployDir]);
++  }
++
++  const remote = capture('git', ['remote', 'get-url', 'origin'], { cwd: deployDir });
++
++  if (remote.status !== 0) {
++    run('git', ['remote', 'add', 'origin', repo], { cwd: deployDir });
++  } else if (remote.stdout.trim() !== repo) {
++    run('git', ['remote', 'set-url', 'origin', repo], { cwd: deployDir });
++  }
++
++  assertCleanDeployDir();
++  run('git', ['fetch', 'origin'], { cwd: deployDir });
++
++  const remoteBranch = capture('git', ['rev-parse', '--verify', `origin/${branch}`], {
++    cwd: deployDir,
++  });
++
++  if (remoteBranch.status === 0) {
++    run('git', ['checkout', branch], { cwd: deployDir });
++    run('git', ['pull', '--ff-only', 'origin', branch], { cwd: deployDir });
++    return;
++  }
++
++  run('git', ['checkout', '--orphan', branch], { cwd: deployDir });
++  removeDeployContents();
++};
++
++const hasChanges = () => {
++  const status = capture('git', ['status', '--porcelain'], { cwd: deployDir });
++
++  if (status.status !== 0) {
++    console.error(status.stderr || 'Failed to inspect deploy changes.');
++    process.exit(status.status || 1);
++  }
++
++  return Boolean(status.stdout.trim());
++};
++
++const main = () => {
++  const config = readConfig();
++
++  run('npm', ['run', 'build']);
++
++  ensureDeployWorktree(config);
++  removeDeployContents();
++  cpSync(distDir, deployDir, { recursive: true });
++
++  run('git', ['add', '-A'], { cwd: deployDir });
++
++  if (!hasChanges()) {
++    console.log('No changes to deploy.');
++    return;
++  }
++
++  run('git', ['commit', '-m', config.message], { cwd: deployDir });
++  run('git', ['push', 'origin', config.branch], { cwd: deployDir });
++
++  console.log(`Deployed dist/ to ${config.repo}#${config.branch}`);
++};
++
++if (process.argv[1] === fileURLToPath(import.meta.url)) {
++  main();
++}
+
+Index: src/pages/fiction/index.astro
+===================================================================
+--- src/pages/fiction/index.astro	
++++ src/pages/fiction/index.astro	
+@@ -1,63 +1,64 @@
+ ---
+ import FictionPage from '@/templates/FictionPage.astro';
+ ---
+ 
+ <FictionPage
+   title='Fiction | My Homepage'
+   description='Original characters, worldbuilding, stories, and commissions.'
+ >
+   <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
+     <div
+       class='grid min-h-[620px] items-center gap-12 lg:grid-cols-[1fr_420px]'
+     >
+       <div>
+         <p
+           class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-fiction-gold'
+         >
+-          Fiction side / game archive
++          Nijigen / story archive
+         </p>
+         <h1
+           class='font-fiction text-6xl font-black leading-[0.92] tracking-[-0.05em] text-fiction-ink md:text-8xl'
+         >
+-          A lorebook entrance for characters, worlds, and stories.
++          Open the nijigen shelf where characters breathe, worlds branch, and
++          stories wait like sealed routes.
+         </h1>
+         <p class='mt-8 max-w-3xl text-lg leading-8 text-fuchsia-100/70'>
+-          This section combines a lorebook structure with the feel of a Japanese
+-          game website, presenting original characters, worldbuilding, stories,
+-          and commissioned artwork.
++          This side keeps the second dimension readable: original characters,
++          worldbuilding, stories, and commissioned artwork arranged like an
++          archive from a visual-novel launcher.
+         </p>
+       </div>
+       <div
+         class='rounded-[2rem] border border-fiction-gold/30 bg-white/5 p-6 shadow-2xl shadow-black/30'
+       >
+         <p
+           class='text-xs font-black uppercase tracking-[0.28em] text-fiction-gold'
+         >
+           Archive menu
+         </p>
+         <div class='mt-6 grid gap-3'>
+           <a
+             class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
+             href='/fiction/oc/'
+             >OCs
+           </a>
+           <a
+             class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
+             href='/fiction/world/'
+             >Worldbuilding
+           </a>
+           <a
+             class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
+             href='/fiction/novels/'
+             >Stories
+           </a>
+           <a
+             class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
+             href='/fiction/commissions/'
+             >Commissions
+           </a>
+         </div>
+       </div>
+     </div>
+   </section>
+ </FictionPage>
+
+Index: src/pages/index.astro
+===================================================================
+--- src/pages/index.astro	
++++ src/pages/index.astro	
+@@ -1,205 +1,214 @@
+ ---
+ import Base from '@/templates/Base.astro';
+ import { AppConfig } from '@/utils/AppConfig';
+ import { Profile } from '@/utils/Profile';
+ 
+ const { title, description } = AppConfig;
+ ---
+ 
+ <Base head={{ title, description }} theme='home'>
+   <main>
+     <!-- Hero: 对立渐变舞台 -->
+     <section class='relative min-h-screen overflow-hidden bg-slate-950'>
+       <!-- 左右渐变 -->
+       <div class='pointer-events-none absolute inset-0'>
+         <div
+           class='absolute left-0 top-0 h-full w-1/2 bg-gradient-to-br from-cyan-500/20 via-blue-600/10 to-transparent'
+         >
+         </div>
+         <div
+           class='absolute right-0 top-0 h-full w-1/2 bg-gradient-to-bl from-fuchsia-500/20 via-purple-600/10 to-transparent'
+         >
+         </div>
+         <div
+           class='absolute left-1/2 top-1/3 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-cyan-400/10 via-fuchsia-400/10 to-transparent blur-3xl'
+         >
+         </div>
+       </div>
+ 
+       <!-- 中部内容 -->
+       <div
+         class='relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-5 py-24 text-center lg:px-8'
+       >
+         <!-- 主标题 -->
+         <h1
+           class='font-jp max-w-5xl text-4xl font-black leading-[0.94] tracking-[-0.03em] text-white md:text-6xl lg:text-7xl'
+         >
+           <span class='block text-lg font-bold tracking-[0.2em] text-white/40 md:text-xl'
+             >― 二つの世界を統べる者 ―</span
+           >
+-          <span class='mt-4 block bg-gradient-to-r from-cyan-300 via-blue-300 to-cyan-200 bg-clip-text text-transparent'>
++          <span class='hero-title-ruby mt-4 block bg-gradient-to-r from-cyan-300 via-blue-300 to-cyan-200 bg-clip-text text-transparent'>
+             <ruby>現実<rt>リアル</rt></ruby>と<ruby>幻想<rt>ファンタジー</rt></ruby>、二つの<ruby>記録<rt>アーカイブ</rt></ruby>
+           </span>
+         </h1>
+ 
+         <!-- 副标题 -->
+         <div class='mt-16 max-w-3xl space-y-3 text-lg leading-relaxed text-slate-300 md:text-xl'>
+-          <p class='font-jp'>
+-            <span class='font-readable-mono text-cyan-300'>技術記録</span>と
+-            <span class='font-fiction text-fuchsia-300'>物語世界</span>を行き来する者
++          <p class='font-jp-serif'>
++            <span class='text-cyan-300'>技術記録</span>と<span class='text-fuchsia-300'>物語世界</span>を行き来する者
+           </p>
+           <p>
+             One who governs both <span class='font-readable-mono text-cyan-300'>code archives</span> and <span class='font-fiction text-fuchsia-300'>fictional worlds</span>.
+           </p>
+         </div>
+ 
+         <!-- 按钮组 -->
+         <div class='mt-14 flex flex-wrap items-center justify-center gap-5'>
+           <a
+             href='/real/'
+             class='rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-4 text-sm font-black text-white shadow-lg shadow-cyan-500/25 transition hover:shadow-cyan-500/40'
+             >Enter Real</a
+           >
+           <a
+             href='/fiction/'
+             class='rounded-full border-2 border-fuchsia-400/50 px-8 py-4 text-sm font-black text-fuchsia-200 transition hover:border-fuchsia-400 hover:bg-fuchsia-500/20'
+             >Enter Fiction</a
+           >
+           <a
+             href={Profile.github}
+             class='rounded-full border border-white/15 px-6 py-3 text-sm font-bold text-slate-400 transition hover:border-white/30 hover:text-white'
+             >GitHub</a
+           >
+         </div>
+       </div>
++      <style>
++        .hero-title-ruby rt {
++          color: rgb(226 232 240 / 0.68);
++          font-size: 0.28em;
++          font-weight: 700;
++          letter-spacing: 0.08em;
++          line-height: 1;
++          -webkit-text-fill-color: rgb(226 232 240 / 0.68);
++        }
++      </style>
+     </section>
+ 
+     <!-- 个人介绍 -->
+     <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
+       <div class='grid gap-12 lg:grid-cols-[1fr_360px]'>
+         <div>
+           <p
+             class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-cyan-300'
+           >
+             About me
+           </p>
+           <h2
+             class='text-4xl font-black leading-tight tracking-[-0.04em] text-white md:text-5xl'
+           >
+             {Profile.name}
+           </h2>
+           <p class='mt-6 max-w-2xl text-lg leading-relaxed text-slate-400'>
+             {Profile.tagline}. Based in {Profile.location}. Currently tied to {Profile.school}.
+           </p>
+           <div class='mt-8 flex flex-wrap gap-3'>
+             <a
+               href={Profile.github}
+               class='rounded-full border border-white/10 px-5 py-2 text-sm font-bold text-white transition hover:bg-white/10'
+               >GitHub</a
+             >
+             <a
+               href={Profile.bilibili}
+               class='rounded-full border border-white/10 px-5 py-2 text-sm font-bold text-white transition hover:bg-white/10'
+               >Bilibili</a
+             >
+           </div>
+           <div class='mt-8 flex flex-wrap gap-2'>
+             {
+               Profile.techStack.map((tech) => (
+                 <span class='rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-slate-300'>
+                   {tech}
+                 </span>
+               ))
+             }
+           </div>
+         </div>
+         <div class='flex items-start justify-center lg:justify-end'>
+           <div class='relative'>
+             <div
+               class='absolute -inset-4 rounded-3xl bg-gradient-to-br from-cyan-400/20 via-fuchsia-400/15 to-transparent blur-xl'
+             >
+             </div>
+             <img
+               src={Profile.avatar}
+               alt={`${Profile.name} avatar`}
+               class='relative h-48 w-48 rounded-3xl border border-white/10 shadow-2xl shadow-black/40'
+             />
+           </div>
+         </div>
+       </div>
+     </section>
+ 
+     <!-- 双入口大卡片 -->
+     <section
+       class='mx-auto grid max-w-7xl gap-5 px-5 pb-28 lg:grid-cols-2 lg:px-8'
+     >
+       <!-- Real 卡片 -->
+       <a
+         href='/real/'
+         class='group relative overflow-hidden rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-slate-900 to-slate-950 p-8 font-readable-mono shadow-2xl shadow-cyan-950/30 transition hover:-translate-y-1 hover:border-cyan-400/40 md:p-12'
+       >
+         <div
+           class='pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-cyan-500/10 blur-3xl'
+         >
+         </div>
+         <p
+           class='mb-6 text-xs font-black uppercase tracking-[0.3em] text-cyan-400'
+         >
+           A / Real side
+         </p>
+         <h2
+           class='text-4xl font-black leading-tight tracking-[-0.04em] text-white md:text-5xl'
+         >
+           Projects, resume, and learning notes
+         </h2>
+         <p class='mt-6 max-w-xl text-lg leading-relaxed text-slate-400'>
+           A professional-facing area for resume, projects, study notes, and blog
+           posts.
+         </p>
+         <div class='mt-8 flex flex-wrap gap-2'>
+           {
+             ['Resume', 'Projects', 'Notes', 'Blog'].map((tag) => (
+               <span class='rounded-full border border-cyan-500/30 px-3 py-1 text-xs font-bold text-cyan-300'>
+                 {tag}
+               </span>
+             ))
+           }
+         </div>
+       </a>
+ 
+       <!-- Fiction 卡片 -->
+       <a
+         href='/fiction/'
+         class='group relative overflow-hidden rounded-3xl border border-fuchsia-500/20 bg-gradient-to-br from-purple-950 to-slate-950 p-8 shadow-2xl shadow-fuchsia-950/30 transition hover:-translate-y-1 hover:border-fuchsia-400/40 md:p-12'
+       >
+         <div
+           class='pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-fuchsia-500/10 blur-3xl'
+         >
+         </div>
+         <p
+           class='mb-6 text-xs font-black uppercase tracking-[0.3em] text-fuchsia-400'
+         >
+           B / Fiction side
+         </p>
+         <h2
+           class='font-fiction text-4xl font-black leading-tight tracking-[-0.04em] text-white md:text-5xl'
+         >
+           Characters, worlds, and story archives
+         </h2>
+         <p class='mt-6 max-w-xl text-lg leading-relaxed text-slate-400'>
+           A creative archive for original characters, worldbuilding, story
+           chapters, and commissioned artwork.
+         </p>
+         <div class='mt-8 flex flex-wrap gap-2'>
+           {
+             ['OC', 'World', 'Story', 'Gallery'].map((tag) => (
+               <span class='rounded-full border border-fuchsia-500/30 px-3 py-1 text-xs font-bold text-fuchsia-300'>
+                 {tag}
+               </span>
+             ))
+           }
+         </div>
+       </a>
+     </section>
+   </main>
+ </Base>
+
+Index: src/pages/real/index.astro
+===================================================================
+--- src/pages/real/index.astro	
++++ src/pages/real/index.astro	
+@@ -1,102 +1,104 @@
+ ---
+ import RealPage from '@/templates/RealPage.astro';
+ import { Profile } from '@/utils/Profile';
+ ---
+ 
+ <RealPage
+   title='Real | My Homepage'
+   description='Portfolio, resume, projects, notes, and blog.'
+ >
+   <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
+     <p
+       class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-cyan-300'
+     >
+-      Real side
++      Sanjigen / real-world interface
+     </p>
+     <div class='grid gap-12 lg:grid-cols-[1fr_360px]'>
+       <div>
+         <h1
+           class='max-w-5xl text-6xl font-black leading-[0.9] tracking-[-0.08em] text-white md:text-8xl'
+         >
+-          Code, projects, and study records from {Profile.handle}.
++          Where {Profile.handle} turns real-world work into systems, proofs,
++          and deployable craft.
+         </h1>
+         <p class='mt-8 max-w-3xl text-lg leading-8 text-slate-400'>
+-          {Profile.tagline}. This section presents my profile, resume, projects,
+-          study notes, and blog in a clean developer portfolio style.
++          {Profile.tagline}. The sanjigen side collects the things that survive
++          outside imagination: profile, resume, shipped projects, study notes,
++          and technical writing.
+         </p>
+         <div class='mt-10 flex flex-wrap gap-3'>
+           <a
+             href={Profile.github}
+             class='rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-cyan-200'
+             >View GitHub
+           </a>
+           <a
+             href={Profile.bilibili}
+             class='rounded-full border border-white/10 px-5 py-3 text-sm font-black text-white transition hover:bg-white/10'
+             >Bilibili
+           </a>
+         </div>
+       </div>
+       <div class='rounded-3xl border border-white/10 bg-white/[0.04] p-6'>
+         <img
+           src={Profile.avatar}
+           alt={`${Profile.name} GitHub avatar`}
+           class='mb-6 h-20 w-20 rounded-3xl border border-white/10'
+         />
+         <h2 class='text-2xl font-black text-white'>{Profile.name}</h2>
+         <p class='mt-2 text-sm leading-6 text-slate-400'>
+           {Profile.school}<br />{Profile.location}
+         </p>
+         <div class='mt-6 flex flex-wrap gap-2'>
+           {Profile.techStack.map((tech) => (
+             <span class="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-slate-300">
+               {tech}
+             </span>
+           ))}
+         </div>
+         <h2 class='mt-8 text-2xl font-black text-white'>Sections</h2>
+         <div class='mt-6 grid gap-3 text-sm font-semibold text-slate-300'>
+           <a
+             class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
+             href='/real/resume/'
+             >Resume
+           </a>
+           <a
+             class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
+             href='/real/projects/'
+             >Projects
+           </a>
+           <a
+             class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
+             href='/real/notes/'
+             >Notes
+           </a>
+           <a
+             class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
+             href='/real/blog/'
+             >Blog
+           </a>
+         </div>
+       </div>
+     </div>
+   </section>
+ 
+   <section class='mx-auto max-w-7xl px-5 pb-24 lg:px-8'>
+     <p
+       class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-cyan-300'
+     >
+       Featured repositories
+     </p>
+     <div class='grid gap-5 md:grid-cols-3'>
+       {Profile.repos.map((repo) => (
+         <a
+           href={repo.href}
+           class="rounded-3xl border border-white/10 bg-white/[0.04] p-7 transition hover:border-cyan-300/40 hover:bg-white/[0.07]"
+         >
+           <h2 class="text-2xl font-black text-white">{repo.name}</h2>
+           <p class="mt-4 leading-7 text-slate-400">{repo.description}</p>
+         </a>
+       ))}
+     </div>
+   </section>
+ </RealPage>
+
+Index: src/pages/zh-cn/fiction/commissions.astro
+===================================================================
+--- src/pages/zh-cn/fiction/commissions.astro	
++++ src/pages/zh-cn/fiction/commissions.astro	
+@@ -0,0 +1,40 @@
++---
++import { getCollection } from 'astro:content';
++
++import FictionPage from '@/templates/FictionPage.astro';
++
++const commissions = (await getCollection('commissions')).sort(
++  (a, b) => a.data.order - b.data.order
++);
++---
++
++<FictionPage
++  title='委托作品 | 个人主页'
++  description='委托图像画廊。'
++  locale='zh-cn'
++>
++  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
++    <p
++      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-fiction-gold'
++    >
++      Commissions
++    </p>
++    <h1
++      class='font-fiction text-6xl font-black leading-none tracking-[-0.05em] text-fiction-ink md:text-8xl'
++    >
++      委托作品
++    </h1>
++    <div class='mt-14 grid gap-5 md:grid-cols-3'>
++      {commissions.map((item) => (
++        <article class="aspect-[4/5] rounded-[2rem] border border-fiction-gold/30 bg-black/20 p-7">
++          <h2 class="font-fiction text-3xl font-black text-fiction-ink">
++            {item.data.title}
++          </h2>
++          <p class="mt-4 leading-8 text-fuchsia-100/70">
++            {item.data.description}
++          </p>
++        </article>
++      ))}
++    </div>
++  </section>
++</FictionPage>
+
+Index: src/pages/zh-cn/fiction/index.astro
+===================================================================
+--- src/pages/zh-cn/fiction/index.astro	
++++ src/pages/zh-cn/fiction/index.astro	
+@@ -0,0 +1,62 @@
++---
++import FictionPage from '@/templates/FictionPage.astro';
++---
++
++<FictionPage
++  title='幻想侧 | 个人主页'
++  description='原创角色、世界观、故事与委托作品档案。'
++  locale='zh-cn'
++>
++  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
++    <div
++      class='grid min-h-[620px] items-center gap-12 lg:grid-cols-[1fr_420px]'
++    >
++      <div>
++        <p
++          class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-fiction-gold'
++        >
++          二次元 / 物语档案
++        </p>
++        <h1
++          class='font-fiction text-6xl font-black leading-[0.92] tracking-[-0.05em] text-fiction-ink md:text-8xl'
++        >
++          打开二次元的书架：角色在此呼吸，世界在此分岔，故事像未解锁路线般沉睡。
++        </h1>
++        <p class='mt-8 max-w-3xl text-lg leading-8 text-fuchsia-100/70'>
++          这里把脑内剧场整理成可阅读的档案：原创角色、世界观、故事章节与委托图像，以近似视觉小说启动器的方式陈列。
++        </p>
++      </div>
++      <div
++        class='rounded-[2rem] border border-fiction-gold/30 bg-white/5 p-6 shadow-2xl shadow-black/30'
++      >
++        <p
++          class='text-xs font-black uppercase tracking-[0.28em] text-fiction-gold'
++        >
++          Archive menu
++        </p>
++        <div class='mt-6 grid gap-3'>
++          <a
++            class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
++            href='/zh-cn/fiction/'
++            >OCs
++          </a>
++          <a
++            class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
++            href='/zh-cn/fiction/'
++            >世界观
++          </a>
++          <a
++            class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
++            href='/zh-cn/fiction/'
++            >故事
++          </a>
++          <a
++            class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
++            href='/zh-cn/fiction/'
++            >委托作品
++          </a>
++        </div>
++      </div>
++    </div>
++  </section>
++</FictionPage>
+
+Index: src/pages/zh-cn/fiction/novels.astro
+===================================================================
+--- src/pages/zh-cn/fiction/novels.astro	
++++ src/pages/zh-cn/fiction/novels.astro	
+@@ -0,0 +1,41 @@
++---
++import { getCollection } from 'astro:content';
++
++import FictionPage from '@/templates/FictionPage.astro';
++
++const chapters = (await getCollection('novels')).sort(
++  (a, b) => a.data.order - b.data.order
++);
++---
++
++<FictionPage
++  title='故事 | 个人主页'
++  description='故事与剧情章节。'
++  locale='zh-cn'
++>
++  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
++    <p
++      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-fiction-gold'
++    >
++      Stories
++    </p>
++    <h1
++      class='font-fiction text-6xl font-black leading-none tracking-[-0.05em] text-fiction-ink md:text-8xl'
++    >
++      故事
++    </h1>
++    <div class='mt-14 grid gap-5'>
++      {chapters.map((chapter) => (
++        <article class="rounded-[2rem] border border-fiction-gold/30 bg-black/20 p-7">
++          <p class="text-fiction-gold">第 {chapter.data.order} 章</p>
++          <h2 class="mt-2 font-fiction text-3xl font-black text-fiction-ink">
++            {chapter.data.title}
++          </h2>
++          <p class="mt-4 leading-8 text-fuchsia-100/70">
++            {chapter.data.description}
++          </p>
++        </article>
++      ))}
++    </div>
++  </section>
++</FictionPage>
+
+Index: src/pages/zh-cn/fiction/oc/index.astro
+===================================================================
+--- src/pages/zh-cn/fiction/oc/index.astro	
++++ src/pages/zh-cn/fiction/oc/index.astro	
+@@ -0,0 +1,46 @@
++---
++import FictionPage from '@/templates/FictionPage.astro';
++---
++
++<FictionPage
++  title='原创角色 | 个人主页'
++  description='原创角色总览。'
++  locale='zh-cn'
++>
++  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
++    <p
++      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-fiction-gold'
++    >
++      Original characters
++    </p>
++    <h1
++      class='font-fiction text-6xl font-black leading-none tracking-[-0.05em] text-fiction-ink md:text-8xl'
++    >
++      原创角色
++    </h1>
++    <div class='mt-14 grid gap-5 md:grid-cols-2'>
++      <a
++        class='min-h-[420px] rounded-[2rem] border border-fiction-gold/30 bg-black/20 p-8 hover:bg-fiction-gold/10'
++        href='/zh-cn/fiction/oc/oc-a/'
++        ><p class='text-fiction-gold'>OC 01</p><h2
++          class='mt-4 font-fiction text-5xl font-black text-fiction-ink'
++        >
++          角色 A
++        </h2><p class='mt-5 leading-8 text-fuchsia-100/70'>
++          后续替换为角色姓名、关键词与简短钩子。
++        </p>
++      </a>
++      <a
++        class='min-h-[420px] rounded-[2rem] border border-fiction-gold/30 bg-black/20 p-8 hover:bg-fiction-gold/10'
++        href='/zh-cn/fiction/oc/oc-b/'
++        ><p class='text-fiction-gold'>OC 02</p><h2
++          class='mt-4 font-fiction text-5xl font-black text-fiction-ink'
++        >
++          角色 B
++        </h2><p class='mt-5 leading-8 text-fuchsia-100/70'>
++          后续替换为角色姓名、关键词与简短钩子。
++        </p>
++      </a>
++    </div>
++  </section>
++</FictionPage>
+
+Index: src/pages/zh-cn/fiction/oc/oc-a.astro
+===================================================================
+--- src/pages/zh-cn/fiction/oc/oc-a.astro	
++++ src/pages/zh-cn/fiction/oc/oc-a.astro	
+@@ -0,0 +1,36 @@
++---
++import FictionPage from '@/templates/FictionPage.astro';
++
++const sections = ['档案', '性格与经历', '关系', '视觉素材'];
++---
++
++<FictionPage
++  title='角色 A | 个人主页'
++  description='OC 角色档案 A。'
++  locale='zh-cn'
++>
++  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
++    <p
++      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-fiction-gold'
++    >
++      Character file 01
++    </p>
++    <h1
++      class='font-fiction text-6xl font-black leading-none tracking-[-0.05em] text-fiction-ink md:text-8xl'
++    >
++      角色 A
++    </h1>
++    <div class='mt-14 grid gap-5 md:grid-cols-2'>
++      {sections.map((item) => (
++        <article class="rounded-[2rem] border border-fiction-gold/30 bg-black/20 p-7">
++          <h2 class="font-fiction text-3xl font-black text-fiction-ink">
++            {item}
++          </h2>
++          <p class="mt-4 leading-8 text-fuchsia-100/70">
++            等待填充角色设定。
++          </p>
++        </article>
++      ))}
++    </div>
++  </section>
++</FictionPage>
+
+Index: src/pages/zh-cn/fiction/oc/oc-b.astro
+===================================================================
+--- src/pages/zh-cn/fiction/oc/oc-b.astro	
++++ src/pages/zh-cn/fiction/oc/oc-b.astro	
+@@ -0,0 +1,36 @@
++---
++import FictionPage from '@/templates/FictionPage.astro';
++
++const sections = ['档案', '性格与经历', '关系', '视觉素材'];
++---
++
++<FictionPage
++  title='角色 B | 个人主页'
++  description='OC 角色档案 B。'
++  locale='zh-cn'
++>
++  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
++    <p
++      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-fiction-gold'
++    >
++      Character file 02
++    </p>
++    <h1
++      class='font-fiction text-6xl font-black leading-none tracking-[-0.05em] text-fiction-ink md:text-8xl'
++    >
++      角色 B
++    </h1>
++    <div class='mt-14 grid gap-5 md:grid-cols-2'>
++      {sections.map((item) => (
++        <article class="rounded-[2rem] border border-fiction-gold/30 bg-black/20 p-7">
++          <h2 class="font-fiction text-3xl font-black text-fiction-ink">
++            {item}
++          </h2>
++          <p class="mt-4 leading-8 text-fuchsia-100/70">
++            等待填充角色设定。
++          </p>
++        </article>
++      ))}
++    </div>
++  </section>
++</FictionPage>
+
+Index: src/pages/zh-cn/fiction/world.astro
+===================================================================
+--- src/pages/zh-cn/fiction/world.astro	
++++ src/pages/zh-cn/fiction/world.astro	
+@@ -0,0 +1,40 @@
++---
++import { getCollection } from 'astro:content';
++
++import FictionPage from '@/templates/FictionPage.astro';
++
++const items = (await getCollection('world')).sort(
++  (a, b) => a.data.order - b.data.order
++);
++---
++
++<FictionPage
++  title='世界观 | 个人主页'
++  description='世界观设定档案。'
++  locale='zh-cn'
++>
++  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
++    <p
++      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-fiction-gold'
++    >
++      Worldbuilding
++    </p>
++    <h1
++      class='font-fiction text-6xl font-black leading-none tracking-[-0.05em] text-fiction-ink md:text-8xl'
++    >
++      世界观
++    </h1>
++    <div class='mt-14 grid gap-5 md:grid-cols-3'>
++      {items.map((item) => (
++        <article class="rounded-[2rem] border border-fiction-gold/30 bg-black/20 p-7">
++          <h2 class="font-fiction text-3xl font-black text-fiction-ink">
++            {item.data.title}
++          </h2>
++          <p class="mt-4 leading-8 text-fuchsia-100/70">
++            {item.data.description}
++          </p>
++        </article>
++      ))}
++    </div>
++  </section>
++</FictionPage>
+
+Index: src/pages/zh-cn/index.astro
+===================================================================
+--- src/pages/zh-cn/index.astro	
++++ src/pages/zh-cn/index.astro	
+@@ -0,0 +1,202 @@
++---
++import Base from '@/templates/Base.astro';
++import { Profile } from '@/utils/Profile';
++
++const title = 'WEIKNIGHT | 个人主页';
++const description = 'WEIKNIGHT 的个人主页，记录现实技术与幻想档案。';
++---
++
++<Base head={{ title, description }} theme='home' locale='zh-cn'>
++  <main>
++    <section class='relative min-h-screen overflow-hidden bg-slate-950'>
++      <div class='pointer-events-none absolute inset-0'>
++        <div
++          class='absolute left-0 top-0 h-full w-1/2 bg-gradient-to-br from-cyan-500/20 via-blue-600/10 to-transparent'
++        >
++        </div>
++        <div
++          class='absolute right-0 top-0 h-full w-1/2 bg-gradient-to-bl from-fuchsia-500/20 via-purple-600/10 to-transparent'
++        >
++        </div>
++        <div
++          class='absolute left-1/2 top-1/3 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-cyan-400/10 via-fuchsia-400/10 to-transparent blur-3xl'
++        >
++        </div>
++      </div>
++
++      <div
++        class='relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-5 py-24 text-center lg:px-8'
++      >
++        <h1
++          class='font-jp max-w-5xl text-4xl font-black leading-[0.94] tracking-[-0.03em] text-white md:text-6xl lg:text-7xl'
++        >
++          <span class='block text-lg font-bold tracking-[0.2em] text-white/40 md:text-xl'
++            >― 二つの世界を統べる者 ―</span
++          >
++          <span class='hero-title-ruby mt-4 block bg-gradient-to-r from-cyan-300 via-blue-300 to-cyan-200 bg-clip-text text-transparent'>
++            <ruby>現実<rt>リアル</rt></ruby>と<ruby>幻想<rt>ファンタジー</rt></ruby>、二つの<ruby>記録<rt>アーカイブ</rt></ruby>
++          </span>
++        </h1>
++
++        <div class='mt-16 max-w-3xl space-y-3 text-lg leading-relaxed text-slate-300 md:text-xl'>
++          <p class='font-jp-serif'>
++            <span class='text-cyan-300'>技術記録</span>と<span class='text-fuchsia-300'>物語世界</span>を行き来する者
++          </p>
++          <p>
++            在 <span class='font-readable-mono text-cyan-300'>code archives</span> 与 <span class='font-fiction text-fuchsia-300'>fictional worlds</span> 之间往返。
++          </p>
++        </div>
++
++        <div class='mt-14 flex flex-wrap items-center justify-center gap-5'>
++          <a
++            href='/zh-cn/real/'
++            class='rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-4 text-sm font-black text-white shadow-lg shadow-cyan-500/25 transition hover:shadow-cyan-500/40'
++            >进入现实侧</a
++          >
++          <a
++            href='/zh-cn/fiction/'
++            class='rounded-full border-2 border-fuchsia-400/50 px-8 py-4 text-sm font-black text-fuchsia-200 transition hover:border-fuchsia-400 hover:bg-fuchsia-500/20'
++            >进入幻想侧</a
++          >
++          <a
++            href={Profile.github}
++            class='rounded-full border border-white/15 px-6 py-3 text-sm font-bold text-slate-400 transition hover:border-white/30 hover:text-white'
++            >GitHub</a
++          >
++        </div>
++      </div>
++      <style>
++        .hero-title-ruby rt {
++          color: rgb(226 232 240 / 0.68);
++          font-size: 0.28em;
++          font-weight: 700;
++          letter-spacing: 0.08em;
++          line-height: 1;
++          -webkit-text-fill-color: rgb(226 232 240 / 0.68);
++        }
++      </style>
++    </section>
++
++    <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
++      <div class='grid gap-12 lg:grid-cols-[1fr_360px]'>
++        <div>
++          <p
++            class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-cyan-300'
++          >
++            About me
++          </p>
++          <h2
++            class='text-4xl font-black leading-tight tracking-[-0.04em] text-white md:text-5xl'
++          >
++            {Profile.name}
++          </h2>
++          <p class='mt-6 max-w-2xl text-lg leading-relaxed text-slate-400'>
++            {Profile.tagline}。现居 {Profile.location}，目前就读于 {Profile.school}。
++          </p>
++          <div class='mt-8 flex flex-wrap gap-3'>
++            <a
++              href={Profile.github}
++              class='rounded-full border border-white/10 px-5 py-2 text-sm font-bold text-white transition hover:bg-white/10'
++              >GitHub</a
++            >
++            <a
++              href={Profile.bilibili}
++              class='rounded-full border border-white/10 px-5 py-2 text-sm font-bold text-white transition hover:bg-white/10'
++              >Bilibili</a
++            >
++          </div>
++          <div class='mt-8 flex flex-wrap gap-2'>
++            {
++              Profile.techStack.map((tech) => (
++                <span class='rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-slate-300'>
++                  {tech}
++                </span>
++              ))
++            }
++          </div>
++        </div>
++        <div class='flex items-start justify-center lg:justify-end'>
++          <div class='relative'>
++            <div
++              class='absolute -inset-4 rounded-3xl bg-gradient-to-br from-cyan-400/20 via-fuchsia-400/15 to-transparent blur-xl'
++            >
++            </div>
++            <img
++              src={Profile.avatar}
++              alt={`${Profile.name} avatar`}
++              class='relative h-48 w-48 rounded-3xl border border-white/10 shadow-2xl shadow-black/40'
++            />
++          </div>
++        </div>
++      </div>
++    </section>
++
++    <section
++      class='mx-auto grid max-w-7xl gap-5 px-5 pb-28 lg:grid-cols-2 lg:px-8'
++    >
++      <a
++        href='/zh-cn/real/'
++        class='group relative overflow-hidden rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-slate-900 to-slate-950 p-8 font-readable-mono shadow-2xl shadow-cyan-950/30 transition hover:-translate-y-1 hover:border-cyan-400/40 md:p-12'
++      >
++        <div
++          class='pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-cyan-500/10 blur-3xl'
++        >
++        </div>
++        <p
++          class='mb-6 text-xs font-black uppercase tracking-[0.3em] text-cyan-400'
++        >
++          A / Real side
++        </p>
++        <h2
++          class='text-4xl font-black leading-tight tracking-[-0.04em] text-white md:text-5xl'
++        >
++          项目、简历与学习笔记
++        </h2>
++        <p class='mt-6 max-w-xl text-lg leading-relaxed text-slate-400'>
++          面向现实世界的区域，用于整理简历、项目、学习记录与博客文章。
++        </p>
++        <div class='mt-8 flex flex-wrap gap-2'>
++          {
++            ['简历', '项目', '笔记', '博客'].map((tag) => (
++              <span class='rounded-full border border-cyan-500/30 px-3 py-1 text-xs font-bold text-cyan-300'>
++                {tag}
++              </span>
++            ))
++          }
++        </div>
++      </a>
++
++      <a
++        href='/zh-cn/fiction/'
++        class='group relative overflow-hidden rounded-3xl border border-fuchsia-500/20 bg-gradient-to-br from-purple-950 to-slate-950 p-8 shadow-2xl shadow-fuchsia-950/30 transition hover:-translate-y-1 hover:border-fuchsia-400/40 md:p-12'
++      >
++        <div
++          class='pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-fuchsia-500/10 blur-3xl'
++        >
++        </div>
++        <p
++          class='mb-6 text-xs font-black uppercase tracking-[0.3em] text-fuchsia-400'
++        >
++          B / Fiction side
++        </p>
++        <h2
++          class='font-fiction text-4xl font-black leading-tight tracking-[-0.04em] text-white md:text-5xl'
++        >
++          角色、世界观与故事档案
++        </h2>
++        <p class='mt-6 max-w-xl text-lg leading-relaxed text-slate-400'>
++          存放原创角色、世界观设定、故事章节与委托图像的创作档案。
++        </p>
++        <div class='mt-8 flex flex-wrap gap-2'>
++          {
++            ['OC', '世界观', '故事', '画廊'].map((tag) => (
++              <span class='rounded-full border border-fuchsia-500/30 px-3 py-1 text-xs font-bold text-fuchsia-300'>
++                {tag}
++              </span>
++            ))
++          }
++        </div>
++      </a>
++    </section>
++  </main>
++</Base>
+
+Index: src/pages/zh-cn/real/blog.astro
+===================================================================
+--- src/pages/zh-cn/real/blog.astro	
++++ src/pages/zh-cn/real/blog.astro	
+@@ -0,0 +1,36 @@
++---
++import { getCollection } from 'astro:content';
++
++import RealPage from '@/templates/RealPage.astro';
++
++const posts = (await getCollection('blog')).sort(
++  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
++);
++---
++
++<RealPage
++  title='博客 | 个人主页'
++  description='博客文章与长期记录。'
++  locale='zh-cn'
++>
++  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
++    <p
++      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-cyan-300'
++    >
++      Blog
++    </p>
++    <h1
++      class='text-6xl font-black leading-none tracking-[-0.08em] text-white md:text-8xl'
++    >
++      博客
++    </h1>
++    <div class='mt-14 grid gap-5 md:grid-cols-3'>
++      {posts.map((post) => (
++        <article class="rounded-3xl border border-white/10 bg-white/[0.04] p-7">
++          <h2 class="text-2xl font-black text-white">{post.data.title}</h2>
++          <p class="mt-4 leading-7 text-slate-400">{post.data.description}</p>
++        </article>
++      ))}
++    </div>
++  </section>
++</RealPage>
+
+Index: src/pages/zh-cn/real/index.astro
+===================================================================
+--- src/pages/zh-cn/real/index.astro	
++++ src/pages/zh-cn/real/index.astro	
+@@ -0,0 +1,102 @@
++---
++import RealPage from '@/templates/RealPage.astro';
++import { Profile } from '@/utils/Profile';
++---
++
++<RealPage
++  title='现实侧 | 个人主页'
++  description='作品集、简历、项目、笔记与博客。'
++  locale='zh-cn'
++>
++  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
++    <p
++      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-cyan-300'
++    >
++      三次元 / 现实界面
++    </p>
++    <div class='grid gap-12 lg:grid-cols-[1fr_360px]'>
++      <div>
++        <h1
++          class='max-w-5xl text-6xl font-black leading-[0.9] tracking-[-0.08em] text-white md:text-8xl'
++        >
++          在三次元里，把想法锻造成系统、作品与可交付的技术痕迹。
++        </h1>
++        <p class='mt-8 max-w-3xl text-lg leading-8 text-slate-400'>
++          {Profile.tagline}。这里记录那些能离开脑内剧场、落到现实世界的部分：个人资料、简历、项目、学习笔记与技术文章。
++        </p>
++        <div class='mt-10 flex flex-wrap gap-3'>
++          <a
++            href={Profile.github}
++            class='rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-cyan-200'
++            >查看 GitHub
++          </a>
++          <a
++            href={Profile.bilibili}
++            class='rounded-full border border-white/10 px-5 py-3 text-sm font-black text-white transition hover:bg-white/10'
++            >Bilibili
++          </a>
++        </div>
++      </div>
++      <div class='rounded-3xl border border-white/10 bg-white/[0.04] p-6'>
++        <img
++          src={Profile.avatar}
++          alt={`${Profile.name} GitHub avatar`}
++          class='mb-6 h-20 w-20 rounded-3xl border border-white/10'
++        />
++        <h2 class='text-2xl font-black text-white'>{Profile.name}</h2>
++        <p class='mt-2 text-sm leading-6 text-slate-400'>
++          {Profile.school}<br />{Profile.location}
++        </p>
++        <div class='mt-6 flex flex-wrap gap-2'>
++          {Profile.techStack.map((tech) => (
++            <span class="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-slate-300">
++              {tech}
++            </span>
++          ))}
++        </div>
++        <h2 class='mt-8 text-2xl font-black text-white'>分区</h2>
++        <div class='mt-6 grid gap-3 text-sm font-semibold text-slate-300'>
++          <a
++            class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
++            href='/zh-cn/real/'
++            >简历
++          </a>
++          <a
++            class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
++            href='/zh-cn/real/'
++            >项目
++          </a>
++          <a
++            class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
++            href='/zh-cn/real/'
++            >笔记
++          </a>
++          <a
++            class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
++            href='/zh-cn/real/'
++            >博客
++          </a>
++        </div>
++      </div>
++    </div>
++  </section>
++
++  <section class='mx-auto max-w-7xl px-5 pb-24 lg:px-8'>
++    <p
++      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-cyan-300'
++    >
++      Featured repositories
++    </p>
++    <div class='grid gap-5 md:grid-cols-3'>
++      {Profile.repos.map((repo) => (
++        <a
++          href={repo.href}
++          class="rounded-3xl border border-white/10 bg-white/[0.04] p-7 transition hover:border-cyan-300/40 hover:bg-white/[0.07]"
++        >
++          <h2 class="text-2xl font-black text-white">{repo.name}</h2>
++          <p class="mt-4 leading-7 text-slate-400">{repo.description}</p>
++        </a>
++      ))}
++    </div>
++  </section>
++</RealPage>
+
+Index: src/pages/zh-cn/real/notes.astro
+===================================================================
+--- src/pages/zh-cn/real/notes.astro	
++++ src/pages/zh-cn/real/notes.astro	
+@@ -0,0 +1,36 @@
++---
++import { getCollection } from 'astro:content';
++
++import RealPage from '@/templates/RealPage.astro';
++
++const notes = (await getCollection('notes')).sort(
++  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
++);
++---
++
++<RealPage
++  title='笔记 | 个人主页'
++  description='技术学习、阅读与实践笔记。'
++  locale='zh-cn'
++>
++  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
++    <p
++      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-cyan-300'
++    >
++      Notes
++    </p>
++    <h1
++      class='text-6xl font-black leading-none tracking-[-0.08em] text-white md:text-8xl'
++    >
++      笔记
++    </h1>
++    <div class='mt-14 grid gap-5 md:grid-cols-3'>
++      {notes.map((note) => (
++        <article class="rounded-3xl border border-white/10 bg-white/[0.04] p-7">
++          <h2 class="text-2xl font-black text-white">{note.data.title}</h2>
++          <p class="mt-4 leading-7 text-slate-400">{note.data.description}</p>
++        </article>
++      ))}
++    </div>
++  </section>
++</RealPage>
+
+Index: src/pages/zh-cn/real/projects.astro
+===================================================================
+--- src/pages/zh-cn/real/projects.astro	
++++ src/pages/zh-cn/real/projects.astro	
+@@ -0,0 +1,45 @@
++---
++import { getCollection } from 'astro:content';
++
++import RealPage from '@/templates/RealPage.astro';
++
++const projects = (await getCollection('projects')).sort(
++  (a, b) => a.data.order - b.data.order
++);
++---
++
++<RealPage
++  title='项目 | 个人主页'
++  description='项目与作品集条目。'
++  locale='zh-cn'
++>
++  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
++    <p
++      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-cyan-300'
++    >
++      Projects
++    </p>
++    <h1
++      class='text-6xl font-black leading-none tracking-[-0.08em] text-white md:text-8xl'
++    >
++      项目
++    </h1>
++    <div class='mt-14 grid gap-5 md:grid-cols-3'>
++      {projects.map((project) => (
++        <article class="rounded-3xl border border-white/10 bg-white/[0.04] p-7">
++          <h2 class="text-2xl font-black text-white">{project.data.title}</h2>
++          <p class="mt-4 leading-7 text-slate-400">
++            {project.data.description}
++          </p>
++          <div class="mt-6 flex flex-wrap gap-2">
++            {project.data.tags.map((tag) => (
++              <span class="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-slate-300">
++                {tag}
++              </span>
++            ))}
++          </div>
++        </article>
++      ))}
++    </div>
++  </section>
++</RealPage>
+
+Index: src/pages/zh-cn/real/resume.astro
+===================================================================
+--- src/pages/zh-cn/real/resume.astro	
++++ src/pages/zh-cn/real/resume.astro	
+@@ -0,0 +1,37 @@
++---
++import RealPage from '@/templates/RealPage.astro';
++
++const sections = ['个人资料', '技能', '教育 / 经历', '亮点'];
++---
++
++<RealPage
++  title='简历 | 个人主页'
++  description='简历、技能、经历与联系方式。'
++  locale='zh-cn'
++>
++  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
++    <p
++      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-cyan-300'
++    >
++      Resume
++    </p>
++    <h1
++      class='text-6xl font-black leading-none tracking-[-0.08em] text-white md:text-8xl'
++    >
++      简历
++    </h1>
++    <p class='mt-6 max-w-3xl text-lg leading-8 text-slate-400'>
++      这里是简历页面的骨架。后续会替换为真实的教育经历、实践经历、技能栈、项目与联系方式。
++    </p>
++    <div class='mt-14 grid gap-5 md:grid-cols-2'>
++      {sections.map((item) => (
++        <article class="rounded-3xl border border-white/10 bg-white/[0.04] p-7">
++          <h2 class="text-2xl font-black text-white">{item}</h2>
++          <p class="mt-4 leading-7 text-slate-400">
++            等待填充真实内容。
++          </p>
++        </article>
++      ))}
++    </div>
++  </section>
++</RealPage>
+
+Index: src/partials/Footer.tsx
+===================================================================
+--- src/partials/Footer.tsx	
++++ src/partials/Footer.tsx	
+@@ -1,10 +1,12 @@
+-const Footer = () => (
+-  <footer className="border-t border-white/10 bg-slate-950 px-5 py-10 font-readable-mono text-sm text-slate-500 lg:px-8">
++import { i18n, type Locale } from '@/utils/i18n';
++
++const Footer = ({ locale }: { locale: Locale }) => (
++  <footer className="border-t border-white/10 bg-slate-950 px-5 py-10 text-sm text-slate-500 lg:px-8">
+     <div className="mx-auto flex max-w-7xl flex-col gap-3 md:flex-row md:items-center md:justify-between">
+-      <p>Built with Astro, React and Tailwind CSS.</p>
+-      <p>Designed for real-world portfolio and fictional archive.</p>
++      <p>{i18n[locale].footer.builtWith}</p>
++      <p>{i18n[locale].footer.designedFor}</p>
+     </div>
+   </footer>
+ );
+ 
+ export { Footer };
+
+Index: src/partials/Navbar.tsx
+===================================================================
+--- src/partials/Navbar.tsx	
++++ src/partials/Navbar.tsx	
+@@ -1,119 +1,270 @@
+ import { Profile } from '@/utils/Profile';
++import {
++  getLanguagePath,
++  getLocalizedPath,
++  i18n,
++  locales,
++  type Locale,
++} from '@/utils/i18n';
+ 
+ const realLinks = [
+   { href: '/real/', label: 'Overview' },
+   { href: '/real/resume/', label: 'Resume' },
+   { href: '/real/projects/', label: 'Projects' },
+   { href: '/real/notes/', label: 'Notes' },
+   { href: '/real/blog/', label: 'Blog' },
+ ];
+ 
+ const fictionLinks = [
+   { href: '/fiction/', label: 'Overview' },
+   { href: '/fiction/oc/', label: 'OCs' },
+   { href: '/fiction/world/', label: 'World' },
+   { href: '/fiction/novels/', label: 'Stories' },
+   { href: '/fiction/commissions/', label: 'Commissions' },
+ ];
+ 
++const languageLabels: Record<Locale, string> = {
++  en: 'English',
++  'zh-cn': '简体中文',
++};
++
++const dropdownScript = `
++(() => {
++  const setupDropdowns = () => {
++    document.querySelectorAll('[data-dropdown-scope]').forEach((scope) => {
++      const dropdowns = Array.from(scope.querySelectorAll('details[data-dropdown]'));
++
++      dropdowns.forEach((dropdown) => {
++        if (dropdown.dataset.dropdownReady === 'true') {
++          return;
++        }
++
++        dropdown.dataset.dropdownReady = 'true';
++        dropdown.addEventListener('toggle', () => {
++          if (!dropdown.open) {
++            return;
++          }
++
++          dropdowns.forEach((otherDropdown) => {
++            if (otherDropdown !== dropdown) {
++              otherDropdown.open = false;
++            }
++          });
++        });
++      });
++    });
++  };
++
++  setupDropdowns();
++  document.addEventListener('astro:page-load', setupDropdowns);
++})();
++`;
++
+ const LinkGroup = ({
+   label,
+   links,
+ }: {
+   label: string;
+   links: typeof realLinks;
+ }) => (
+-  <details className="group relative">
++  <details className="group relative" data-dropdown name="desktop-nav-dropdown">
+     <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white">
+       {label}
+       <span className="text-xs text-slate-500 transition group-open:rotate-180">
+         ⌄
+       </span>
+     </summary>
+-    <div className="absolute right-0 top-12 z-30 grid w-48 gap-1 rounded-2xl border border-white/10 bg-slate-950/95 p-2 shadow-2xl shadow-black/40 backdrop-blur">
++    <div className="nav-dropdown-panel absolute right-0 top-12 z-30 grid w-48 gap-1 rounded-2xl border border-white/10 bg-slate-950/95 p-2 shadow-2xl shadow-black/40 backdrop-blur">
+       {links.map((link) => (
+         <a
+           key={link.href}
+           href={link.href}
+           className="rounded-xl px-3 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
+         >
+           {link.label}
+         </a>
+       ))}
+     </div>
+   </details>
+ );
+ 
+ const MobileGroup = ({
+   label,
+   links,
+ }: {
+   label: string;
+   links: typeof realLinks;
+ }) => (
+-  <details className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 md:hidden">
++  <details
++    className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 md:hidden"
++    data-dropdown
++    name="mobile-nav-dropdown"
++  >
+     <summary className="cursor-pointer list-none font-semibold text-white">
+       {label}
+     </summary>
+-    <div className="mt-3 grid gap-2">
++    <div className="nav-dropdown-panel mt-3 grid gap-2">
+       {links.map((link) => (
+         <a
+           key={link.href}
+           href={link.href}
+           className="rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-white/10"
+         >
+           {link.label}
+         </a>
+       ))}
+     </div>
+   </details>
+ );
+ 
+-const Navbar = () => (
+-  <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
++const LanguageGroup = ({
++  label,
++  locale,
++  pathname,
++}: {
++  label: string;
++  locale: Locale;
++  pathname: string;
++}) => (
++  <details className="group relative" data-dropdown name="desktop-nav-dropdown">
++    <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-sm font-bold text-slate-300 transition hover:bg-white/10 hover:text-white">
++      {label}
++      <span className="text-xs text-slate-500 transition group-open:rotate-180">
++        ⌄
++      </span>
++    </summary>
++    <div className="nav-dropdown-panel absolute right-0 top-12 z-30 grid w-40 gap-1 rounded-2xl border border-white/10 bg-slate-950/95 p-2 shadow-2xl shadow-black/40 backdrop-blur">
++      {locales.map((targetLocale) => (
++        <a
++          key={targetLocale}
++          href={getLanguagePath(pathname, targetLocale)}
++          aria-current={targetLocale === locale ? 'page' : undefined}
++          className="rounded-xl px-3 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white aria-[current=page]:bg-white/10 aria-[current=page]:text-white"
++        >
++          {languageLabels[targetLocale]}
++        </a>
++      ))}
++    </div>
++  </details>
++);
++
++const MobileLanguageGroup = ({
++  label,
++  locale,
++  pathname,
++}: {
++  label: string;
++  locale: Locale;
++  pathname: string;
++}) => (
++  <details
++    className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 md:hidden"
++    data-dropdown
++    name="mobile-nav-dropdown"
++  >
++    <summary className="cursor-pointer list-none font-semibold text-white">
++      {label}
++    </summary>
++    <div className="nav-dropdown-panel mt-3 grid gap-2">
++      {locales.map((targetLocale) => (
++        <a
++          key={targetLocale}
++          href={getLanguagePath(pathname, targetLocale)}
++          aria-current={targetLocale === locale ? 'page' : undefined}
++          className="rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-white/10 aria-[current=page]:bg-white/10 aria-[current=page]:text-white"
++        >
++          {languageLabels[targetLocale]}
++        </a>
++      ))}
++    </div>
++  </details>
++);
++
++const Navbar = ({ locale, pathname }: { locale: Locale; pathname: string }) => {
++  const text = i18n[locale].nav;
++  const localizedRealLinks = realLinks.map((link) => ({
++    ...link,
++    href: getLocalizedPath(link.href, locale),
++  }));
++  const localizedFictionLinks = fictionLinks.map((link) => ({
++    ...link,
++    href: getLocalizedPath(link.href, locale),
++  }));
++  const homeHref = getLocalizedPath('/', locale);
++
++  return (
++    <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+     <nav
+       className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8"
+       aria-label="Primary navigation"
+     >
+-      <a href="/" className="flex items-center gap-3">
++      <a href={homeHref} className="flex items-center gap-3">
+         <img
+           src={Profile.avatar}
+           alt={`${Profile.name} avatar`}
+           className="h-9 w-9 rounded-2xl border border-white/10"
+         />
+         <span className="text-base font-black tracking-tight text-white">
+           WeiKnight's Homepage
+         </span>
+       </a>
+ 
+-      <div className="hidden items-center gap-2 md:flex">
++      <div className="hidden items-center gap-2 md:flex" data-dropdown-scope>
+         <a
+-          href="/"
++          href={homeHref}
+           className="rounded-full px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
+         >
+-          Home
++          {text.home}
+         </a>
+-        <LinkGroup label="Real" links={realLinks} />
+-        <LinkGroup label="Fiction" links={fictionLinks} />
++        <LinkGroup label={text.real} links={localizedRealLinks} />
++        <LinkGroup label={text.fiction} links={localizedFictionLinks} />
++        <LanguageGroup label={text.language} locale={locale} pathname={pathname} />
+       </div>
+ 
+       <details className="md:hidden">
+         <summary className="cursor-pointer list-none rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white">
+           Menu
+         </summary>
+-        <div className="absolute inset-x-4 top-16 grid gap-3 rounded-3xl border border-white/10 bg-slate-950/95 p-4 shadow-2xl shadow-black/40 backdrop-blur">
++        <div
++          className="absolute inset-x-4 top-16 grid gap-3 rounded-3xl border border-white/10 bg-slate-950/95 p-4 shadow-2xl shadow-black/40 backdrop-blur"
++          data-dropdown-scope
++        >
+           <a
+-            href="/"
++            href={homeHref}
+             className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10"
+           >
+-            Home
++            {text.home}
+           </a>
+-          <MobileGroup label="Real" links={realLinks} />
+-          <MobileGroup label="Fiction" links={fictionLinks} />
++          <MobileGroup label={text.real} links={localizedRealLinks} />
++          <MobileGroup label={text.fiction} links={localizedFictionLinks} />
++          <MobileLanguageGroup
++            label={text.language}
++            locale={locale}
++            pathname={pathname}
++          />
+         </div>
+       </details>
+     </nav>
++    <style>{`
++      details[open] > .nav-dropdown-panel {
++        animation: nav-dropdown-in 180ms ease-out both;
++      }
++
++      @keyframes nav-dropdown-in {
++        from {
++          opacity: 0;
++          transform: translateY(-0.4rem) scale(0.98);
++        }
++
++        to {
++          opacity: 1;
++          transform: translateY(0) scale(1);
++        }
++      }
++    `}</style>
++    <script dangerouslySetInnerHTML={{ __html: dropdownScript }} />
+   </header>
+-);
++  );
++};
+ 
+ export { Navbar };
+
+Index: src/templates/Base.astro
+===================================================================
+--- src/templates/Base.astro	
++++ src/templates/Base.astro	
+@@ -1,42 +1,45 @@
+ ---
+-import { Footer } from '@/partials/Footer';
+-import { Navbar } from '@/partials/Navbar';
+-import { AppConfig } from '@/utils/AppConfig';
++import { Footer } from '@/partials/Footer';
++import { Navbar } from '@/partials/Navbar';
++import { AppConfig } from '@/utils/AppConfig';
++import { defaultLocale, type Locale } from '@/utils/i18n';
+ 
+ export interface Props {
+   head: {
+     title: string;
+     description: string;
+-  };
+-  theme?: 'home' | 'real' | 'fiction';
+-}
+-
+-const {
+-  head: { title, description },
+-  theme = 'home',
+-} = Astro.props as Props;
+----
+-
+-<html lang='en'>
++  };
++  theme?: 'home' | 'real' | 'fiction';
++  locale?: Locale;
++}
++
++const {
++  head: { title, description },
++  theme = 'home',
++  locale = defaultLocale,
++} = Astro.props as Props;
++---
++
++<html lang={locale === 'zh-cn' ? 'zh-CN' : 'en'}>
+   <head>
+     <meta charset='UTF-8' />
+     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+     <title>{title}</title>
+     <meta name='description' content={description} />
+     <meta name='author' content={AppConfig.author} />
+ 
+     <link rel='alternate' type='application/rss+xml' href='/rss.xml' />
+     <link rel='icon' type='image/x-icon' href='/favicon.ico' />
+   </head>
+   <body
+     class={`flex min-h-screen flex-col bg-slate-950 text-gray-100 ${theme}-theme`}
+   >
+-    <Navbar />
++    <Navbar locale={locale} pathname={Astro.url.pathname} />
+ 
+     <div class='flex-1'>
+       <slot></slot>
+     </div>
+ 
+-    <Footer />
+-  </body>
+-</html>
++    <Footer locale={locale} />
++  </body>
++</html>
+
+Index: src/templates/FictionPage.astro
+===================================================================
+--- src/templates/FictionPage.astro	
++++ src/templates/FictionPage.astro	
+@@ -1,18 +1,20 @@
+ ---
+ import Base from './Base.astro';
++import { defaultLocale, type Locale } from '@/utils/i18n';
+ 
+ export interface Props {
+   title: string;
+   description: string;
++  locale?: Locale;
+ }
+ 
+-const { title, description } = Astro.props as Props;
++const { title, description, locale = defaultLocale } = Astro.props as Props;
+ ---
+ 
+-<Base head={{ title, description }} theme='fiction'>
++<Base head={{ title, description }} theme='fiction' locale={locale}>
+   <main
+     class='min-h-screen bg-[radial-gradient(circle_at_20%_0%,rgba(143,47,75,0.36),transparent_28rem),radial-gradient(circle_at_85%_10%,rgba(216,183,106,0.24),transparent_24rem),linear-gradient(135deg,#120917,#22132e_48%,#100812)] font-fiction text-fiction-ink'
+   >
+     <slot></slot>
+   </main>
+ </Base>
+
+Index: src/templates/RealPage.astro
+===================================================================
+--- src/templates/RealPage.astro	
++++ src/templates/RealPage.astro	
+@@ -1,16 +1,18 @@
+ ---
+ import Base from './Base.astro';
++import { defaultLocale, type Locale } from '@/utils/i18n';
+ 
+ export interface Props {
+   title: string;
+   description: string;
++  locale?: Locale;
+ }
+ 
+-const { title, description } = Astro.props as Props;
++const { title, description, locale = defaultLocale } = Astro.props as Props;
+ ---
+ 
+-<Base head={{ title, description }} theme='real'>
++<Base head={{ title, description }} theme='real' locale={locale}>
+   <main class='bg-slate-950 font-readable-mono text-slate-100'>
+     <slot></slot>
+   </main>
+ </Base>
+
+Index: src/utils/i18n.ts
+===================================================================
+--- src/utils/i18n.ts	
++++ src/utils/i18n.ts	
+@@ -0,0 +1,94 @@
++export const locales = ['en', 'zh-cn'] as const;
++
++export type Locale = (typeof locales)[number];
++
++export const defaultLocale: Locale = 'en';
++
++export const i18n = {
++  en: {
++    nav: {
++      home: 'Home',
++      real: 'Real',
++      fiction: 'Fiction',
++      language: 'Language',
++    },
++    footer: {
++      builtWith: 'Built with Astro, React and Tailwind CSS.',
++      designedFor: 'Designed for real-world portfolio and fictional archive.',
++    },
++  },
++  'zh-cn': {
++    nav: {
++      home: '首页',
++      real: '三次元',
++      fiction: '二次元',
++      language: '语言',
++    },
++    footer: {
++      builtWith: '使用 Astro、React 与 Tailwind CSS 构建。',
++      designedFor: '为现实作品集与幻想档案而设计。',
++    },
++  },
++} as const;
++
++export const getLocaleFromPath = (pathname: string): Locale => {
++  return pathname === '/zh-cn' || pathname.startsWith('/zh-cn/')
++    ? 'zh-cn'
++    : defaultLocale;
++};
++
++export const getLocalizedPath = (path: string, locale: Locale): string => {
++  if (locale === defaultLocale) {
++    return path;
++  }
++
++  return path === '/' ? '/zh-cn/' : `/zh-cn${path}`;
++};
++
++const translatedEnglishPaths = new Set([
++  '/',
++  '/real/',
++  '/real/resume/',
++  '/real/projects/',
++  '/real/notes/',
++  '/real/blog/',
++  '/fiction/',
++  '/fiction/oc/',
++  '/fiction/oc/oc-a/',
++  '/fiction/oc/oc-b/',
++  '/fiction/world/',
++  '/fiction/novels/',
++  '/fiction/commissions/',
++]);
++
++export const getLanguagePath = (pathname: string, targetLocale: Locale): string => {
++  const normalizedPath = pathname.endsWith('/') ? pathname : `${pathname}/`;
++  const currentLocale = getLocaleFromPath(normalizedPath);
++
++  if (targetLocale === currentLocale) {
++    return normalizedPath;
++  }
++
++  if (targetLocale === defaultLocale) {
++    const englishPath = normalizedPath.replace(/^\/zh-cn/, '');
++    return englishPath === '' ? '/' : englishPath;
++  }
++
++  if (normalizedPath === '/') {
++    return '/zh-cn/';
++  }
++
++  if (translatedEnglishPaths.has(normalizedPath)) {
++    return `/zh-cn${normalizedPath}`;
++  }
++
++  if (normalizedPath.startsWith('/real/')) {
++    return '/zh-cn/real/';
++  }
++
++  if (normalizedPath.startsWith('/fiction/')) {
++    return '/zh-cn/fiction/';
++  }
++
++  return '/zh-cn/';
++};
+
+Index: tailwind.config.js
+===================================================================
+--- tailwind.config.js	
++++ tailwind.config.js	
+@@ -1,39 +1,38 @@
+ /* eslint-disable import/no-extraneous-dependencies, global-require */
+ module.exports = {
+   content: [
+     './src/**/*.{astro,html,js,jsx,svelte,ts,tsx,vue}',
+     './node_modules/astro-boilerplate-components/**/*.{js,ts,jsx,tsx}',
+   ],
+   theme: {
+     extend: {
+       fontFamily: {
+         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+         display: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+-        'readable-mono': [
+-          'Cascadia Code',
+-          'JetBrains Mono',
+-          'IBM Plex Mono',
+-          'SFMono-Regular',
+-          'Consolas',
+-          'Liberation Mono',
+-          'monospace',
+-        ],
+-        fiction: ['Georgia', 'Times New Roman', 'Songti SC', 'serif'],
+-        jp: ['"Yu Gothic"', '"Hiragino Sans"', '"Noto Sans JP"', 'sans-serif'],
+-      },
++        'readable-mono': ['Consolas', 'Courier New', 'monospace'],
++        fiction: ['Georgia', 'Times New Roman', 'Songti SC', 'serif'],
++        jp: ['"Yu Gothic"', '"Hiragino Sans"', '"Noto Sans JP"', 'sans-serif'],
++        'jp-serif': [
++          '"Yu Mincho"',
++          '"Hiragino Mincho ProN"',
++          '"Noto Serif JP"',
++          '"MS Mincho"',
++          'serif',
++        ],
++      },
+       colors: {
+         fiction: {
+           ink: '#f8efe2',
+           gold: '#d8b76a',
+           wine: '#8f2f4b',
+           night: '#160d1f',
+           violet: '#3b214c',
+         },
+       },
+     },
+   },
+   plugins: [
+     require('@tailwindcss/aspect-ratio'),
+     require('@tailwindcss/typography'),
+   ],
+ };

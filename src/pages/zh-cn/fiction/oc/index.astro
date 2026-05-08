@@ -1,0 +1,46 @@
+---
+import FictionPage from '@/templates/FictionPage.astro';
+---
+
+<FictionPage
+  title='原创角色 | 个人主页'
+  description='原创角色总览。'
+  locale='zh-cn'
+>
+  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
+    <p
+      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-fiction-gold'
+    >
+      Original characters
+    </p>
+    <h1
+      class='font-fiction text-6xl font-black leading-none tracking-[-0.05em] text-fiction-ink md:text-8xl'
+    >
+      原创角色
+    </h1>
+    <div class='mt-14 grid gap-5 md:grid-cols-2'>
+      <a
+        class='min-h-[420px] rounded-[2rem] border border-fiction-gold/30 bg-black/20 p-8 hover:bg-fiction-gold/10'
+        href='/zh-cn/fiction/oc/oc-a/'
+        ><p class='text-fiction-gold'>OC 01</p><h2
+          class='mt-4 font-fiction text-5xl font-black text-fiction-ink'
+        >
+          角色 A
+        </h2><p class='mt-5 leading-8 text-fuchsia-100/70'>
+          后续替换为角色姓名、关键词与简短钩子。
+        </p>
+      </a>
+      <a
+        class='min-h-[420px] rounded-[2rem] border border-fiction-gold/30 bg-black/20 p-8 hover:bg-fiction-gold/10'
+        href='/zh-cn/fiction/oc/oc-b/'
+        ><p class='text-fiction-gold'>OC 02</p><h2
+          class='mt-4 font-fiction text-5xl font-black text-fiction-ink'
+        >
+          角色 B
+        </h2><p class='mt-5 leading-8 text-fuchsia-100/70'>
+          后续替换为角色姓名、关键词与简短钩子。
+        </p>
+      </a>
+    </div>
+  </section>
+</FictionPage>

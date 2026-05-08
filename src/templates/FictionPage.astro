@@ -1,0 +1,20 @@
+---
+import Base from './Base.astro';
+import { defaultLocale, type Locale } from '@/utils/i18n';
+
+export interface Props {
+  title: string;
+  description: string;
+  locale?: Locale;
+}
+
+const { title, description, locale = defaultLocale } = Astro.props as Props;
+---
+
+<Base head={{ title, description }} theme='fiction' locale={locale}>
+  <main
+    class='min-h-screen bg-[radial-gradient(circle_at_20%_0%,rgba(143,47,75,0.36),transparent_28rem),radial-gradient(circle_at_85%_10%,rgba(216,183,106,0.24),transparent_24rem),linear-gradient(135deg,#120917,#22132e_48%,#100812)] font-fiction text-fiction-ink'
+  >
+    <slot></slot>
+  </main>
+</Base>

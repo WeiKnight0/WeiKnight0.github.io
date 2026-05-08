@@ -1,0 +1,102 @@
+---
+import RealPage from '@/templates/RealPage.astro';
+import { Profile } from '@/utils/Profile';
+---
+
+<RealPage
+  title='现实侧 | 个人主页'
+  description='作品集、简历、项目、笔记与博客。'
+  locale='zh-cn'
+>
+  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
+    <p
+      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-cyan-300'
+    >
+      三次元 / 现实界面
+    </p>
+    <div class='grid gap-12 lg:grid-cols-[1fr_360px]'>
+      <div>
+        <h1
+          class='max-w-5xl text-6xl font-black leading-[0.9] tracking-[-0.08em] text-white md:text-8xl'
+        >
+          在三次元里，把想法锻造成系统、作品与可交付的技术痕迹。
+        </h1>
+        <p class='mt-8 max-w-3xl text-lg leading-8 text-slate-400'>
+          {Profile.tagline}。这里记录那些能离开脑内剧场、落到现实世界的部分：个人资料、简历、项目、学习笔记与技术文章。
+        </p>
+        <div class='mt-10 flex flex-wrap gap-3'>
+          <a
+            href={Profile.github}
+            class='rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-cyan-200'
+            >查看 GitHub
+          </a>
+          <a
+            href={Profile.bilibili}
+            class='rounded-full border border-white/10 px-5 py-3 text-sm font-black text-white transition hover:bg-white/10'
+            >Bilibili
+          </a>
+        </div>
+      </div>
+      <div class='rounded-3xl border border-white/10 bg-white/[0.04] p-6'>
+        <img
+          src={Profile.avatar}
+          alt={`${Profile.name} GitHub avatar`}
+          class='mb-6 h-20 w-20 rounded-3xl border border-white/10'
+        />
+        <h2 class='text-2xl font-black text-white'>{Profile.name}</h2>
+        <p class='mt-2 text-sm leading-6 text-slate-400'>
+          {Profile.school}<br />{Profile.location}
+        </p>
+        <div class='mt-6 flex flex-wrap gap-2'>
+          {Profile.techStack.map((tech) => (
+            <span class="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-slate-300">
+              {tech}
+            </span>
+          ))}
+        </div>
+        <h2 class='mt-8 text-2xl font-black text-white'>分区</h2>
+        <div class='mt-6 grid gap-3 text-sm font-semibold text-slate-300'>
+          <a
+            class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
+            href='/zh-cn/real/'
+            >简历
+          </a>
+          <a
+            class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
+            href='/zh-cn/real/'
+            >项目
+          </a>
+          <a
+            class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
+            href='/zh-cn/real/'
+            >笔记
+          </a>
+          <a
+            class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
+            href='/zh-cn/real/'
+            >博客
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class='mx-auto max-w-7xl px-5 pb-24 lg:px-8'>
+    <p
+      class='mb-6 text-xs font-black uppercase tracking-[0.35em] text-cyan-300'
+    >
+      Featured repositories
+    </p>
+    <div class='grid gap-5 md:grid-cols-3'>
+      {Profile.repos.map((repo) => (
+        <a
+          href={repo.href}
+          class="rounded-3xl border border-white/10 bg-white/[0.04] p-7 transition hover:border-cyan-300/40 hover:bg-white/[0.07]"
+        >
+          <h2 class="text-2xl font-black text-white">{repo.name}</h2>
+          <p class="mt-4 leading-7 text-slate-400">{repo.description}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</RealPage>
