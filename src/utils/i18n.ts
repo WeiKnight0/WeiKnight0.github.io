@@ -70,7 +70,10 @@ const translatedEnglishPrefixes = [
   '/fiction/commissions/',
 ];
 
-export const getLanguagePath = (pathname: string, targetLocale: Locale): string => {
+export const getLanguagePath = (
+  pathname: string,
+  targetLocale: Locale
+): string => {
   const normalizedPath = pathname.endsWith('/') ? pathname : `${pathname}/`;
   const currentLocale = getLocaleFromPath(normalizedPath);
 
@@ -89,7 +92,9 @@ export const getLanguagePath = (pathname: string, targetLocale: Locale): string 
 
   if (
     translatedEnglishPaths.has(normalizedPath) ||
-    translatedEnglishPrefixes.some((prefix) => normalizedPath.startsWith(prefix))
+    translatedEnglishPrefixes.some((prefix) =>
+      normalizedPath.startsWith(prefix)
+    )
   ) {
     return `/zh-cn${normalizedPath}`;
   }

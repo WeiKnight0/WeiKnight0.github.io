@@ -1,0 +1,25 @@
+---
+import { getCollection } from 'astro:content';
+
+import FictionPage from '@/templates/FictionPage.astro';
+
+const chapters = (await getCollection('novels')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<FictionPage title='Stories | My Homepage' description='Stories and narrative chapters.'>
+  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
+    <p class='mb-6 text-sm font-black uppercase tracking-[0.28em] md:text-base text-fiction-gold'>Stories</p>
+    <h1 class='font-fiction text-6xl font-black leading-none tracking-[-0.05em] text-fiction-ink md:text-8xl'>Stories</h1>
+    <div class='mt-14 grid gap-5'>
+      {chapters.map((chapter) => (
+        <a href={`/fiction/novels/${chapter.slug}/`} class="rounded-[2rem] border border-fiction-gold/30 bg-black/20 p-7 transition hover:bg-fiction-gold/10">
+          <p class="text-fiction-gold">Chapter {chapter.data.order}</p>
+          <h2 class="mt-2 font-fiction text-3xl font-black text-fiction-ink">{chapter.data.title}</h2>
+          <p class="mt-4 leading-8 text-fuchsia-100/70">{chapter.data.description}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</FictionPage>

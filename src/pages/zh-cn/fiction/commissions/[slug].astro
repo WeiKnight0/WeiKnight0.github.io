@@ -1,0 +1,47 @@
+---
+import { getCollection } from 'astro:content';
+
+import FictionPage from '@/templates/FictionPage.astro';
+
+export async function getStaticPaths() {
+  const commissions = await getCollection('commissions');
+
+  return commissions.map((item) => ({
+    params: { slug: item.slug },
+    props: { item },
+  }));
+}
+
+const { item } = Astro.props;
+const { Content } = await item.render();
+---
+
+<FictionPage
+  title={`${item.data.title} | 委托作品 | 个人主页`}
+  description={item.data.description}
+  locale='zh-cn'
+>
+  <article class='mx-auto max-w-4xl px-5 py-24 lg:px-8'>
+    <a
+      href='/zh-cn/fiction/commissions/'
+      class='text-sm font-bold text-fiction-gold transition hover:text-fiction-ink'
+      >← 返回委托作品</a
+    >
+    <p
+      class='mt-10 text-sm font-black uppercase tracking-[0.28em] md:text-base text-fiction-gold'
+    >
+      Commission
+    </p>
+    <h1
+      class='mt-6 font-fiction text-5xl font-black leading-none tracking-[-0.05em] text-fiction-ink md:text-7xl'
+    >
+      {item.data.title}
+    </h1>
+    <p class='mt-6 text-lg leading-8 text-fuchsia-100/70'>
+      {item.data.description}
+    </p>
+    <div class='prose prose-invert mt-14 max-w-none prose-headings:font-fiction prose-headings:text-fiction-ink prose-a:text-fiction-gold prose-strong:text-fiction-ink'>
+      <Content />
+    </div>
+  </article>
+</FictionPage>

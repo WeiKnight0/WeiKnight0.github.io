@@ -1,0 +1,47 @@
+---
+import { getCollection } from 'astro:content';
+
+import RealPage from '@/templates/RealPage.astro';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('blog')).filter((post) => !post.data.draft);
+
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+const dateFormatter = new Intl.DateTimeFormat('en', { dateStyle: 'long' });
+---
+
+<RealPage
+  title={`${post.data.title} | Blog | My Homepage`}
+  description={post.data.description}
+>
+  <article class='mx-auto max-w-4xl px-5 py-24 lg:px-8'>
+    <a href='/real/blog/' class='text-sm font-bold text-cyan-300 transition hover:text-cyan-200'>
+      ← Back to blog
+    </a>
+    <p class='mt-10 text-sm font-black uppercase tracking-[0.28em] md:text-base text-cyan-300'>
+      Blog
+    </p>
+    <h1 class='mt-6 text-5xl font-black leading-none tracking-[-0.06em] text-white md:text-7xl'>
+      {post.data.title}
+    </h1>
+    <p class='mt-6 text-lg leading-8 text-slate-400'>{post.data.description}</p>
+    <div class='mt-8 flex flex-wrap items-center gap-3 text-sm text-slate-500'>
+      <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+      {post.data.tags.map((tag) => (
+        <span class='rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-slate-300'>
+          {tag}
+        </span>
+      ))}
+    </div>
+    <div class='prose prose-invert prose-slate mt-14 max-w-none prose-headings:font-black prose-a:text-cyan-300 prose-strong:text-white'>
+      <Content />
+    </div>
+  </article>
+</RealPage>

@@ -1,0 +1,47 @@
+---
+import { getCollection } from 'astro:content';
+
+import FictionPage from '@/templates/FictionPage.astro';
+
+export async function getStaticPaths() {
+  const chapters = await getCollection('novels');
+
+  return chapters.map((chapter) => ({
+    params: { slug: chapter.slug },
+    props: { chapter },
+  }));
+}
+
+const { chapter } = Astro.props;
+const { Content } = await chapter.render();
+---
+
+<FictionPage
+  title={`${chapter.data.title} | 故事 | 个人主页`}
+  description={chapter.data.description}
+  locale='zh-cn'
+>
+  <article class='mx-auto max-w-4xl px-5 py-24 lg:px-8'>
+    <a
+      href='/zh-cn/fiction/novels/'
+      class='text-sm font-bold text-fiction-gold transition hover:text-fiction-ink'
+      >← 返回故事</a
+    >
+    <p
+      class='mt-10 text-sm font-black uppercase tracking-[0.28em] md:text-base text-fiction-gold'
+    >
+      第 {chapter.data.order} 章
+    </p>
+    <h1
+      class='mt-6 font-fiction text-5xl font-black leading-none tracking-[-0.05em] text-fiction-ink md:text-7xl'
+    >
+      {chapter.data.title}
+    </h1>
+    <p class='mt-6 text-lg leading-8 text-fuchsia-100/70'>
+      {chapter.data.description}
+    </p>
+    <div class='prose prose-invert mt-14 max-w-none prose-headings:font-fiction prose-headings:text-fiction-ink prose-a:text-fiction-gold prose-strong:text-fiction-ink'>
+      <Content />
+    </div>
+  </article>
+</FictionPage>
