@@ -1,12 +1,12 @@
 export const Profile = {
-  name: 'WeiKnight',
+  name: 'WEIKNIGHT',
   handle: 'WeiKnight',
-  tagline: 'Developer and creator building across real-world systems and fictional archives',
-  location: 'China',
-  school: 'Student',
+  tagline: 'A Wolf Programmer from China',
+  location: 'Nanjing, Jiangsu Province, China',
+  school: 'Southeast University, China',
   github: 'https://github.com/WeiKnight0',
   bilibili: 'https://space.bilibili.com/',
-  avatar: 'https://github.com/WeiKnight0.png',
+  avatar: 'https://avatars.githubusercontent.com/u/84631479?v=4',
   techStack: ['Astro', 'React', 'TypeScript', 'Tailwind CSS'],
   repos: [
     {

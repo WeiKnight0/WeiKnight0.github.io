@@ -8,7 +8,6 @@ const { title, description } = AppConfig;
 
 <Base head={{ title, description }} theme='home'>
   <main>
-    <!-- Hero: 对立渐变舞台 -->
     <section class='relative min-h-screen overflow-hidden bg-slate-950'>
       <!-- 左右渐变 -->
       <div class='pointer-events-none absolute inset-0'>
@@ -34,21 +33,21 @@ const { title, description } = AppConfig;
         <h1
           class='font-jp max-w-5xl text-4xl font-black leading-[0.94] tracking-[-0.03em] text-white md:text-6xl lg:text-7xl'
         >
-          <span class='block text-lg font-bold tracking-[0.2em] text-white/40 md:text-xl'
-            >― 二つの世界を統べる者 ―</span
+          <span class='jp-ruby block text-lg font-bold tracking-[0.2em] text-white/40 md:text-xl'
+            >― <ruby>二<rt>ふた</rt></ruby>つの<ruby>世界<rt>せかい</rt></ruby>を<ruby>渡<rt>わた</rt></ruby>る<ruby>者<rt>もの</rt></ruby> ―</span
           >
           <span class='hero-title-ruby mt-4 block bg-gradient-to-r from-cyan-300 via-blue-300 to-cyan-200 bg-clip-text text-transparent'>
-            <ruby>現実<rt>リアル</rt></ruby>と<ruby>幻想<rt>ファンタジー</rt></ruby>、二つの<ruby>記録<rt>アーカイブ</rt></ruby>
+            <ruby>現実<rt>リアル</rt></ruby>と<ruby>幻想<rt>ファンタジー</rt></ruby>、<ruby>二<rt>ふた</rt></ruby>つの<ruby>記録<rt>アーカイブ</rt></ruby>
           </span>
         </h1>
 
         <!-- 副标题 -->
         <div class='mt-16 max-w-3xl space-y-3 text-lg leading-relaxed text-slate-300 md:text-xl'>
-          <p class='font-jp-serif'>
-            <span class='text-cyan-300'>技術記録</span>と<span class='text-fuchsia-300'>物語世界</span>を行き来する者
+          <p class='jp-ruby font-jp-serif'>
+            <span class='text-cyan-300'><ruby>技術<rt>ぎじゅつ</rt></ruby><ruby>記録<rt>きろく</rt></ruby></span>と<span class='text-fuchsia-300'><ruby>物語<rt>ものがたり</rt></ruby><ruby>世界<rt>せかい</rt></ruby></span>を<ruby>渡<rt>わた</rt></ruby>り<ruby>歩<rt>ある</rt></ruby>く<ruby>者<rt>もの</rt></ruby>
           </p>
           <p>
-            One who governs both <span class='font-readable-mono text-cyan-300'>code archives</span> and <span class='font-fiction text-fuchsia-300'>fictional worlds</span>.
+            Between <span class='font-readable-mono text-cyan-300'>code archives</span> and <span class='font-fiction text-fuchsia-300'>fictional worlds</span>, one who travels both paths.
           </p>
         </div>
 
@@ -80,6 +79,15 @@ const { title, description } = AppConfig;
           line-height: 1;
           -webkit-text-fill-color: rgb(226 232 240 / 0.68);
         }
+
+        .jp-ruby rt {
+          color: rgb(226 232 240 / 0.62);
+          font-family: 'Yu Gothic', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+          font-size: 0.42em;
+          font-weight: 700;
+          letter-spacing: 0.04em;
+          line-height: 1;
+        }
       </style>
     </section>
 
@@ -98,7 +106,7 @@ const { title, description } = AppConfig;
             {Profile.name}
           </h2>
           <p class='mt-6 max-w-2xl text-lg leading-relaxed text-slate-400'>
-            {Profile.tagline}. Based in {Profile.location}. Currently tied to {Profile.school}.
+            {Profile.tagline}. Based in {Profile.location}. Currently studying at {Profile.school}.
           </p>
           <div class='mt-8 flex flex-wrap gap-3'>
             <a
@@ -157,13 +165,12 @@ const { title, description } = AppConfig;
           A / Real side
         </p>
         <h2
-          class='text-4xl font-black leading-tight tracking-[-0.04em] text-white md:text-5xl'
+          class='text-3xl font-black leading-tight tracking-[-0.04em] text-white md:text-4xl'
         >
           Projects, resume, and learning notes
         </h2>
-        <p class='mt-6 max-w-xl text-lg leading-relaxed text-slate-400'>
-          A professional-facing area for resume, projects, study notes, and blog
-          posts.
+        <p class='mt-6 max-w-xl text-base leading-relaxed text-slate-400'>
+          Where ideas become systems, shipped projects, and technical writing.
         </p>
         <div class='mt-8 flex flex-wrap gap-2'>
           {
@@ -191,13 +198,12 @@ const { title, description } = AppConfig;
           B / Fiction side
         </p>
         <h2
-          class='font-fiction text-4xl font-black leading-tight tracking-[-0.04em] text-white md:text-5xl'
+          class='font-fiction text-3xl font-black leading-tight tracking-[-0.04em] text-white md:text-4xl'
         >
           Characters, worlds, and story archives
         </h2>
-        <p class='mt-6 max-w-xl text-lg leading-relaxed text-slate-400'>
-          A creative archive for original characters, worldbuilding, story
-          chapters, and commissioned artwork.
+        <p class='mt-6 max-w-xl text-base leading-relaxed text-slate-400'>
+          Original characters, worldbuilding, stories, and commissioned artwork.
         </p>
         <div class='mt-8 flex flex-wrap gap-2'>
           {

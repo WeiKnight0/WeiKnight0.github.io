@@ -16,15 +16,13 @@ import { Profile } from '@/utils/Profile';
     <div class='grid gap-12 lg:grid-cols-[1fr_360px]'>
       <div>
         <h1
-          class='max-w-5xl text-6xl font-black leading-[0.9] tracking-[-0.08em] text-white md:text-8xl'
+          class='max-w-5xl text-5xl font-black leading-[0.92] tracking-[-0.06em] text-white md:text-7xl'
         >
-          Where {Profile.handle} turns real-world work into systems, proofs,
-          and deployable craft.
+          Code, systems, and the work that ships.
         </h1>
         <p class='mt-8 max-w-3xl text-lg leading-8 text-slate-400'>
-          {Profile.tagline}. The sanjigen side collects the things that survive
-          outside imagination: profile, resume, shipped projects, study notes,
-          and technical writing.
+          {Profile.tagline}. The sanjigen side holds profile, resume, projects,
+          study notes, and technical writing.
         </p>
         <div class='mt-10 flex flex-wrap gap-3'>
           <a
@@ -45,7 +43,7 @@ import { Profile } from '@/utils/Profile';
           alt={`${Profile.name} GitHub avatar`}
           class='mb-6 h-20 w-20 rounded-3xl border border-white/10'
         />
-        <h2 class='text-2xl font-black text-white'>{Profile.name}</h2>
+        <h2 class='text-xl font-black text-white'>{Profile.name}</h2>
         <p class='mt-2 text-sm leading-6 text-slate-400'>
           {Profile.school}<br />{Profile.location}
         </p>
@@ -56,7 +54,7 @@ import { Profile } from '@/utils/Profile';
             </span>
           ))}
         </div>
-        <h2 class='mt-8 text-2xl font-black text-white'>Sections</h2>
+        <h2 class='mt-8 text-xl font-black text-white'>Sections</h2>
         <div class='mt-6 grid gap-3 text-sm font-semibold text-slate-300'>
           <a
             class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'

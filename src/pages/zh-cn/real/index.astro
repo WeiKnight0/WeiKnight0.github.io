@@ -17,12 +17,12 @@ import { Profile } from '@/utils/Profile';
     <div class='grid gap-12 lg:grid-cols-[1fr_360px]'>
       <div>
         <h1
-          class='max-w-5xl text-6xl font-black leading-[0.9] tracking-[-0.08em] text-white md:text-8xl'
+          class='max-w-5xl text-5xl font-black leading-[0.92] tracking-[-0.06em] text-white md:text-7xl'
         >
-          在三次元里，把想法锻造成系统、作品与可交付的技术痕迹。
+          代码、系统与正在落地的作品。
         </h1>
         <p class='mt-8 max-w-3xl text-lg leading-8 text-slate-400'>
-          {Profile.tagline}。这里记录那些能离开脑内剧场、落到现实世界的部分：个人资料、简历、项目、学习笔记与技术文章。
+          {Profile.tagline}。这里记录那些离开脑内剧场、落到现实世界的部分：简历、项目、笔记与技术文章。
         </p>
         <div class='mt-10 flex flex-wrap gap-3'>
           <a
@@ -43,7 +43,7 @@ import { Profile } from '@/utils/Profile';
           alt={`${Profile.name} GitHub avatar`}
           class='mb-6 h-20 w-20 rounded-3xl border border-white/10'
         />
-        <h2 class='text-2xl font-black text-white'>{Profile.name}</h2>
+        <h2 class='text-xl font-black text-white'>{Profile.name}</h2>
         <p class='mt-2 text-sm leading-6 text-slate-400'>
           {Profile.school}<br />{Profile.location}
         </p>
@@ -54,26 +54,26 @@ import { Profile } from '@/utils/Profile';
             </span>
           ))}
         </div>
-        <h2 class='mt-8 text-2xl font-black text-white'>分区</h2>
+        <h2 class='mt-8 text-xl font-black text-white'>分区</h2>
         <div class='mt-6 grid gap-3 text-sm font-semibold text-slate-300'>
           <a
             class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
-            href='/zh-cn/real/'
+            href='/zh-cn/real/resume/'
             >简历
           </a>
           <a
             class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
-            href='/zh-cn/real/'
+            href='/zh-cn/real/projects/'
             >项目
           </a>
           <a
             class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
-            href='/zh-cn/real/'
+            href='/zh-cn/real/notes/'
             >笔记
           </a>
           <a
             class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
-            href='/zh-cn/real/'
+            href='/zh-cn/real/blog/'
             >博客
           </a>
         </div>
@@ -85,7 +85,7 @@ import { Profile } from '@/utils/Profile';
     <p
       class='mb-6 text-sm font-black uppercase tracking-[0.28em] md:text-base text-cyan-300'
     >
-      Featured repositories
+      精选仓库
     </p>
     <div class='grid gap-5 md:grid-cols-3'>
       {Profile.repos.map((repo) => (
