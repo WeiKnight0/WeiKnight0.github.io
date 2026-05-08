@@ -1,5 +1,14 @@
 ---
-title: World File
-description: Placeholder worldbuilding file.
+title: 世界观档案
+description: 用 Markdown 记录世界规则、地区、组织与关键概念。
 order: 1
 ---
+
+这里可以写世界观正文。
+
+建议按这些方向逐步填充：
+
+- 世界的基本规则
+- 主要地区与势力
+- 技术、魔法或异常机制
+- 与角色故事相关的历史事件

@@ -61,6 +61,15 @@ const translatedEnglishPaths = new Set([
   '/fiction/commissions/',
 ]);
 
+const translatedEnglishPrefixes = [
+  '/real/projects/',
+  '/real/notes/',
+  '/real/blog/',
+  '/fiction/world/',
+  '/fiction/novels/',
+  '/fiction/commissions/',
+];
+
 export const getLanguagePath = (pathname: string, targetLocale: Locale): string => {
   const normalizedPath = pathname.endsWith('/') ? pathname : `${pathname}/`;
   const currentLocale = getLocaleFromPath(normalizedPath);
@@ -78,7 +87,10 @@ export const getLanguagePath = (pathname: string, targetLocale: Locale): string 
     return '/zh-cn/';
   }
 
-  if (translatedEnglishPaths.has(normalizedPath)) {
+  if (
+    translatedEnglishPaths.has(normalizedPath) ||
+    translatedEnglishPrefixes.some((prefix) => normalizedPath.startsWith(prefix))
+  ) {
     return `/zh-cn${normalizedPath}`;
   }
 
