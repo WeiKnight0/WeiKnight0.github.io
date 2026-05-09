@@ -122,7 +122,7 @@ const hasChanges = () => {
 const main = () => {
   const config = readConfig();
 
-  run('npm', ['run', 'build']);
+  run(process.execPath, ['node_modules/astro/astro.js', 'build']);
 
   ensureDeployWorktree(config);
   removeDeployContents();
