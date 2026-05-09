@@ -1,11 +1,12 @@
-import { Profile } from '@/utils/Profile';
+/* eslint-disable tailwindcss/no-custom-classname */
 import {
+  type Locale,
   getLanguagePath,
   getLocalizedPath,
   i18n,
   locales,
-  type Locale,
 } from '@/utils/i18n';
+import { Profile } from '@/utils/Profile';
 
 const realLinks = [
   { href: '/real/', label: 'Overview' },
@@ -67,7 +68,11 @@ const LinkGroup = ({
   label: string;
   links: typeof realLinks;
 }) => (
-  <details className="group relative" data-dropdown data-dropdown-group="desktop-nav-dropdown">
+  <details
+    className="group relative"
+    data-dropdown
+    data-dropdown-group="desktop-nav-dropdown"
+  >
     <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white">
       {label}
       <span className="text-xs text-slate-500 transition group-open:rotate-180">
@@ -126,7 +131,11 @@ const LanguageGroup = ({
   locale: Locale;
   pathname: string;
 }) => (
-  <details className="group relative" data-dropdown data-dropdown-group="desktop-nav-dropdown">
+  <details
+    className="group relative"
+    data-dropdown
+    data-dropdown-group="desktop-nav-dropdown"
+  >
     <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-sm font-bold text-slate-300 transition hover:bg-white/10 hover:text-white">
       {label}
       <span className="text-xs text-slate-500 transition group-open:rotate-180">
@@ -194,58 +203,62 @@ const Navbar = ({ locale, pathname }: { locale: Locale; pathname: string }) => {
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
-    <nav
-      className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8"
-      aria-label="Primary navigation"
-    >
-      <a href={homeHref} className="flex items-center gap-3">
-        <img
-          src={Profile.avatar}
-          alt={`${Profile.name} avatar`}
-          className="h-9 w-9 rounded-2xl border border-white/10"
-        />
-        <span className="text-base font-black tracking-tight text-white">
-          WeiKnight's Homepage
-        </span>
-      </a>
-
-      <div className="hidden items-center gap-2 md:flex" data-dropdown-scope>
-        <a
-          href={homeHref}
-          className="rounded-full px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
-        >
-          {text.home}
+      <nav
+        className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8"
+        aria-label="Primary navigation"
+      >
+        <a href={homeHref} className="flex items-center gap-3">
+          <img
+            src={Profile.avatar}
+            alt={`${Profile.name} avatar`}
+            className="h-9 w-9 rounded-2xl border border-white/10"
+          />
+          <span className="text-base font-black tracking-tight text-white">
+            WeiKnight's Homepage
+          </span>
         </a>
-        <LinkGroup label={text.real} links={localizedRealLinks} />
-        <LinkGroup label={text.fiction} links={localizedFictionLinks} />
-        <LanguageGroup label={text.language} locale={locale} pathname={pathname} />
-      </div>
 
-      <details className="md:hidden">
-        <summary className="cursor-pointer list-none rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white">
-          Menu
-        </summary>
-        <div
-          className="absolute inset-x-4 top-16 grid gap-3 rounded-3xl border border-white/10 bg-slate-950/95 p-4 shadow-2xl shadow-black/40 backdrop-blur"
-          data-dropdown-scope
-        >
+        <div className="hidden items-center gap-2 md:flex" data-dropdown-scope>
           <a
             href={homeHref}
-            className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10"
+            className="rounded-full px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
           >
             {text.home}
           </a>
-          <MobileGroup label={text.real} links={localizedRealLinks} />
-          <MobileGroup label={text.fiction} links={localizedFictionLinks} />
-          <MobileLanguageGroup
+          <LinkGroup label={text.real} links={localizedRealLinks} />
+          <LinkGroup label={text.fiction} links={localizedFictionLinks} />
+          <LanguageGroup
             label={text.language}
             locale={locale}
             pathname={pathname}
           />
         </div>
-      </details>
-    </nav>
-    <style>{`
+
+        <details className="md:hidden">
+          <summary className="cursor-pointer list-none rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white">
+            Menu
+          </summary>
+          <div
+            className="absolute inset-x-4 top-16 grid gap-3 rounded-3xl border border-white/10 bg-slate-950/95 p-4 shadow-2xl shadow-black/40 backdrop-blur"
+            data-dropdown-scope
+          >
+            <a
+              href={homeHref}
+              className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10"
+            >
+              {text.home}
+            </a>
+            <MobileGroup label={text.real} links={localizedRealLinks} />
+            <MobileGroup label={text.fiction} links={localizedFictionLinks} />
+            <MobileLanguageGroup
+              label={text.language}
+              locale={locale}
+              pathname={pathname}
+            />
+          </div>
+        </details>
+      </nav>
+      <style>{`
       details[open] > .nav-dropdown-panel {
         animation: nav-dropdown-in 180ms ease-out both;
       }
@@ -262,8 +275,8 @@ const Navbar = ({ locale, pathname }: { locale: Locale; pathname: string }) => {
         }
       }
     `}</style>
-    <script dangerouslySetInnerHTML={{ __html: dropdownScript }} />
-  </header>
+      <script dangerouslySetInnerHTML={{ __html: dropdownScript }} />
+    </header>
   );
 };
 
