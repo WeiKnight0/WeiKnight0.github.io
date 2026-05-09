@@ -1,0 +1,38 @@
+---
+import { getCollection } from 'astro:content';
+
+import NotePage from '@/templates/NotePage.astro';
+import { getNotePath } from '@/utils/notes';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('notes');
+
+  return notes.map((note) => ({
+    params: { slug: getNotePath(note.id) },
+    props: { note },
+  }));
+}
+
+const { note } = Astro.props;
+const { Content } = await note.render();
+
+const tags = note.data.tags ?? [];
+const description = note.data.description ?? note.data.title;
+const notePath = getNotePath(note.id);
+const pathParts = notePath.split('/');
+const parentSlug = pathParts.slice(0, -1).join('/');
+const backHref = parentSlug ? `/real/notes/${parentSlug}/` : '/real/notes/';
+const backLabel = parentSlug ? 'Parent Directory' : 'Notes Directory';
+---
+
+<NotePage
+  title={note.data.title}
+  description={description}
+  date={note.data.date}
+  tags={tags}
+  lang={note.data.lang}
+  backHref={backHref}
+  backLabel={backLabel}
+>
+  <Content />
+</NotePage>
