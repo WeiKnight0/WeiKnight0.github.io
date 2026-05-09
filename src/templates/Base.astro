@@ -1,5 +1,6 @@
 ---
 import { Footer } from '@/partials/Footer';
+import HomeI18n from '@/partials/HomeI18n.astro';
 import { Navbar } from '@/partials/Navbar';
 import { AppConfig } from '@/utils/AppConfig';
 import { defaultLocale, type Locale } from '@/utils/i18n';
@@ -41,5 +42,7 @@ const {
     </div>
 
     <Footer locale={locale} />
+
+    {theme === 'home' && <HomeI18n />}
   </body>
 </html>

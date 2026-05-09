@@ -1,6 +1,27 @@
 ---
 import RealPage from '@/templates/RealPage.astro';
 import { Profile } from '@/utils/Profile';
+
+const profileTagline = '来自中国的狼程序员';
+const profileLocation = '中国江苏南京';
+const profileSchool = '中国东南大学';
+const repos = [
+  {
+    name: '个人主页',
+    description: '整合作品集页面与幻想档案页面的个人主页。',
+    href: 'https://github.com/WeiKnight0/WeiKnight0.github.io',
+  },
+  {
+    name: '现实档案',
+    description: '项目、简历、笔记与技术写作。',
+    href: '/zh-cn/real/',
+  },
+  {
+    name: '幻想档案',
+    description: '原创角色、世界观、故事与委托图像。',
+    href: '/zh-cn/fiction/',
+  },
+];
 ---
 
 <RealPage
@@ -22,7 +43,7 @@ import { Profile } from '@/utils/Profile';
           代码、系统与正在落地的作品。
         </h1>
         <p class='mt-8 max-w-3xl text-lg leading-8 text-slate-400'>
-          {Profile.tagline}。这里记录那些离开脑内剧场、落到现实世界的部分：简历、项目、笔记与技术文章。
+          {profileTagline}。这里记录那些离开脑内剧场、落到现实世界的部分：简历、项目、笔记与技术文章。
         </p>
         <div class='mt-10 flex flex-wrap gap-3'>
           <a
@@ -45,7 +66,7 @@ import { Profile } from '@/utils/Profile';
         />
         <h2 class='text-xl font-black text-white'>{Profile.name}</h2>
         <p class='mt-2 text-sm leading-6 text-slate-400'>
-          {Profile.school}<br />{Profile.location}
+          {profileSchool}<br />{profileLocation}
         </p>
         <div class='mt-6 flex flex-wrap gap-2'>
           {Profile.techStack.map((tech) => (
@@ -88,7 +109,7 @@ import { Profile } from '@/utils/Profile';
       精选仓库
     </p>
     <div class='grid gap-5 md:grid-cols-3'>
-      {Profile.repos.map((repo) => (
+      {repos.map((repo) => (
         <a
           href={repo.href}
           class="rounded-3xl border border-white/10 bg-white/[0.04] p-7 transition hover:border-cyan-300/40 hover:bg-white/[0.07]"

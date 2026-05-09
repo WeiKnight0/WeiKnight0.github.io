@@ -46,7 +46,7 @@ const { title, description } = AppConfig;
           <p class='jp-ruby font-jp-serif'>
             <span class='text-cyan-300'><ruby>技術<rt>ぎじゅつ</rt></ruby><ruby>記録<rt>きろく</rt></ruby></span>と<span class='text-fuchsia-300'><ruby>物語<rt>ものがたり</rt></ruby><ruby>世界<rt>せかい</rt></ruby></span>を<ruby>渡<rt>わた</rt></ruby>り<ruby>歩<rt>ある</rt></ruby>く<ruby>者<rt>もの</rt></ruby>
           </p>
-          <p>
+          <p data-home-i18n='hero.subtitle' data-home-i18n-html>
             Between <span class='font-readable-mono text-cyan-300'>code archives</span> and <span class='font-fiction text-fuchsia-300'>fictional worlds</span>, one who travels both paths.
           </p>
         </div>
@@ -55,11 +55,15 @@ const { title, description } = AppConfig;
         <div class='mt-14 flex flex-wrap items-center justify-center gap-5'>
           <a
             href='/real/'
+            data-home-link='real'
+            data-home-i18n='hero.real'
             class='rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-4 text-sm font-black text-white shadow-lg shadow-cyan-500/25 transition hover:shadow-cyan-500/40'
             >Enter Real</a
           >
           <a
             href='/fiction/'
+            data-home-link='fiction'
+            data-home-i18n='hero.fiction'
             class='rounded-full border-2 border-fuchsia-400/50 px-8 py-4 text-sm font-black text-fuchsia-200 transition hover:border-fuchsia-400 hover:bg-fuchsia-500/20'
             >Enter Fiction</a
           >
@@ -96,6 +100,7 @@ const { title, description } = AppConfig;
       <div class='grid gap-12 lg:grid-cols-[1fr_360px]'>
         <div>
           <p
+            data-home-i18n='about.eyebrow'
             class='mb-6 text-sm font-black uppercase tracking-[0.28em] md:text-base text-cyan-300'
           >
             About me
@@ -105,7 +110,10 @@ const { title, description } = AppConfig;
           >
             {Profile.name}
           </h2>
-          <p class='mt-6 max-w-2xl text-lg leading-relaxed text-slate-400'>
+          <p
+            data-home-i18n='about.description'
+            class='mt-6 max-w-2xl text-lg leading-relaxed text-slate-400'
+          >
             {Profile.tagline}. Based in {Profile.location}. Currently studying at {Profile.school}.
           </p>
           <div class='mt-8 flex flex-wrap gap-3'>
@@ -153,6 +161,7 @@ const { title, description } = AppConfig;
       <!-- Real 卡片 -->
       <a
         href='/real/'
+        data-home-link='real'
         class='group relative overflow-hidden rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-slate-900 to-slate-950 p-8 font-readable-mono shadow-2xl shadow-cyan-950/30 transition hover:-translate-y-1 hover:border-cyan-400/40 md:p-12'
       >
         <div
@@ -160,19 +169,29 @@ const { title, description } = AppConfig;
         >
         </div>
         <p
+          data-home-i18n='real.eyebrow'
           class='mb-6 text-sm font-black uppercase tracking-[0.24em] md:text-base text-cyan-400'
         >
           A / Real side
         </p>
         <h2
+          data-home-i18n='real.title'
           class='text-3xl font-black leading-tight tracking-[-0.04em] text-white md:text-4xl'
         >
           Projects, resume, and learning notes
         </h2>
-        <p class='mt-6 max-w-xl text-base leading-relaxed text-slate-400'>
+        <p
+          data-home-i18n='real.description'
+          class='mt-6 max-w-xl text-base leading-relaxed text-slate-400'
+        >
           Where ideas become systems, shipped projects, and technical writing.
         </p>
-        <div class='mt-8 flex flex-wrap gap-2'>
+        <div
+          data-home-i18n='real.tags'
+          data-home-i18n-tags
+          data-tag-class='rounded-full border border-cyan-500/30 px-3 py-1 text-xs font-bold text-cyan-300'
+          class='mt-8 flex flex-wrap gap-2'
+        >
           {
             ['Resume', 'Projects', 'Notes', 'Blogs'].map((tag) => (
               <span class='rounded-full border border-cyan-500/30 px-3 py-1 text-xs font-bold text-cyan-300'>
@@ -186,6 +205,7 @@ const { title, description } = AppConfig;
       <!-- Fiction 卡片 -->
       <a
         href='/fiction/'
+        data-home-link='fiction'
         class='group relative overflow-hidden rounded-3xl border border-fuchsia-500/20 bg-gradient-to-br from-purple-950 to-slate-950 p-8 shadow-2xl shadow-fuchsia-950/30 transition hover:-translate-y-1 hover:border-fuchsia-400/40 md:p-12'
       >
         <div
@@ -193,19 +213,29 @@ const { title, description } = AppConfig;
         >
         </div>
         <p
+          data-home-i18n='fiction.eyebrow'
           class='mb-6 text-sm font-black uppercase tracking-[0.24em] md:text-base text-fuchsia-400'
         >
           B / Fiction side
         </p>
         <h2
+          data-home-i18n='fiction.title'
           class='font-fiction text-3xl font-black leading-tight tracking-[-0.04em] text-white md:text-4xl'
         >
           Characters, worlds, and story archives
         </h2>
-        <p class='mt-6 max-w-xl text-base leading-relaxed text-slate-400'>
+        <p
+          data-home-i18n='fiction.description'
+          class='mt-6 max-w-xl text-base leading-relaxed text-slate-400'
+        >
           Original characters, worldbuilding, stories, and commissioned artwork.
         </p>
-        <div class='mt-8 flex flex-wrap gap-2'>
+        <div
+          data-home-i18n='fiction.tags'
+          data-home-i18n-tags
+          data-tag-class='rounded-full border border-fuchsia-500/30 px-3 py-1 text-xs font-bold text-fuchsia-300'
+          class='mt-8 flex flex-wrap gap-2'
+        >
           {
             ['OC', 'World', 'Story', 'Gallery'].map((tag) => (
               <span class='rounded-full border border-fuchsia-500/30 px-3 py-1 text-xs font-bold text-fuchsia-300'>

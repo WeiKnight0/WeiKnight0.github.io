@@ -1,0 +1,165 @@
+<script>
+  const homeI18n = {
+    en: {
+      title: 'WEIKNIGHT | Homepage',
+      description:
+        'Personal homepage for real-world portfolio and fictional archives.',
+      text: {
+        'nav.home': 'Home',
+        'nav.real': 'Real',
+        'nav.fiction': 'Fiction',
+        'nav.language': 'Language',
+        'hero.subtitle':
+          'Between <span class="font-readable-mono text-cyan-300">code archives</span> and <span class="font-fiction text-fuchsia-300">fictional worlds</span>, one who travels both paths.',
+        'hero.real': 'Enter Real',
+        'hero.fiction': 'Enter Fiction',
+        'about.eyebrow': 'About me',
+        'about.description':
+          'A Wolf Programmer from China. Based in Nanjing, Jiangsu Province, China. Currently studying at Southeast University, China.',
+        'real.eyebrow': 'A / Real side',
+        'real.title': 'Projects, resume, and learning notes',
+        'real.description':
+          'Where ideas become systems, shipped projects, and technical writing.',
+        'real.tags': 'Resume,Projects,Notes,Blogs',
+        'fiction.eyebrow': 'B / Fiction side',
+        'fiction.title': 'Characters, worlds, and story archives',
+        'fiction.description':
+          'Original characters, worldbuilding, stories, and commissioned artwork.',
+        'fiction.tags': 'OC,World,Story,Gallery',
+      },
+      links: {
+        home: '/',
+        real: '/real/',
+        fiction: '/fiction/',
+      },
+    },
+    'zh-cn': {
+      title: 'WEIKNIGHT | 个人主页',
+      description: 'WEIKNIGHT 的个人主页，记录现实技术与幻想档案。',
+      text: {
+        'nav.home': '首页',
+        'nav.real': '三次元',
+        'nav.fiction': '二次元',
+        'nav.language': '语言',
+        'hero.subtitle':
+          '在 <span class="font-readable-mono text-cyan-300">代码档案</span> 与 <span class="font-fiction text-fuchsia-300">幻想世界</span> 之间往返的旅人。',
+        'hero.real': '进入现实侧',
+        'hero.fiction': '进入幻想侧',
+        'about.eyebrow': '关于我',
+        'about.description':
+          '来自中国的狼程序员。现居中国江苏南京，就读于中国东南大学。',
+        'real.eyebrow': 'A / 现实侧',
+        'real.title': '项目、简历与学习笔记',
+        'real.description': '让想法变成系统、作品与可交付的技术痕迹。',
+        'real.tags': '简历,项目,笔记,博客',
+        'fiction.eyebrow': 'B / 幻想侧',
+        'fiction.title': '角色、世界观与故事档案',
+        'fiction.description': '原创角色、世界观设定、故事章节与委托图像。',
+        'fiction.tags': 'OC,世界观,故事,画廊',
+      },
+      links: {
+        home: '/zh-cn/',
+        real: '/zh-cn/real/',
+        fiction: '/zh-cn/fiction/',
+      },
+    },
+  };
+
+  const homePaths = new Set(['/', '/zh-cn/']);
+
+  const getHomeLocale = () =>
+    window.location.pathname === '/zh-cn/' ? 'zh-cn' : 'en';
+
+  const renderTags = (element, tags) => {
+    element.replaceChildren(
+      ...tags.split(',').map((tag) => {
+        const item = document.createElement('span');
+        item.className = element.dataset.tagClass || '';
+        item.textContent = tag;
+        return item;
+      })
+    );
+  };
+
+  const applyHomeLocale = (locale) => {
+    const dictionary = homeI18n[locale];
+
+    if (!dictionary) return;
+
+    document.documentElement.lang = locale === 'zh-cn' ? 'zh-CN' : 'en';
+    document.title = dictionary.title;
+
+    const description = document.querySelector('meta[name="description"]');
+    if (description) {
+      description.setAttribute('content', dictionary.description);
+    }
+
+    document.querySelectorAll('[data-home-i18n]').forEach((element) => {
+      const key = element.getAttribute('data-home-i18n');
+      if (!key) return;
+
+      const value = dictionary.text[key];
+      if (!value) return;
+
+      if (element.hasAttribute('data-home-i18n-html')) {
+        element.innerHTML = value;
+        return;
+      }
+
+      if (element.hasAttribute('data-home-i18n-tags')) {
+        renderTags(element, value);
+        return;
+      }
+
+      element.textContent = value;
+    });
+
+    document.querySelectorAll('[data-home-link]').forEach((element) => {
+      const key = element.getAttribute('data-home-link');
+      if (!key) return;
+
+      const href = dictionary.links[key];
+      if (href) {
+        element.setAttribute('href', href);
+      }
+    });
+
+    document.querySelectorAll('[data-language-link]').forEach((element) => {
+      const targetLocale = element.getAttribute('data-target-locale');
+
+      if (targetLocale === locale) {
+        element.setAttribute('aria-current', 'page');
+        return;
+      }
+
+      element.removeAttribute('aria-current');
+    });
+  };
+
+  const setupHomeLanguageSwitch = () => {
+    if (!homePaths.has(window.location.pathname)) return;
+
+    applyHomeLocale(getHomeLocale());
+
+    document.querySelectorAll('[data-language-link]').forEach((link) => {
+      if (link.dataset.homeLanguageReady === 'true') return;
+
+      link.dataset.homeLanguageReady = 'true';
+      link.addEventListener('click', (event) => {
+        if (!homePaths.has(window.location.pathname)) return;
+
+        const targetLocale = link.getAttribute('data-target-locale');
+        if (!targetLocale || !homeI18n[targetLocale]) return;
+
+        event.preventDefault();
+
+        const targetPath = targetLocale === 'zh-cn' ? '/zh-cn/' : '/';
+        history.replaceState({}, '', targetPath);
+        applyHomeLocale(targetLocale);
+      });
+    });
+  };
+
+  setupHomeLanguageSwitch();
+  document.addEventListener('astro:page-load', setupHomeLanguageSwitch);
+</script>

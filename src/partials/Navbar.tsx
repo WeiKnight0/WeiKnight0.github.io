@@ -63,9 +63,11 @@ const dropdownScript = `
 
 const LinkGroup = ({
   label,
+  labelKey,
   links,
 }: {
   label: string;
+  labelKey: string;
   links: typeof realLinks;
 }) => (
   <details
@@ -74,7 +76,7 @@ const LinkGroup = ({
     data-dropdown-group="desktop-nav-dropdown"
   >
     <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white">
-      {label}
+      <span data-home-i18n={labelKey}>{label}</span>
       <span className="text-xs text-slate-500 transition group-open:rotate-180">
         ⌄
       </span>
@@ -95,9 +97,11 @@ const LinkGroup = ({
 
 const MobileGroup = ({
   label,
+  labelKey,
   links,
 }: {
   label: string;
+  labelKey: string;
   links: typeof realLinks;
 }) => (
   <details
@@ -106,7 +110,7 @@ const MobileGroup = ({
     data-dropdown-group="mobile-nav-dropdown"
   >
     <summary className="cursor-pointer list-none font-semibold text-white">
-      {label}
+      <span data-home-i18n={labelKey}>{label}</span>
     </summary>
     <div className="nav-dropdown-panel mt-3 grid gap-2">
       {links.map((link) => (
@@ -124,10 +128,12 @@ const MobileGroup = ({
 
 const LanguageGroup = ({
   label,
+  labelKey,
   locale,
   pathname,
 }: {
   label: string;
+  labelKey: string;
   locale: Locale;
   pathname: string;
 }) => (
@@ -137,7 +143,7 @@ const LanguageGroup = ({
     data-dropdown-group="desktop-nav-dropdown"
   >
     <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-sm font-bold text-slate-300 transition hover:bg-white/10 hover:text-white">
-      {label}
+      <span data-home-i18n={labelKey}>{label}</span>
       <span className="text-xs text-slate-500 transition group-open:rotate-180">
         ⌄
       </span>
@@ -148,6 +154,8 @@ const LanguageGroup = ({
           key={targetLocale}
           href={getLanguagePath(pathname, targetLocale)}
           aria-current={targetLocale === locale ? 'page' : undefined}
+          data-language-link
+          data-target-locale={targetLocale}
           className="rounded-xl px-3 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white aria-[current=page]:bg-white/10 aria-[current=page]:text-white"
         >
           {languageLabels[targetLocale]}
@@ -159,10 +167,12 @@ const LanguageGroup = ({
 
 const MobileLanguageGroup = ({
   label,
+  labelKey,
   locale,
   pathname,
 }: {
   label: string;
+  labelKey: string;
   locale: Locale;
   pathname: string;
 }) => (
@@ -172,7 +182,7 @@ const MobileLanguageGroup = ({
     data-dropdown-group="mobile-nav-dropdown"
   >
     <summary className="cursor-pointer list-none font-semibold text-white">
-      {label}
+      <span data-home-i18n={labelKey}>{label}</span>
     </summary>
     <div className="nav-dropdown-panel mt-3 grid gap-2">
       {locales.map((targetLocale) => (
@@ -180,6 +190,8 @@ const MobileLanguageGroup = ({
           key={targetLocale}
           href={getLanguagePath(pathname, targetLocale)}
           aria-current={targetLocale === locale ? 'page' : undefined}
+          data-language-link
+          data-target-locale={targetLocale}
           className="rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-white/10 aria-[current=page]:bg-white/10 aria-[current=page]:text-white"
         >
           {languageLabels[targetLocale]}
@@ -221,14 +233,25 @@ const Navbar = ({ locale, pathname }: { locale: Locale; pathname: string }) => {
         <div className="hidden items-center gap-2 md:flex" data-dropdown-scope>
           <a
             href={homeHref}
+            data-home-link="home"
+            data-home-i18n="nav.home"
             className="rounded-full px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
           >
             {text.home}
           </a>
-          <LinkGroup label={text.real} links={localizedRealLinks} />
-          <LinkGroup label={text.fiction} links={localizedFictionLinks} />
+          <LinkGroup
+            label={text.real}
+            labelKey="nav.real"
+            links={localizedRealLinks}
+          />
+          <LinkGroup
+            label={text.fiction}
+            labelKey="nav.fiction"
+            links={localizedFictionLinks}
+          />
           <LanguageGroup
             label={text.language}
+            labelKey="nav.language"
             locale={locale}
             pathname={pathname}
           />
@@ -244,14 +267,25 @@ const Navbar = ({ locale, pathname }: { locale: Locale; pathname: string }) => {
           >
             <a
               href={homeHref}
+              data-home-link="home"
+              data-home-i18n="nav.home"
               className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10"
             >
               {text.home}
             </a>
-            <MobileGroup label={text.real} links={localizedRealLinks} />
-            <MobileGroup label={text.fiction} links={localizedFictionLinks} />
+            <MobileGroup
+              label={text.real}
+              labelKey="nav.real"
+              links={localizedRealLinks}
+            />
+            <MobileGroup
+              label={text.fiction}
+              labelKey="nav.fiction"
+              links={localizedFictionLinks}
+            />
             <MobileLanguageGroup
               label={text.language}
+              labelKey="nav.language"
               locale={locale}
               pathname={pathname}
             />
