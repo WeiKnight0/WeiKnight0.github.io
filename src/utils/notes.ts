@@ -13,8 +13,11 @@ export const getSubjectNotes = (notes: CollectionEntry<'notes'>[]) =>
     .filter((note) => note.id.split('/').length > 1)
     .reduce<Record<string, CollectionEntry<'notes'>[]>>((groups, note) => {
       const subject = note.id.split('/')[0] ?? 'Notes';
-      groups[subject] = [...(groups[subject] ?? []), note];
-      return groups;
+
+      return {
+        ...groups,
+        [subject]: [...(groups[subject] ?? []), note],
+      };
     }, {});
 
 export const formatSubjectName = (subject: string) =>

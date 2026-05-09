@@ -2,7 +2,7 @@
 title: 1534 Count Good Triplets
 date: 2025-07-30 11:29:12
 lang: en
---- 
+---
 
 # Link: [https://leetcode.cn/problems/count-good-triplets/description/](https://leetcode.cn/problems/count-good-triplets/description/)
 

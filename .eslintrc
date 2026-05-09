@@ -1,6 +1,10 @@
 {
   // Configuration for JavaScript files
   "extends": ["airbnb-base", "plugin:prettier/recommended"],
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
   "rules": {
     "prettier/prettier": [
       "error",
@@ -16,19 +20,27 @@
       "files": ["**/*.mjs"],
       "parserOptions": {
         "sourceType": "module",
-        "ecmaVersion": 2015
+        "ecmaVersion": 2022
       },
       "extends": ["plugin:prettier/recommended"],
       "rules": {
-        "prettier/prettier": [
-          "error",
-          {
-            "singleQuote": true,
-            "endOfLine": "auto"
-          }
-        ],
+        "prettier/prettier": "off",
         "import/no-extraneous-dependencies": "off", // mjs is only used by Astro for configuration, false positive
-        "import/no-unresolved": "off" // Also false positive with mjs file
+        "import/no-unresolved": "off", // Also false positive with mjs file
+        "import/extensions": "off",
+        "no-nested-ternary": "off",
+        "no-param-reassign": "off" // Remark plugins intentionally mutate AST nodes
+      }
+    },
+    // Configuration for public browser scripts
+    {
+      "files": ["public/**/*.js"],
+      "parserOptions": {
+        "ecmaVersion": 2022,
+        "sourceType": "script"
+      },
+      "env": {
+        "browser": true
       }
     },
     // Configuration for TypeScript files

@@ -1,5 +1,17 @@
 import { defineCollection, z } from 'astro:content';
 
+const dateValue = z.preprocess((value) => {
+  if (value instanceof Date) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    return new Date(value);
+  }
+
+  return value;
+}, z.date());
+
 const orderedItem = z.object({
   title: z.string(),
   description: z.string(),
@@ -8,10 +20,19 @@ const orderedItem = z.object({
 
 const datedItem = z.object({
   title: z.string(),
-  description: z.string(),
-  date: z.date(),
-  tags: z.array(z.string()).default([]),
+  description: z.string().optional(),
+  date: dateValue,
+  tags: z
+    .array(z.string())
+    .nullable()
+    .transform((tags) => tags ?? [])
+    .default([]),
   draft: z.boolean().default(false),
+});
+
+const noteItem = datedItem.extend({
+  layout: z.string().optional(),
+  lang: z.string().optional(),
 });
 
 export const collections = {
@@ -22,7 +43,7 @@ export const collections = {
       demo: z.string().url().optional(),
     }),
   }),
-  notes: defineCollection({ schema: datedItem }),
+  notes: defineCollection({ schema: noteItem }),
   blog: defineCollection({ schema: datedItem }),
   world: defineCollection({ schema: orderedItem }),
   novels: defineCollection({ schema: orderedItem }),

@@ -12,7 +12,7 @@ const realLinks = [
   { href: '/real/resume/', label: 'Resume' },
   { href: '/real/projects/', label: 'Projects' },
   { href: '/real/notes/', label: 'Notes' },
-  { href: '/real/blog/', label: 'Blog' },
+  { href: '/real/blog/', label: 'Blogs' },
 ];
 
 const fictionLinks = [
@@ -67,7 +67,7 @@ const LinkGroup = ({
   label: string;
   links: typeof realLinks;
 }) => (
-  <details className="group relative" data-dropdown name="desktop-nav-dropdown">
+  <details className="group relative" data-dropdown data-dropdown-group="desktop-nav-dropdown">
     <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white">
       {label}
       <span className="text-xs text-slate-500 transition group-open:rotate-180">
@@ -98,7 +98,7 @@ const MobileGroup = ({
   <details
     className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 md:hidden"
     data-dropdown
-    name="mobile-nav-dropdown"
+    data-dropdown-group="mobile-nav-dropdown"
   >
     <summary className="cursor-pointer list-none font-semibold text-white">
       {label}
@@ -126,7 +126,7 @@ const LanguageGroup = ({
   locale: Locale;
   pathname: string;
 }) => (
-  <details className="group relative" data-dropdown name="desktop-nav-dropdown">
+  <details className="group relative" data-dropdown data-dropdown-group="desktop-nav-dropdown">
     <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-sm font-bold text-slate-300 transition hover:bg-white/10 hover:text-white">
       {label}
       <span className="text-xs text-slate-500 transition group-open:rotate-180">
@@ -160,7 +160,7 @@ const MobileLanguageGroup = ({
   <details
     className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 md:hidden"
     data-dropdown
-    name="mobile-nav-dropdown"
+    data-dropdown-group="mobile-nav-dropdown"
   >
     <summary className="cursor-pointer list-none font-semibold text-white">
       {label}

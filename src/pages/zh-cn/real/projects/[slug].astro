@@ -21,47 +21,47 @@ const { Content } = await project.render();
   description={project.data.description}
   locale='zh-cn'
 >
-  <article class='mx-auto max-w-4xl px-5 py-24 lg:px-8'>
+  <article class='mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:px-8'>
     <a
       href='/zh-cn/real/projects/'
-      class='text-sm font-bold text-cyan-300 transition hover:text-cyan-200'
+      class='text-base font-bold text-cyan-300 transition hover:text-cyan-200'
       >← 返回项目</a
     >
     <p
-      class='mt-10 text-sm font-black uppercase tracking-[0.28em] md:text-base text-cyan-300'
+      class='mt-10 text-base font-black uppercase tracking-[0.28em] text-cyan-300 md:text-lg'
     >
       Project
     </p>
     <h1
-      class='mt-6 text-4xl font-black leading-none tracking-[-0.04em] text-white md:text-6xl'
+      class='mt-6 text-3xl font-black leading-tight tracking-[-0.035em] text-white md:text-5xl'
     >
       {project.data.title}
     </h1>
-    <p class='mt-6 text-lg leading-8 text-slate-400'>
+    <p class='mt-6 text-lg leading-8 text-slate-300'>
       {project.data.description}
     </p>
     <div class='mt-8 flex flex-wrap gap-3'>
       {project.data.tags.map((tag) => (
-        <span class='rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-slate-300'>
+        <span class='rounded-full border border-white/10 px-3 py-1 text-sm font-bold text-slate-300'>
           {tag}
         </span>
       ))}
       {project.data.repo && (
         <a
           href={project.data.repo}
-          class='rounded-full border border-cyan-300/30 px-3 py-1 text-xs font-bold text-cyan-300 transition hover:bg-cyan-300/10'
+          class='rounded-full border border-cyan-300/30 px-3 py-1 text-sm font-bold text-cyan-300 transition hover:bg-cyan-300/10'
           >Repository</a
         >
       )}
       {project.data.demo && (
         <a
           href={project.data.demo}
-          class='rounded-full border border-cyan-300/30 px-3 py-1 text-xs font-bold text-cyan-300 transition hover:bg-cyan-300/10'
+          class='rounded-full border border-cyan-300/30 px-3 py-1 text-sm font-bold text-cyan-300 transition hover:bg-cyan-300/10'
           >Demo</a
         >
       )}
     </div>
-    <div class='prose prose-invert prose-slate mt-14 max-w-none prose-headings:font-black prose-a:text-cyan-300 prose-strong:text-white'>
+    <div class='prose prose-base prose-invert prose-slate mt-14 max-w-none prose-headings:font-black prose-a:text-cyan-300 prose-strong:text-white md:prose-lg'>
       <Content />
     </div>
   </article>

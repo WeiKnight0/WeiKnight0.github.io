@@ -12,7 +12,11 @@ const { title, description, locale = defaultLocale } = Astro.props as Props;
 ---
 
 <Base head={{ title, description }} theme='real' locale={locale}>
-  <main class='bg-slate-950 font-readable-mono text-slate-100'>
-    <slot></slot>
+  <main class='relative overflow-hidden bg-[radial-gradient(circle_at_15%_0%,rgba(34,211,238,0.16),transparent_28rem),radial-gradient(circle_at_85%_15%,rgba(59,130,246,0.12),transparent_30rem),linear-gradient(135deg,#08111f_0%,#0f172a_48%,#111827_100%)] font-readable-mono text-slate-100'>
+    <div class='pointer-events-none absolute inset-0 z-0 opacity-[0.16] [background-image:linear-gradient(rgba(148,163,184,0.18)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.18)_1px,transparent_1px)] [background-size:44px_44px]'></div>
+    <div class='pointer-events-none absolute inset-x-0 top-0 z-0 h-40 bg-gradient-to-b from-cyan-300/10 to-transparent'></div>
+    <div class='relative z-10'>
+      <slot></slot>
+    </div>
   </main>
 </Base>

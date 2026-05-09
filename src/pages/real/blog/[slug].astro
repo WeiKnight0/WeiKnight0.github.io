@@ -15,33 +15,154 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await post.render();
 const dateFormatter = new Intl.DateTimeFormat('en', { dateStyle: 'long' });
+const description = post.data.description ?? post.data.title;
 ---
 
 <RealPage
-  title={`${post.data.title} | Blog | My Homepage`}
-  description={post.data.description}
+  title={`${post.data.title} | Blogs | My Homepage`}
+  description={description}
 >
-  <article class='mx-auto max-w-4xl px-5 py-24 lg:px-8'>
-    <a href='/real/blog/' class='text-sm font-bold text-cyan-300 transition hover:text-cyan-200'>
-      ← Back to blog
+  <article class='mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:px-8'>
+    <a href='/real/blog/' class='text-base font-bold text-cyan-300 transition hover:text-cyan-200'>
+      ← Back to blogs
     </a>
-    <p class='mt-10 text-sm font-black uppercase tracking-[0.28em] md:text-base text-cyan-300'>
-      Blog
+    <p class='mt-10 text-base font-black uppercase tracking-[0.28em] text-cyan-300 md:text-lg'>
+      Blogs
     </p>
-    <h1 class='mt-6 text-4xl font-black leading-none tracking-[-0.04em] text-white md:text-6xl'>
+    <h1 class='mt-6 text-3xl font-black leading-tight tracking-[-0.035em] text-white md:text-5xl'>
       {post.data.title}
     </h1>
-    <p class='mt-6 text-lg leading-8 text-slate-400'>{post.data.description}</p>
-    <div class='mt-8 flex flex-wrap items-center gap-3 text-sm text-slate-500'>
+    <p class='mt-6 text-lg leading-8 text-slate-300'>{description}</p>
+    <div class='mt-8 flex flex-wrap items-center gap-3 text-base text-slate-400'>
       <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
       {post.data.tags.map((tag) => (
-        <span class='rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-slate-300'>
+        <a
+          href={`/real/blog/tags/${encodeURIComponent(tag)}/`}
+          class='rounded-full border border-cyan-300/20 px-3 py-1 text-sm font-bold text-cyan-200 transition hover:bg-cyan-300/10'
+        >
           {tag}
-        </span>
+        </a>
       ))}
     </div>
-    <div class='prose prose-invert prose-slate mt-14 max-w-none prose-headings:font-black prose-a:text-cyan-300 prose-strong:text-white'>
+    <div class='blog-prose prose prose-base prose-invert prose-slate mt-14 max-w-none prose-headings:font-black prose-a:text-cyan-300 prose-strong:text-white md:prose-lg'>
       <Content />
     </div>
   </article>
+  <style>
+    .blog-prose :global(pre) {
+      border: 1px solid rgb(51 65 85 / 0.9);
+      border-radius: 1rem;
+      background: #111827 !important;
+      box-shadow: 0 20px 60px rgb(0 0 0 / 0.24);
+      color: #e5e7eb !important;
+      overflow-x: auto;
+      padding: 3rem 1.25rem 1.25rem;
+      position: relative;
+    }
+
+    .blog-prose :global(pre *) {
+      color: #e5e7eb !important;
+      text-shadow: none !important;
+    }
+
+    .blog-prose :global(pre code) {
+      background: transparent !important;
+      color: inherit !important;
+      padding: 0;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    .blog-prose :global(:not(pre) > code) {
+      border: 1px solid rgb(34 211 238 / 0.18);
+      border-radius: 0.45rem;
+      background: rgb(8 47 73 / 0.42);
+      color: #bae6fd;
+      padding: 0.12rem 0.38rem;
+    }
+
+    .blog-prose :global(table) {
+      overflow: hidden;
+      border-radius: 0.9rem;
+      border: 1px solid rgb(51 65 85 / 0.9);
+    }
+
+    .blog-prose :global(blockquote) {
+      border-left-color: rgb(34 211 238 / 0.65);
+      background: rgb(15 23 42 / 0.55);
+      border-radius: 0 0.9rem 0.9rem 0;
+      padding: 0.5rem 1rem;
+    }
+
+    .blog-prose :global(.blog-code-language),
+    .blog-prose :global(.blog-copy-button) {
+      position: absolute;
+      top: 0.75rem;
+      z-index: 1;
+      border: 1px solid rgb(103 232 249 / 0.18);
+      border-radius: 999px;
+      background: rgb(15 23 42 / 0.92);
+      color: #bae6fd;
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 0.72rem;
+      font-weight: 800;
+      line-height: 1;
+      padding: 0.42rem 0.7rem;
+    }
+
+    .blog-prose :global(.blog-code-language) {
+      left: 0.9rem;
+      text-transform: uppercase;
+    }
+
+    .blog-prose :global(.blog-copy-button) {
+      right: 0.9rem;
+      cursor: pointer;
+      transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+    }
+
+    .blog-prose :global(.blog-copy-button:hover) {
+      border-color: rgb(103 232 249 / 0.45);
+      background: rgb(8 47 73 / 0.95);
+      color: white;
+    }
+  </style>
+  <script is:inline>
+    document.querySelectorAll('.blog-prose pre').forEach((pre) => {
+      if (pre.dataset.blogCodeReady === 'true') return;
+      pre.dataset.blogCodeReady = 'true';
+
+      const marker = pre.previousElementSibling?.classList.contains('note-code-language')
+        ? pre.previousElementSibling
+        : null;
+      const language = marker?.getAttribute('data-language') || 'plaintext';
+      marker?.remove();
+
+      const languageLabel = document.createElement('span');
+      languageLabel.className = 'blog-code-language';
+      languageLabel.textContent = language;
+      pre.append(languageLabel);
+
+      const copyButton = document.createElement('button');
+      copyButton.className = 'blog-copy-button';
+      copyButton.type = 'button';
+      copyButton.textContent = 'Copy';
+      copyButton.addEventListener('click', async () => {
+        const code = pre.querySelector('code')?.innerText ?? pre.innerText;
+        try {
+          await navigator.clipboard.writeText(code.replace(/\n?Copy$/, ''));
+          copyButton.textContent = 'Copied';
+          window.setTimeout(() => {
+            copyButton.textContent = 'Copy';
+          }, 1200);
+        } catch {
+          copyButton.textContent = 'Failed';
+          window.setTimeout(() => {
+            copyButton.textContent = 'Copy';
+          }, 1200);
+        }
+      });
+      pre.append(copyButton);
+    });
+  </script>
 </RealPage>

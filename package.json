@@ -10,16 +10,13 @@
     "deploy": "node scripts/deploy.mjs",
     "clean": "rimraf dist",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx,.astro .",
-    "build-types": "tsc --noEmit --pretty",
-    "prepare": "husky install"
+    "build-types": "tsc --noEmit --pretty"
   },
   "devDependencies": {
     "@astrojs/react": "^3.0.7",
     "@astrojs/rss": "^0.2.2",
     "@astrojs/sitemap": "^0.1.2",
     "@astrojs/tailwind": "^5.0.3",
-    "@commitlint/cli": "^17.8.1",
-    "@commitlint/config-conventional": "^17.8.1",
     "@jridgewell/sourcemap-codec": "^1.4.15",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/typography": "^0.5.10",
@@ -41,8 +38,6 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-tailwindcss": "^3.13.0",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "husky": "^8.0.3",
-    "lint-staged": "^12.5.0",
     "path-browserify": "^1.0.1",
     "prettier": "^2.6.2",
     "prettier-plugin-astro": "0.1.0-next.5",
@@ -52,8 +47,11 @@
   "dependencies": {
     "astro-boilerplate-components": "^1.0.16",
     "date-fns": "^2.30.0",
+    "katex": "^0.16.45",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
   },
   "volta": {
     "node": "16.15.1"

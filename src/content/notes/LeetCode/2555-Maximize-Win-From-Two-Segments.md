@@ -2,7 +2,7 @@
 title: 2555 Maximize Win From Two Segments
 date: 2025-07-29 15:28:38
 lang: en
---- 
+---
 
 # Link: [https://leetcode.cn/problems/maximize-win-from-two-segments/description/](https://leetcode.com/problems/maximize-win-from-two-segments/description/)
 

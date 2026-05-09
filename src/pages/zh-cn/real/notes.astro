@@ -1,55 +1,55 @@
 ---
 import { getCollection } from 'astro:content';
 
-import RealPage from '@/templates/RealPage.astro';
+import NotePage from '@/templates/NotePage.astro';
+import {
+  formatSubjectName,
+  getNotePath,
+  getSubjectNotes,
+  getTopLevelNotes,
+} from '@/utils/notes';
 
 const notes = (await getCollection('notes')).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
 
-const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
-  dateStyle: 'medium',
-});
+const subjects = getSubjectNotes(notes);
+const topLevelNotes = getTopLevelNotes(notes).filter((note) => note.id !== 'index.md');
+const subjectNames = Object.keys(subjects).sort((a, b) =>
+  formatSubjectName(a).localeCompare(formatSubjectName(b))
+);
 ---
 
-<RealPage
-  title='笔记 | 个人主页'
+<NotePage
+  title="WeiKnight's Study Notes Index"
   description='技术学习、阅读与实践笔记。'
+  date={new Date('2025-07-29T15:29:52')}
   locale='zh-cn'
+  showBackLink={false}
 >
-  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
-    <p
-      class='mb-6 text-sm font-black uppercase tracking-[0.28em] md:text-base text-cyan-300'
-    >
-      Notes
-    </p>
-    <h1
-      class='text-5xl font-black leading-none tracking-[-0.06em] text-white md:text-7xl'
-    >
-      笔记
-    </h1>
-    <div class='mt-14 grid gap-5 md:grid-cols-3'>
-      {notes.map((note) => (
-        <a
-          href={`/zh-cn/real/notes/${note.slug}/`}
-          class="rounded-3xl border border-white/10 bg-white/[0.04] p-7 transition hover:border-cyan-300/40 hover:bg-white/[0.07]"
-        >
-          <p class="text-sm font-bold text-cyan-300">
-            {dateFormatter.format(note.data.date)}
-          </p>
-          <h2 class="mt-3 text-2xl font-black text-white">{note.data.title}</h2>
-          <p class="mt-4 leading-7 text-slate-400">{note.data.description}</p>
-          {note.data.tags.length > 0 && (
-            <div class="mt-6 flex flex-wrap gap-2">
-              {note.data.tags.map((tag) => (
-                <span class="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-slate-300">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </a>
-      ))}
-    </div>
-  </section>
-</RealPage>
+  <h1>Subjects Index</h1>
+  <p>Currently available subjects:</p>
+  <ul>
+    {subjectNames.map((subject) => (
+      <li>
+        <a href={`/zh-cn/real/notes/${subject}/`}>{formatSubjectName(subject)}</a>
+      </li>
+    ))}
+  </ul>
+
+  <h2>Standalone Notes</h2>
+  <ul>
+    {topLevelNotes.map((note) => (
+      <li>
+        <a href={`/zh-cn/real/notes/${getNotePath(note.id)}/`}>{note.data.title}</a>
+      </li>
+    ))}
+  </ul>
+
+  <p>Also, you can check out my GitHub repositories for more study materials:</p>
+  <ul>
+    <li>
+      <a href='https://github.com/WeiKnight0/MachineLearningStudy'>Machine Learning</a>
+    </li>
+  </ul>
+</NotePage>

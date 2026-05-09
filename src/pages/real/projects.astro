@@ -12,11 +12,11 @@ const projects = (await getCollection('projects')).sort(
   title='Projects | My Homepage'
   description='Project and portfolio entries.'
 >
-  <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
-    <p class='mb-6 text-sm font-black uppercase tracking-[0.28em] md:text-base text-cyan-300'>
+  <section class='mx-auto max-w-[92rem] px-4 py-24 sm:px-6 lg:px-8'>
+    <p class='mb-6 text-base font-black uppercase tracking-[0.28em] text-cyan-300 md:text-lg'>
       Projects
     </p>
-    <h1 class='text-5xl font-black leading-none tracking-[-0.06em] text-white md:text-7xl'>
+    <h1 class='text-4xl font-black leading-none tracking-[-0.05em] text-white md:text-6xl'>
       Projects
     </h1>
     <div class='mt-14 grid gap-5 md:grid-cols-3'>
@@ -25,13 +25,13 @@ const projects = (await getCollection('projects')).sort(
           href={`/real/projects/${project.slug}/`}
           class="rounded-3xl border border-white/10 bg-white/[0.04] p-7 transition hover:border-cyan-300/40 hover:bg-white/[0.07]"
         >
-          <h2 class="text-2xl font-black text-white">{project.data.title}</h2>
-          <p class="mt-4 leading-7 text-slate-400">
+          <h2 class="text-2xl font-black leading-tight text-white">{project.data.title}</h2>
+          <p class="mt-4 text-base leading-7 text-slate-300">
             {project.data.description}
           </p>
           <div class="mt-6 flex flex-wrap gap-2">
             {project.data.tags.map((tag) => (
-              <span class="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-slate-300">
+              <span class="rounded-full border border-white/10 px-3 py-1 text-sm font-bold text-slate-300">
                 {tag}
               </span>
             ))}
