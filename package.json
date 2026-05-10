@@ -7,7 +7,6 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "deploy": "node scripts/deploy.mjs",
     "clean": "rimraf --glob dist .astro ses_*.json session-ses_*.md session_restore.patch",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx,.astro .",
     "build-types": "tsc --noEmit --pretty"

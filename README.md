@@ -64,8 +64,6 @@ site: 'https://weiknight0.github.io/'
 
 If you need a manual run, trigger the workflow from the GitHub Actions tab.
 
-The previous local deploy script is still present for now, but GitHub Pages via Actions is the primary deployment path.
-
 Preview the production build locally:
 
 ```bash

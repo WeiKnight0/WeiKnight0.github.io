@@ -73,7 +73,7 @@ order: 3
 >
 > 设 $w = (D_w, \Phi_w, \models_w)$ 和 $w' = (D_{w'}, \Phi_{w'}, \models_{w'})$ 是两个世界。称 $w$ 是 $w'$ 的**结构子世界**，记作 $w \sqsubseteq w'$，当且仅当以下条件同时成立：
 > 1. **个体域包含**：$D_w \subseteq D_{w'}$。
-> 2. **命题集一致性**：$\Phi_w = \{\, \varphi \in \Phi_{w'} \mid \text{$\varphi$ 中出现的所有个体均属于 } D_w \,\}$。
+> 2. **命题集一致性**：$\Phi_w = \{\, \varphi \in \Phi_{w'} \mid \varphi\text{中出现的所有个体均属于 } D_w \,\}$。
 > 3. **真值继承性**：对任意 $\varphi \in \Phi_w$，有 $\models_w(\varphi) = \models_{w'}(\varphi)$。
 
 结构子世界完全由父世界通过限制个体域而得到。若 $w \sqsubseteq w'$，则 $w \preceq w'$，即结构子世界必是信息子世界。反之不成立：信息子世界只要求命题集的包含与真值一致，但允许个体域完全不同。
@@ -88,7 +88,7 @@ order: 3
 > $$G = (w_G, \, \mathcal{S}_G, \, \pi, \, \Vdash_G)$$
 > 其中：
 > 1. $w_G \in \mathcal{W}_0$ 是一个世界，称为**神 $G$ 的主世界**。
-> 2. $\mathcal{S}_G = \{ w' \in \mathcal{W}_0 \mid D_{w'} \subseteq D_{w_G},\ \Phi_{w'} = \{\varphi \in \Phi_{w_G} \mid \text{$\varphi$中所有个体属于 } D_{w'}\},\ \models_{w'} = \models_{w_G}|_{\Phi_{w'}} \}$ 是 $w_G$ 的所有结构子世界的集合，称为**神 $G$ 的掌控世界集**。
+> 2. $\mathcal{S}_G = \{ w' \in \mathcal{W}_0 \mid D_{w'} \subseteq D_{w_G},\ \Phi_{w'} = \{\varphi \in \Phi_{w_G} \mid \varphi \text{中所有个体属于 } D_{w'}\},\ \models_{w'} = \models_{w_G}|_{\Phi_{w'}} \}$ 是 $w_G$ 的所有结构子世界的集合，称为**神 $G$ 的掌控世界集**。
 > 3. $\pi: \mathcal{S}_G \to \mathcal{P}(\Phi_{w_G})$ 是**投影函数**，满足 $\pi(w') = \Phi_{w'}$。
 > 4. $\Vdash_G \subseteq \{ (w', \varphi) \in \mathcal{S}_G \times \Phi_{w_G} \mid \varphi \in \pi(w') \}$ 是**全局认知关系**，满足：
 >    - **一致性公理**：若 $(w', \varphi) \in \Vdash_G$，则 $\models_{w'}(\varphi) = \text{true}$。
