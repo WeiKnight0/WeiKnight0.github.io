@@ -19,8 +19,16 @@ const { Content } = await item.render();
     <p class='mt-10 text-base font-black uppercase tracking-[0.28em] text-fiction-gold md:text-lg'>Worldbuilding</p>
     <h1 class='mt-6 font-fiction text-3xl font-black leading-tight tracking-[-0.035em] text-fiction-ink md:text-5xl'>{item.data.title}</h1>
     <p class='mt-6 text-lg leading-8 text-fuchsia-100/80'>{item.data.description}</p>
-    <div class='prose prose-base prose-invert mt-14 max-w-none prose-headings:font-fiction prose-headings:text-fiction-ink prose-a:text-fiction-gold prose-strong:text-fiction-ink md:prose-lg'>
+    <div class='world-prose prose prose-base prose-invert mt-14 max-w-none prose-headings:font-fiction prose-headings:text-fiction-ink prose-a:text-fiction-gold prose-strong:text-fiction-ink prose-blockquote:not-italic md:prose-lg'>
       <Content />
     </div>
   </article>
 </FictionPage>
+
+<style>
+  .world-prose :global(blockquote p:first-of-type::before),
+  .world-prose :global(blockquote p:last-of-type::after) {
+    content: none !important;
+    display: none !important;
+  }
+</style>

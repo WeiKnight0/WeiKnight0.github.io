@@ -1,11 +1,8 @@
 ---
-import { getCollection } from 'astro:content';
-
 import FictionPage from '@/templates/FictionPage.astro';
+import { getCommissionImages } from '@/utils/commissions';
 
-const commissions = (await getCollection('commissions')).sort(
-  (a, b) => a.data.order - b.data.order
-);
+const images = getCommissionImages();
 ---
 
 <FictionPage
@@ -24,20 +21,33 @@ const commissions = (await getCollection('commissions')).sort(
     >
       委托作品
     </h1>
-    <div class='mt-14 grid gap-5 md:grid-cols-3'>
-      {commissions.map((item) => (
-        <a
-          href={`/zh-cn/fiction/commissions/${item.slug}/`}
-          class="aspect-[4/5] rounded-[2rem] border border-fiction-gold/30 bg-black/20 p-7 transition hover:bg-fiction-gold/10"
-        >
-          <h2 class="font-fiction text-3xl font-black text-fiction-ink">
-            {item.data.title}
-          </h2>
-          <p class="mt-4 text-base leading-7 text-fuchsia-100/80">
-            {item.data.description}
-          </p>
-        </a>
-      ))}
-    </div>
+    <p class='mt-6 max-w-3xl text-base leading-7 text-fuchsia-100/80'>
+      这里直接展示委托图片。把图片放到 <code class='rounded bg-black/20 px-2 py-1 text-fiction-gold'>public/fiction/commissions/</code> 后会自动显示在这里。
+    </p>
+    {images.length > 0 ? (
+      <div class='mt-14 columns-1 gap-5 sm:columns-2 lg:columns-3'>
+        {images.map((image) => (
+          <a
+            href={image.src}
+            class='mb-5 block break-inside-avoid overflow-hidden rounded-[2rem] border border-fiction-gold/30 bg-black/20 transition hover:border-fiction-gold/70'
+            target='_blank'
+          >
+            <img
+              src={image.src}
+              alt={image.title}
+              loading='lazy'
+              class='w-full object-cover transition duration-500 hover:scale-[1.02]'
+            />
+            <div class='px-5 py-4 text-sm font-bold text-fuchsia-100/80'>
+              {image.title}
+            </div>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <div class='mt-14 rounded-[2rem] border border-dashed border-fiction-gold/40 bg-black/20 p-8 text-base leading-7 text-fuchsia-100/80'>
+        还没有委托图片。请把图片文件放到 <code class='rounded bg-black/20 px-2 py-1 text-fiction-gold'>public/fiction/commissions/</code>。
+      </div>
+    )}
   </section>
 </FictionPage>

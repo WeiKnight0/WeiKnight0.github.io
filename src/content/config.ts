@@ -47,5 +47,4 @@ export const collections = {
   blog: defineCollection({ schema: datedItem }),
   world: defineCollection({ schema: orderedItem }),
   novels: defineCollection({ schema: orderedItem }),
-  commissions: defineCollection({ schema: orderedItem }),
 };

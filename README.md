@@ -40,27 +40,33 @@ Build the site:
 npm run build
 ```
 
-Deploy the built site to a target repository with a Hexo-style deploy worktree.
+Deploy with GitHub Pages via GitHub Actions.
 
-Deployment is configured in `deploy.config.json`:
+Required repository setup:
 
-```json
-{
-  "repo": "git@github.com:WeiKnight0/WeiKnight0.github.io.git",
-  "branch": "main",
-  "message": "deploy homepage"
-}
+- Rename the GitHub repository to `weiknight0.github.io`
+- In GitHub, open `Settings -> Pages`
+- Under `Build and deployment`, set `Source` to `GitHub Actions`
+
+The workflow file is:
+
+```text
+.github/workflows/deploy.yml
 ```
 
-Then deploy:
+Deployment runs automatically when you push to `master`.
 
-```bash
-npm run deploy
+The production site URL is configured in `astro.config.mjs`:
+
+```js
+site: 'https://weiknight0.github.io/'
 ```
 
-The deploy command builds `dist/`, copies it into `.deploy_git/`, commits changes, and pushes normally without force push.
+If you need a manual run, trigger the workflow from the GitHub Actions tab.
 
-Preview the production build:
+The previous local deploy script is still present for now, but GitHub Pages via Actions is the primary deployment path.
+
+Preview the production build locally:
 
 ```bash
 npm run preview

@@ -11,7 +11,7 @@ import remarkNoteLinks from './src/utils/remark-note-links.mjs';
 // https://astro.build/config
 export default defineConfig({
   // base: '.', // Set a path prefix.
-  site: 'https://example.com/', // Use to generate your sitemap and canonical URLs in your final build.
+  site: 'https://weiknight0.github.io/', // Use to generate your sitemap and canonical URLs in your final build.
   trailingSlash: 'ignore', // Allow both slash and non-slash URLs
   markdown: {
     remarkPlugins: [remarkMath, remarkNoteLinks, remarkCodeLanguageMarker],
