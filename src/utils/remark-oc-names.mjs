@@ -1,8 +1,15 @@
 import ocNames from '../config/oc-names.mjs';
 
 const names = ocNames;
+const possessiveSuffix = '’s';
 
 const replacements = [
+  [/\\wkn\{\}['’‘]s/g, `${names.wkn}${possessiveSuffix}`],
+  [/\\wf\{\}['’‘]s/g, `${names.wf}${possessiveSuffix}`],
+  [/\\dr\{\}['’‘]s/g, `${names.dr}${possessiveSuffix}`],
+  [/\{\{\s*wkn\s*\}\}['’‘]s/gi, `${names.wkn}${possessiveSuffix}`],
+  [/\{\{\s*wf\s*\}\}['’‘]s/gi, `${names.wf}${possessiveSuffix}`],
+  [/\{\{\s*dr\s*\}\}['’‘]s/gi, `${names.dr}${possessiveSuffix}`],
   [/\\wkn\{\}/g, names.wkn],
   [/\\wf\{\}/g, names.wf],
   [/\\dr\{\}/g, names.dr],

@@ -5,10 +5,11 @@ import FictionPage from '@/templates/FictionPage.astro';
 
 const items = (await getCollection('world')).sort(
   (a, b) => a.data.order - b.data.order
-).filter((item) => item.data.lang === 'zh-cn');
+).filter((item) => item.slug.startsWith('zh-cn/'));
 
-const theoryItems = items.filter((item) => item.data.category === 'theory');
-const settingItems = items.filter((item) => item.data.category === 'setting');
+const getWorldSlug = (slug: string) => slug.split('/').at(-1);
+const theoryItems = items.filter((item) => item.slug.startsWith('zh-cn/theory/'));
+const settingItems = items.filter((item) => item.slug.startsWith('zh-cn/setting/'));
 ---
 
 <FictionPage
@@ -34,7 +35,7 @@ const settingItems = items.filter((item) => item.data.category === 'setting');
       <div class='mt-7 grid gap-5 md:grid-cols-3'>
         {theoryItems.map((item) => (
           <a
-            href={`/zh-cn/fiction/world/${item.slug}/`}
+            href={`/zh-cn/fiction/world/${getWorldSlug(item.slug)}/`}
             class="rounded-[2rem] border border-fiction-gold/30 bg-black/20 p-7 transition hover:bg-fiction-gold/10"
           >
             <h3 class="font-fiction text-3xl font-black text-fiction-ink">
@@ -55,7 +56,7 @@ const settingItems = items.filter((item) => item.data.category === 'setting');
       <div class='mt-7 grid gap-5 md:grid-cols-3'>
         {settingItems.map((item) => (
           <a
-            href={`/zh-cn/fiction/world/${item.slug}/`}
+            href={`/zh-cn/fiction/world/${getWorldSlug(item.slug)}/`}
             class="rounded-[2rem] border border-fiction-gold/30 bg-black/20 p-7 transition hover:bg-fiction-gold/10"
           >
             <h3 class="font-fiction text-3xl font-black text-fiction-ink">

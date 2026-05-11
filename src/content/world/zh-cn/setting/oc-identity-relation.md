@@ -2,8 +2,6 @@
 title: OC 的身份与关联性
 description: 设主与 OC 之间的身份关系，以及福瑞/兽人变换与神域变换。
 order: 105
-lang: zh-cn
-category: setting
 ---
 
 ## OC 的主要身份

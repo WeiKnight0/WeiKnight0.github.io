@@ -2,8 +2,6 @@
 title: 社会与文化
 description: M3、M2、WF 与 DR 四个世界的社会结构、文化气质与核心矛盾。
 order: 103
-lang: zh-cn
-category: setting
 ---
 
 ## M3 世界

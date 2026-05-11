@@ -1,6 +1,6 @@
 const ocNames = {
-  wkn: '设主',
-  wf: '狼神',
+  wkn: 'WeiKnight',
+  wf: 'WolfRAM',
   dr: '龙神',
 };
 export default ocNames;

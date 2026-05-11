@@ -5,11 +5,11 @@ import FictionPage from '@/templates/FictionPage.astro';
 
 export async function getStaticPaths() {
   const items = (await getCollection('world')).filter(
-    (item) => item.data.lang === 'zh-cn'
+    (item) => item.slug.startsWith('zh-cn/')
   );
 
   return items.map((item) => ({
-    params: { slug: item.slug },
+    params: { slug: item.slug.split('/').at(-1) },
     props: { item },
   }));
 }
