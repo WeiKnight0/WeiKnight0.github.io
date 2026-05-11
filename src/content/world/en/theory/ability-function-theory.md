@@ -183,7 +183,7 @@ In this case, the range of action expands from the enclosing surface domain of a
 \end{theorem}
 
 \begin{theorem}[Green Spell Formula]
-In the two-dimensional plane, the $\nabla_{\text{2D}}$ Spell is combined with the closed curve integral $\dsy\oint$:
+In the two-dimensional plane, the $\nabla_{\text{2D}}$ Spell is combined with the closed curve integral $\oint$:
 
 $$
 \oint_C (L\mathrm{d}x + M\mathrm{d}y) = \iint_D \left(\dfrac{\partial M}{\partial x} - \dfrac{\partial L}{\partial y}\right) \mathrm{d}x\mathrm{d}y
@@ -193,7 +193,7 @@ This realizes a transformation of the scope of action from a curve to the plane 
 \end{theorem}
 
 \begin{theorem}[Stokes Spell Formula]
-For a spatial curve, the $\nabla$ Spell is combined with the closed curve integral $\dsy\oint$:
+For a spatial curve, the $\nabla$ Spell is combined with the closed curve integral $\oint$:
 
 $$
 \oint_C \mathbf{F}\cdot\mathrm{d}\mathbf{r} = \iint_S (\nabla\times\mathbf{F})\cdot\mathrm{d}\mathbf{S}

@@ -64,13 +64,13 @@ $$
 |\mathcal{W}_{N,M}| \leq \sum_{d=1}^{N} \sum_{p=0}^{M} \binom{N}{d} \cdot \binom{M}{p} \cdot 2^{p}.
 $$
 
-Here $\dsy\binom{M}{p}$ denotes the number of ways to choose $p$ propositions from $M$ propositions.
+Here $\binom{M}{p}$ denotes the number of ways to choose $p$ propositions from $M$ propositions.
 \end{theorem}
 
 \begin{proof}
 For each possible number of individuals $d$ (from 1 to $N$) and each possible number of propositions $p$ (from 0 to $M$),
-- there are $\dsy\binom{N}{d}$ ways to choose the individual set $D_w$;
-- there are $\dsy\binom{M}{p}$ ways to choose the proposition set $\Phi_w$;
+- there are $\binom{N}{d}$ ways to choose the individual set $D_w$;
+- there are $\binom{M}{p}$ ways to choose the proposition set $\Phi_w$;
 - the truth assignment function $\models_w$ has 2 choices for each proposition (true or false), so for $p$ propositions there are $2^p$ different assignments.
 Therefore, for fixed $d$ and $p$, the number of possible Worlds is:
 

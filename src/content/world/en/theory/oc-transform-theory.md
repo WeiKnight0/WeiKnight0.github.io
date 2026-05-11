@@ -113,11 +113,11 @@ is called the system's **Continuous OC Impulse-Response Matrix**, and the corres
 
 $$
 q_i(t) = \int_{-\infty}^{\infty} \left[ \sum_{j=1}^{N} h_{ij}(\tau) r_j(t-\tau) \right] \mathrm{d}\tau
-                  = \sum_{j=1}^{N} \int_{-\infty}^{\infty} h_{ij}(\tau) r_j(t-\tau) \, \mathrm{d}\tau
+= \sum_{j=1}^{N} \int_{-\infty}^{\infty} h_{ij}(\tau) r_j(t-\tau) \, \mathrm{d}\tau
 $$
 
-              that is,
-              each output component $q_i(t)$ is the superposition of the convolutions between all input components $r_j(t)$ and the corresponding impulse-response functions $h_{ij}(\tau)$:
+that is,
+each output component $q_i(t)$ is the superposition of the convolutions between all input components $r_j(t)$ and the corresponding impulse-response functions $h_{ij}(\tau)$:
 
 $$
 q_i(t) = \sum_{j=1}^{N} (h_{ij} * r_j)(t)
@@ -133,7 +133,7 @@ Since convolution is cumbersome to compute in the time domain, we introduce the 
 For any continuous function $f(t)$, its Laplace transform (also called the bilateral Laplace transform) is defined by
 
 $$
-\tilde{F}(s)=\mathcal{L}\{f(t)\}=\int_{-\infty}^{\infty}\mathrm{e}^{-st}f(t)\,\mathrm{d} t,\quad s=\sigma+\mj\omega.
+\tilde{F}(s)=\mathcal{L}\{f(t)\}=\int_{-\infty}^{\infty}\mathrm{e}^{-st}f(t)\,\mathrm{d} t,\quad s=\sigma+\mathrm{j}\omega.
 $$
 
 \end{definition}
@@ -176,7 +176,7 @@ For the Laplace transform $\tilde{\mathbf{H}}(s)$ of the matrix-valued function 
 2. **Vertical boundary of the region of convergence**: in the complex plane, the ROC is bounded by a vertical line $\operatorname{Re}(s) = \sigma_c$, where $\sigma_c$ is the real part of the rightmost pole of $\tilde{\mathbf{H}}(s)$.
 
 3. **Region partition**: this vertical line divides the complex plane into two regions:
-              - Right side ($\operatorname{Re}(s) > \sigma_c$): $\tilde{\mathbf{H}}(s)$ converges and is analytic
+   - Right side ($\operatorname{Re}(s) > \sigma_c$): $\tilde{\mathbf{H}}(s)$ converges and is analytic
 - Left side ($\operatorname{Re}(s) < \sigma_c$): $\tilde{\mathbf{H}}(s)$ diverges or contains poles
 
 4. **Matrix integrity**: the ROC of the entire matrix $\tilde{\mathbf{H}}(s)$ is determined by the narrowest ROC among all its elements, namely by the largest real part among all poles.
@@ -191,11 +191,11 @@ Every person inherently possesses a real-world Feature Vector Function $\mathbf{
 \begin{theorem}[Continuous-Time OC Existence Theorem]
 In the OC Transform axiom system of \wkn{}'s worldview, given a person's $\mathbf{r}(t)$ and $\mathbf{H}(t)$, the **necessary and sufficient conditions** for that person to have the OC are that the following two groups of conditions hold simultaneously:
 1. **Adaptability of the Real-World Feature Vector Function**: $\mathbf{r}(t)$ is causal, admits a Laplace transform, and does not cause divergence when acted on by the system.
-              2. $\mathbf{r}(t)=0$ for $t<0$.
-                        The equivalent $s$-domain statement is that the region of convergence of $\tilde{\mathbf{R}}(s)$ contains some right half-plane $\mathrm{Re}(s)>\sigma_r$.
-3. The region of convergence of $\tilde{\mathbf{R}}(s)$ contains the imaginary axis. This is a necessary condition for ensuring that the real-world character setting does not collapse.
-1. **Regularity of the OC Transform System**: $\mathbf{H}(t)$ is causal and stable.
-              - **Causality**: $\mathbf{H}(t)=0$ for all $t<0$.
+   2. $\mathbf{r}(t)=0$ for $t<0$.
+   The equivalent $s$-domain statement is that the region of convergence of $\tilde{\mathbf{R}}(s)$ contains some right half-plane $\mathrm{Re}(s)>\sigma_r$.
+   3. The region of convergence of $\tilde{\mathbf{R}}(s)$ contains the imaginary axis. This is a necessary condition for ensuring that the real-world character setting does not collapse.
+2. **Regularity of the OC Transform System**: $\mathbf{H}(t)$ is causal and stable.
+   - **Causality**: $\mathbf{H}(t)=0$ for all $t<0$.
 - **Stability**: every element $h_{ij}(t)$ of $\mathbf{H}(t)$ is absolutely integrable:
 
 $$
@@ -217,10 +217,10 @@ $$
 \mathbf{q}(t) = \int_0^\infty \mathbf{H}(\tau) \mathbf{r}(t-\tau) \, \mathrm{d}\tau
 $$
 
-              and the Laplace transform definition can be rewritten as
+and the Laplace transform definition can be rewritten as
 
 $$
-\tilde{F}(s)=\mathcal{L}\{f(t)\}=\int_0^\infty\mathrm{e}^{-st}f(t)\,\mathrm{d} t,\quad s=\sigma+\mj\omega.
+\tilde{F}(s)=\mathcal{L}\{f(t)\}=\int_0^\infty\mathrm{e}^{-st}f(t)\,\mathrm{d} t,\quad s=\sigma+\mathrm{j}\omega.
 $$
 
 7. In practical terms: when a Creator is said to "have an OC," whether or not it is a Self-Insert OC, the above conditions must hold. At that point, an OC Transform can be performed mathematically.
@@ -291,20 +291,18 @@ $$
 When Theorem the relevant section is satisfied, the inverse system can be constructed as follows, and its belonging to the stable OC inverse-transform class is judged by its pole conditions:
 
 1. **When $M = N$**:
-              the formal inverse system is obtained directly by matrix inversion:
+the formal inverse system is obtained directly by matrix inversion:
 
 $$
 \tilde{\mathbf{G}}(s) = \tilde{\mathbf{H}}(s)^{-1}.
 $$
 
-2. **When $M > N$**:
-              a commonly used formal left inverse is given by the Moore-Penrose pseudoinverse:
+2. **When $M > N$**: a commonly used formal left inverse is given by the Moore-Penrose pseudoinverse, where $^\dagger$ denotes conjugate transpose:
 
 $$
 \tilde{\mathbf{G}}(s)=\tilde{\mathbf{H}}^{\sharp}(s) = \left( \tilde{\mathbf{H}}(s)^\dagger \tilde{\mathbf{H}}(s) \right)^{-1} \tilde{\mathbf{H}}(s)^\dagger,
 $$
 
-              where $^\dagger$ denotes conjugate transpose.
 \end{theorem}
 
 \begin{remark}
@@ -365,7 +363,7 @@ As in the continuous-time case, the discrete-time convolution sum is cumbersome 
 For any discrete sequence $f[n]$, its $Z$ transform is defined by
 
 $$
-\tilde{F}(z)=\mathcal{Z}\{f[n]\}=\sum_{n=-\infty}^{\infty}f[n]z^{-n},\quad z=A\mathrm{e}^{\mj\omega}.
+\tilde{F}(z)=\mathcal{Z}\{f[n]\}=\sum_{n=-\infty}^{\infty}f[n]z^{-n},\quad z=A\mathrm{e}^{\mathrm{j}\omega}.
 $$
 
 \end{definition}
@@ -403,8 +401,8 @@ For the $Z$ transform $\tilde{\mathbf{H}}(z)$ of the matrix-valued sequence $\ma
 2. **Circular boundary of the region of convergence**: in the $z$ plane, the ROC is bounded by the circle $|z| = R_c$, where $R_c$ is the magnitude of the outermost pole of $\tilde{\mathbf{H}}(z)$.
 
 3. **Region partition**: this circle divides the $z$ plane into two regions:
-              - Outside the circle ($|z| > R_c$): $\tilde{\mathbf{H}}(z)$ converges and is analytic
-- Inside the circle ($|z| < R_c$): $\tilde{\mathbf{H}}(z)$ diverges or contains poles
+   - Outside the circle ($|z| > R_c$): $\tilde{\mathbf{H}}(z)$ converges and is analytic
+   - Inside the circle ($|z| < R_c$): $\tilde{\mathbf{H}}(z)$ diverges or contains poles
 
 4. **Matrix integrity**: the ROC of the entire matrix $\tilde{\mathbf{H}}(z)$ is determined by the narrowest ROC among all its elements, namely by the largest pole magnitude among all poles.
 \end{remark}
@@ -418,11 +416,11 @@ Every person inherently possesses a real-world Feature Vector Sequence $\mathbf{
 \begin{theorem}[Discrete-Time OC Existence Theorem]
 In the OC Transform axiom system of \wkn{}'s worldview, given a person's $\mathbf{r}[n]$ and $\mathbf{H}[n]$, the **necessary and sufficient conditions** for that person to have the OC are that the following two groups of conditions hold simultaneously:
 1. **Adaptability of the Real-World Feature Vector Sequence**: $\mathbf{r}[n]$ is causal, admits a $Z$ transform, and does not cause divergence when acted on by the system.
-              2. $\mathbf{r}[n]=0$ for $n<0$.
-                        The equivalent $z$-domain statement is that the region of convergence of $\tilde{\mathbf{R}}(z)$ contains some exterior region $|z|>R_r$ and contains $z=\infty$.
-3. The region of convergence of $\tilde{\mathbf{R}}(z)$ contains the unit circle. This is a necessary condition for ensuring that the real-world character setting does not collapse.
-1. **Regularity of the OC Transform System**: $\mathbf{H}[n]$ is causal and stable.
-              - **Causality**: $\mathbf{H}[n]=0$ for all $n<0$.
+   2. $\mathbf{r}[n]=0$ for $n<0$.
+   The equivalent $z$-domain statement is that the region of convergence of $\tilde{\mathbf{R}}(z)$ contains some exterior region $|z|>R_r$ and contains $z=\infty$.
+   3. The region of convergence of $\tilde{\mathbf{R}}(z)$ contains the unit circle. This is a necessary condition for ensuring that the real-world character setting does not collapse.
+2. **Regularity of the OC Transform System**: $\mathbf{H}[n]$ is causal and stable.
+   - **Causality**: $\mathbf{H}[n]=0$ for all $n<0$.
 - **Stability**: every element $h_{ij}[n]$ of $\mathbf{H}[n]$ is absolutely summable:
 
 $$
@@ -441,10 +439,10 @@ $$
 \mathbf{q}[n] = \sum_{k=0}^{\infty} \mathbf{H}[k] \mathbf{r}[n-k]
 $$
 
-              and the definition of the $Z$ transform can be rewritten as
+and the definition of the $Z$ transform can be rewritten as
 
 $$
-\tilde{F}(z)=\mathcal{Z}\{f[n]\}=\sum_{n=0}^{\infty}f[n]z^{-n},\quad z=A\mathrm{e}^{\mj\omega}.
+\tilde{F}(z)=\mathcal{Z}\{f[n]\}=\sum_{n=0}^{\infty}f[n]z^{-n},\quad z=A\mathrm{e}^{\mathrm{j}\omega}.
 $$
 
 \end{remark}
@@ -489,13 +487,13 @@ $$
 \operatorname{rank}(\tilde{\mathbf{H}}(z)) = N,\quad \forall z\in\mathbb{C}\ \text{and}\ |z|\geq 1.
 $$
 
-              An equivalent statement is that the column vectors of $\tilde{\mathbf{H}}(z)$ are linearly independent, or equivalently, when $\tilde{\mathbf{H}}(z)$ is viewed as a linear map matrix, the corresponding map is injective.
+An equivalent statement is that the column vectors of $\tilde{\mathbf{H}}(z)$ are linearly independent, or equivalently, when $\tilde{\mathbf{H}}(z)$ is viewed as a linear map matrix, the corresponding map is injective.
 4. **Stable left-inverse condition:** there exists a rational matrix $\tilde{\mathbf{G}}(z)$ satisfying $\tilde{\mathbf{G}}(z)\tilde{\mathbf{H}}(z)=\mathbf{I}_N$, and all poles of $\tilde{\mathbf{G}}(z)$ lie strictly inside the unit circle:
 
 $$
 \{\,z\in\mathbb{C}\mid z\ \text{is a pole of}\ \tilde{\mathbf{G}}(z)\,\}
-                  \subset
-                  \{z\in\mathbb{C}:|z|<1\}.
+\subset
+\{z\in\mathbb{C}:|z|<1\}.
 $$
 
 \end{theorem}
@@ -508,20 +506,18 @@ The phrase "if and only if" here is an internal axiomatic criterion of \wkn{}'s 
 When Theorem the relevant section is satisfied, the inverse system can be constructed as follows, and its belonging to the stable OC inverse-transform class is judged by its pole conditions:
 
 1. **When $M = N$**:
-              the formal inverse system is obtained directly by matrix inversion:
+the formal inverse system is obtained directly by matrix inversion:
 
 $$
 \tilde{\mathbf{G}}(z) = \tilde{\mathbf{H}}(z)^{-1}.
 $$
 
-2. **When $M > N$**:
-              a commonly used formal left inverse is given by the Moore-Penrose pseudoinverse:
+2. **When $M > N$**: a commonly used formal left inverse is given by the Moore-Penrose pseudoinverse, where $^\dagger$ denotes conjugate transpose:
 
 $$
 \tilde{\mathbf{G}}(z)=\tilde{\mathbf{H}}^{\sharp}(z) = \left( \tilde{\mathbf{H}}(z)^\dagger \tilde{\mathbf{H}}(z) \right)^{-1} \tilde{\mathbf{H}}(z)^\dagger,
 $$
 
-              where $^\dagger$ denotes conjugate transpose.
 \end{theorem}
 
 ## Sampling Theory from Feature Vector Function to Feature Vector Sequence
@@ -560,15 +556,15 @@ Based on the existence theorem analysis, whether in continuous-time or discrete-
 Suppose the Continuous-Time OC Transform satisfies in the frequency domain:
 
 $$
-\tilde{\mathbf{Q}}(\mj\omega) = \tilde{\mathbf{H}}(\mj\omega) \tilde{\mathbf{R}}(\mj\omega)
+\tilde{\mathbf{Q}}(\mathrm{j}\omega) = \tilde{\mathbf{H}}(\mathrm{j}\omega) \tilde{\mathbf{R}}(\mathrm{j}\omega)
 $$
 
-where $\tilde{\mathbf{R}}(\mj\omega)$, $\tilde{\mathbf{H}}(\mj\omega)$, and $\tilde{\mathbf{Q}}(\mj\omega)$ are the continuous-time Fourier transforms of $\mathbf{r}(t)$, $\mathbf{H}(t)$, and $\mathbf{q}(t)$, respectively.
+where $\tilde{\mathbf{R}}(\mathrm{j}\omega)$, $\tilde{\mathbf{H}}(\mathrm{j}\omega)$, and $\tilde{\mathbf{Q}}(\mathrm{j}\omega)$ are the continuous-time Fourier transforms of $\mathbf{r}(t)$, $\mathbf{H}(t)$, and $\mathbf{q}(t)$, respectively.
 
 The sampled discrete-time system satisfies in the frequency domain:
 
 $$
-\tilde{\mathbf{Q}}(\mathrm{e}^{\mj\varOmega}) = \dfrac{1}{T_s} \sum_{k=-\infty}^{\infty} \tilde{\mathbf{H}}\left(\dfrac{\varOmega + 2\pi k}{T_s}\right) \tilde{\mathbf{R}}\left(\dfrac{\varOmega + 2\pi k}{T_s}\right)
+\tilde{\mathbf{Q}}(\mathrm{e}^{\mathrm{j}\varOmega}) = \dfrac{1}{T_s} \sum_{k=-\infty}^{\infty} \tilde{\mathbf{H}}\left(\dfrac{\varOmega + 2\pi k}{T_s}\right) \tilde{\mathbf{R}}\left(\dfrac{\varOmega + 2\pi k}{T_s}\right)
 $$
 
 where $\varOmega = \omega T_s$ is the digital angular frequency.
@@ -582,13 +578,13 @@ To recover the Continuous-Time OC feature vector $\mathbf{q}(t)$ without distort
 1. **Bandwidth limitation of the real-world description**: the real-world Feature Vector Function $\mathbf{r}(t)$ is band-limited, i.e., there exists $\omega_r^{\text{max}}$ such that:
 
 $$
-\tilde{\mathbf{R}}(\mj\omega) = \mathbf{0}, \quad \forall |\omega| > \omega_r^{\text{max}}
+\tilde{\mathbf{R}}(\mathrm{j}\omega) = \mathbf{0}, \quad \forall |\omega| > \omega_r^{\text{max}}
 $$
 
 2. **Bandwidth limitation of the system**: the transfer-function matrix corresponding to the OC impulse-response matrix $\mathbf{H}(t)$ is band-limited, i.e., there exists $\omega_h^{\text{max}}$ such that:
 
 $$
-\tilde{\mathbf{H}}(\mj\omega) = \mathbf{0}, \quad \forall |\omega| > \omega_h^{\text{max}}
+\tilde{\mathbf{H}}(\mathrm{j}\omega) = \mathbf{0}, \quad \forall |\omega| > \omega_h^{\text{max}}
 $$
 
 3. **Sampling-rate requirement**: the sampling frequency $\displaystyle\omega_s = \dfrac{2\pi}{T_s}$ satisfies:
@@ -606,29 +602,29 @@ To prove the minimum sampling rate required for distortion-free recovery of $\ma
 In the frequency domain, the system output is:
 
 $$
-\mathbf{Q}(\mj\omega) = \mathbf{H}(\mj\omega) \mathbf{R}(\mj\omega).
+\mathbf{Q}(\mathrm{j}\omega) = \mathbf{H}(\mathrm{j}\omega) \mathbf{R}(\mathrm{j}\omega).
 $$
 
 We know:
 
 $$
 \begin{aligned}
-\mathbf{R}(\mj\omega) & = \mathbf{0}, \quad \forall |\omega| > \omega_r^{\max}, \\
-        \mathbf{H}(\mj\omega) & = \mathbf{0}, \quad \forall |\omega| > \omega_h^{\max}.
+\mathbf{R}(\mathrm{j}\omega) & = \mathbf{0}, \quad \forall |\omega| > \omega_r^{\max}, \\
+\mathbf{H}(\mathrm{j}\omega) & = \mathbf{0}, \quad \forall |\omega| > \omega_h^{\max}.
 \end{aligned}
 $$
 
-Consider the value of $\mathbf{Q}(\mj\omega)$ for $|\omega| > \min(\omega_r^{\max}, \omega_h^{\max})$.
-Without loss of generality, assume $\omega_r^{\max} \le \omega_h^{\max}$, then when $|\omega| > \omega_r^{\max}$ we have $\mathbf{R}(\mj\omega) = \mathbf{0}$.
+Consider the value of $\mathbf{Q}(\mathrm{j}\omega)$ for $|\omega| > \min(\omega_r^{\max}, \omega_h^{\max})$.
+Without loss of generality, assume $\omega_r^{\max} \le \omega_h^{\max}$, then when $|\omega| > \omega_r^{\max}$ we have $\mathbf{R}(\mathrm{j}\omega) = \mathbf{0}$.
 Therefore, for $|\omega| > \omega_r^{\max}$:
 
 $$
-\mathbf{Q}(\mj\omega) = \mathbf{H}(\mj\omega) \cdot \mathbf{0} = \mathbf{0}.
+\mathbf{Q}(\mathrm{j}\omega) = \mathbf{H}(\mathrm{j}\omega) \cdot \mathbf{0} = \mathbf{0}.
 $$
 
-Likewise, if $\omega_h^{\max} \le \omega_r^{\max}$, then when $|\omega| > \omega_h^{\max}$, $\mathbf{H}(\mj\omega) = \mathbf{0}$, which also yields $\mathbf{Q}(\mj\omega) = \mathbf{0}$.
+Likewise, if $\omega_h^{\max} \le \omega_r^{\max}$, then when $|\omega| > \omega_h^{\max}$, $\mathbf{H}(\mathrm{j}\omega) = \mathbf{0}$, which also yields $\mathbf{Q}(\mathrm{j}\omega) = \mathbf{0}$.
 
-Hence the bandwidth upper bound of $\mathbf{Q}(\mj\omega)$ is:
+Hence the bandwidth upper bound of $\mathbf{Q}(\mathrm{j}\omega)$ is:
 
 $$
 B_q = \min(\omega_r^{\max}, \omega_h^{\max}).
@@ -661,19 +657,19 @@ Under the distortion-free sampling conditions, the continuous-time signal $\math
 Consider the continuous-time Fourier transform of $\mathbf{q}(t)$:
 
 $$
-\tilde{\mathbf{Q}}(\mj\omega) = \int_{-\infty}^{\infty} \mathbf{q}(t) \mathrm{e}^{-\mj\omega t} \mathrm{d} t
+\tilde{\mathbf{Q}}(\mathrm{j}\omega) = \int_{-\infty}^{\infty} \mathbf{q}(t) \mathrm{e}^{-\mathrm{j}\omega t} \mathrm{d} t
 $$
 
 By the bandwidth limitation, we have:
 
 $$
-\tilde{\mathbf{Q}}(\mj\omega) = \mathbf{0}, \quad \forall |\omega| > \dfrac{\omega_s}{2}
+\tilde{\mathbf{Q}}(\mathrm{j}\omega) = \mathbf{0}, \quad \forall |\omega| > \dfrac{\omega_s}{2}
 $$
 
-Extend $\tilde{\mathbf{Q}}(\mj\omega)$ periodically in the frequency domain with period $\omega_s$ to obtain the periodic spectrum:
+Extend $\tilde{\mathbf{Q}}(\mathrm{j}\omega)$ periodically in the frequency domain with period $\omega_s$ to obtain the periodic spectrum:
 
 $$
-\hat{\mathbf{Q}}(\mj\omega) = \sum_{k=-\infty}^{\infty} \tilde{\mathbf{Q}}(\mj(\omega - k \omega_s))
+\hat{\mathbf{Q}}(\mathrm{j}\omega) = \sum_{k=-\infty}^{\infty} \tilde{\mathbf{Q}}(\mathrm{j}(\omega - k \omega_s))
 $$
 
 Since $\omega_s > 2B_q$, the periodic replicas do not overlap, so no aliasing occurs.
@@ -681,19 +677,19 @@ Since $\omega_s > 2B_q$, the periodic replicas do not overlap, so no aliasing oc
 On the other hand, the discrete-time Fourier transform of the sampled sequence $\mathbf{q}[n] = \mathbf{q}(nT_s)$ is:
 
 $$
-\tilde{\mathbf{Q}}_d(\mathrm{e}^{\mj\omega T_s}) = \sum_{n=-\infty}^{\infty} \mathbf{q}[n] \mathrm{e}^{-\mj\omega nT_s}
+\tilde{\mathbf{Q}}_d(\mathrm{e}^{\mathrm{j}\omega T_s}) = \sum_{n=-\infty}^{\infty} \mathbf{q}[n] \mathrm{e}^{-\mathrm{j}\omega nT_s}
 $$
 
 By the sampling theorem, the relation between the discrete and continuous spectra is:
 
 $$
-\tilde{\mathbf{Q}}_d(\mathrm{e}^{\mj\omega T_s}) = \dfrac{1}{T_s} \hat{\mathbf{Q}}(\mj\omega) = \dfrac{1}{T_s} \tilde{\mathbf{Q}}(\mj\omega), \quad |\omega| < \dfrac{\omega_s}{2}
+\tilde{\mathbf{Q}}_d(\mathrm{e}^{\mathrm{j}\omega T_s}) = \dfrac{1}{T_s} \hat{\mathbf{Q}}(\mathrm{j}\omega) = \dfrac{1}{T_s} \tilde{\mathbf{Q}}(\mathrm{j}\omega), \quad |\omega| < \dfrac{\omega_s}{2}
 $$
 
 Therefore, in the baseband, the continuous spectrum can be recovered from the discrete spectrum:
 
 $$
-\tilde{\mathbf{Q}}(\mj\omega) = T_s \cdot \tilde{\mathbf{Q}}_d(\mathrm{e}^{\mj\omega T_s}) \cdot \mathrm{rect}\left(\dfrac{\omega}{\omega_s}\right)
+\tilde{\mathbf{Q}}(\mathrm{j}\omega) = T_s \cdot \tilde{\mathbf{Q}}_d(\mathrm{e}^{\mathrm{j}\omega T_s}) \cdot \mathrm{rect}\left(\dfrac{\omega}{\omega_s}\right)
 $$
 
 where $\mathrm{rect}(u)$ is the rectangular function, equal to 1 when $|u| < \dfrac{1}{2}$ and 0 otherwise.
@@ -702,8 +698,8 @@ Taking the inverse Fourier transform of the above. In the time domain, multiplic
 
 $$
 \begin{aligned}
-\mathbf{q}(t) & = \mathcal{F}^{-1} \left\{ T_s \cdot \tilde{\mathbf{Q}}_d(\mathrm{e}^{\mj\omega T_s}) \cdot \mathrm{rect}\left(\dfrac{\omega}{\omega_s}\right) \right\}                             \\
-                      & = \left( \sum_{n=-\infty}^{\infty} \mathbf{q}[n] \delta(t - nT_s) \right) * \left( T_s \cdot \dfrac{\omega_s}{2\pi} \cdot \text{sinc}\left(\dfrac{\omega_s t}{2\pi}\right) \right)
+\mathbf{q}(t) & = \mathcal{F}^{-1} \left\{ T_s \cdot \tilde{\mathbf{Q}}_d(\mathrm{e}^{\mathrm{j}\omega T_s}) \cdot \mathrm{rect}\left(\dfrac{\omega}{\omega_s}\right) \right\} \\
+& = \left( \sum_{n=-\infty}^{\infty} \mathbf{q}[n] \delta(t - nT_s) \right) * \left( T_s \cdot \dfrac{\omega_s}{2\pi} \cdot \text{sinc}\left(\dfrac{\omega_s t}{2\pi}\right) \right)
 \end{aligned}
 $$
 
@@ -714,7 +710,7 @@ Hence:
 $$
 \begin{aligned}
 \mathbf{q}(t) & = \sum_{n=-\infty}^{\infty} \mathbf{q}[n] \cdot \delta(t - nT_s) * \text{sinc}\left(\dfrac{t}{T_s}\right) \\
-                      & = \sum_{n=-\infty}^{\infty} \mathbf{q}[n] \cdot \text{sinc}\left(\dfrac{t - nT_s}{T_s}\right)
+& = \sum_{n=-\infty}^{\infty} \mathbf{q}[n] \cdot \text{sinc}\left(\dfrac{t - nT_s}{T_s}\right)
 \end{aligned}
 $$
 
@@ -785,13 +781,13 @@ The core of frequency-domain methods is to use the convolution theorem of the Di
 For a discrete sequence of length $N_f$, $x[n],\; n=0,1,\dots,N_f-1$, its **Discrete Fourier Transform (DFT)** $X[k]$ is defined by:
 
 $$
-X[k] = \sum_{n=0}^{N_f-1} x[n] \cdot \mathrm{e}^{-\mj\frac{2\pi}{N_f}kn}, \quad k=0,1,\dots,N_f-1
+X[k] = \sum_{n=0}^{N_f-1} x[n] \cdot \mathrm{e}^{-\mathrm{j}\frac{2\pi}{N_f}kn}, \quad k=0,1,\dots,N_f-1
 $$
 
 Correspondingly, the **inverse discrete Fourier transform (IDFT)** is:
 
 $$
-x[n] = \dfrac{1}{N_f} \sum_{k=0}^{N_f-1} X[k] \cdot \mathrm{e}^{\mj\frac{2\pi}{N_f}kn}, \quad n=0,1,\dots,N_f-1
+x[n] = \dfrac{1}{N_f} \sum_{k=0}^{N_f-1} X[k] \cdot \mathrm{e}^{\mathrm{j}\frac{2\pi}{N_f}kn}, \quad n=0,1,\dots,N_f-1
 $$
 
 \end{definition}

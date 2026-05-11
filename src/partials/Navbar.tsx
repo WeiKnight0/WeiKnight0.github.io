@@ -82,6 +82,7 @@ const LinkGroup = ({
         <a
           key={link.href}
           href={link.href}
+          data-localized-path={link.href}
           className="rounded-xl px-3 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
         >
           {link.label}
@@ -113,6 +114,7 @@ const MobileGroup = ({
         <a
           key={link.href}
           href={link.href}
+          data-localized-path={link.href}
           className="rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-white/10"
         >
           {link.label}
@@ -231,6 +233,7 @@ const Navbar = ({ locale, pathname }: { locale: Locale; pathname: string }) => {
             href={homeHref}
             data-home-link="home"
             data-home-i18n="nav.home"
+            data-localized-path="/"
             className="rounded-full px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
           >
             {text.home}
@@ -265,6 +268,7 @@ const Navbar = ({ locale, pathname }: { locale: Locale; pathname: string }) => {
               href={homeHref}
               data-home-link="home"
               data-home-i18n="nav.home"
+              data-localized-path="/"
               className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10"
             >
               {text.home}

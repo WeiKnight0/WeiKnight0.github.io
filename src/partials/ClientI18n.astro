@@ -255,6 +255,13 @@
 
   const storageKey = 'site-locale';
   const clientPaths = new Set(Object.keys(siteI18n.en.pages));
+  const localizedRouteGroups = [
+    { base: '/fiction/world/', localizedBase: '/fiction/world/zh-cn/' },
+    { base: '/fiction/oc/', localizedBase: '/fiction/oc/zh-cn/' },
+    { base: '/real/projects/', localizedBase: '/real/projects/zh-cn/' },
+    { base: '/real/resume/', localizedBase: '/real/resume/zh-cn/' },
+    { base: '/real/notes/', localizedBase: '/real/notes/zh-cn/' },
+  ];
   const normalizePath = (path) => {
     const pathOnly = path.split(/[?#]/)[0] || '/';
     const withLeadingSlash = pathOnly.startsWith('/')
@@ -269,6 +276,29 @@
   const getStoredLocale = () => {
     const storedLocale = localStorage.getItem(storageKey);
     return storedLocale === 'zh-cn' ? 'zh-cn' : 'en';
+  };
+  const getLocalizedPath = (path, locale) => {
+    const normalizedPath = normalizePath(path);
+
+    if (clientPaths.has(normalizedPath)) {
+      return normalizedPath;
+    }
+
+    if (locale === 'en') {
+      const group = localizedRouteGroups.find((item) =>
+        normalizedPath.startsWith(item.localizedBase)
+      );
+      return group
+        ? `${group.base}${normalizedPath.slice(group.localizedBase.length)}`
+        : normalizedPath;
+    }
+
+    const group = localizedRouteGroups.find((item) =>
+      normalizedPath.startsWith(item.base)
+    );
+    return group
+      ? `${group.localizedBase}${normalizedPath.slice(group.base.length)}`
+      : normalizedPath;
   };
   const renderTags = (element, tags) => {
     element.replaceChildren(
@@ -354,6 +384,12 @@
       const key = element.getAttribute('data-page-href-prefix');
       const href = page.links[key];
       if (href) setHrefPrefix(element, href);
+    });
+
+    document.querySelectorAll('[data-localized-path]').forEach((element) => {
+      const path = element.getAttribute('data-localized-path');
+      if (!path) return;
+      element.setAttribute('href', getLocalizedPath(path, locale));
     });
 
     document.querySelectorAll('[data-language-link]').forEach((element) => {
