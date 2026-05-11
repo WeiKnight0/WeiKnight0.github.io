@@ -12,18 +12,18 @@ category: theory
 
 在二次元世界的数学模型中，角色的特殊能力可以被抽象为一种映射关系，我们称之为**能力函数（Ability Function）**。此函数严格描述了能力如何将输入（作用目标或条件）转化为输出（作用效果）。
 
-> **能力函数的定义**
->
-> 设 $\mathcal{X}$ 为能力的**输入空间（Input Space）**，包含了所有可能的能力作用目标、初始条件或触发状态。设 $\mathcal{Y}$ 为能力的**输出空间（Output Space）**，包含了所有可能的能力作用效果。
->
-> 一个**能力函数**是一个映射：
-> $$F: \mathcal{X} \to \mathcal{Y}$$
-> 它将每个输入 $x \in \mathcal{X}$ 映射到唯一的输出 $y = F(x) \in \mathcal{Y}$。
->
-> 此时称：
-> - $x$ 为能力的**输入**或**原像**。
-> - $y = F(x)$ 为能力在输入 $x$ 下的**输出**或**像**。
-> - 映射 $F$ 的具体形式，体现了角色能力的使用规则与使用效果。
+\begin{definition}[能力函数的定义]
+设 $\mathcal{X}$ 为能力的**输入空间（Input Space）**，包含了所有可能的能力作用目标、初始条件或触发状态。设 $\mathcal{Y}$ 为能力的**输出空间（Output Space）**，包含了所有可能的能力作用效果。
+
+一个**能力函数**是一个映射：
+$$F: \mathcal{X} \to \mathcal{Y}$$
+它将每个输入 $x \in \mathcal{X}$ 映射到唯一的输出 $y = F(x) \in \mathcal{Y}$。
+
+此时称：
+- $x$ 为能力的**输入**或**原像**。
+- $y = F(x)$ 为能力在输入 $x$ 下的**输出**或**像**。
+- 映射 $F$ 的具体形式，体现了角色能力的使用规则与使用效果。
+\end{definition}
 
 能力函数具有以下重要特征：
 
@@ -39,12 +39,12 @@ category: theory
 
 当能力函数的输入是离散的、可数的对象时，其作用模式是离散的。
 
-> **离散型能力函数的定义**
->
-> 若能力函数 $F$ 的输入空间 $\mathcal{X}$ 是一个离散集合（有限或可数无限），则称 $F$ 为**离散型能力函数**。其效果通过直接将函数作用于每个输入元素来实现：
-> $$\mathcal{Y} = F(\mathcal{X}) = \{F(x) \mid x \in \mathcal{X}\}$$
-> 若本次能力发动仅针对输入集合 $X = \{x_1, x_2, \ldots, x_n\} \subseteq \mathcal{X}$，则对应的输出集合 $\mathcal{Y} = \{y_1, y_2, \ldots, y_n\}$ 为：
-> $$\forall x_i \in X, \quad y_i = F(x_i)$$
+\begin{definition}[离散型能力函数的定义]
+若能力函数 $F$ 的输入空间 $\mathcal{X}$ 是一个离散集合（有限或可数无限），则称 $F$ 为**离散型能力函数**。其效果通过直接将函数作用于每个输入元素来实现：
+$$\mathcal{Y} = F(\mathcal{X}) = \{F(x) \mid x \in \mathcal{X}\}$$
+若本次能力发动仅针对输入集合 $X = \{x_1, x_2, \ldots, x_n\} \subseteq \mathcal{X}$，则对应的输出集合 $\mathcal{Y} = \{y_1, y_2, \ldots, y_n\}$ 为：
+$$\forall x_i \in X, \quad y_i = F(x_i)$$
+\end{definition}
 
 **示例：单体治愈术**
 
@@ -55,11 +55,13 @@ $$F_{\text{heal}}(\text{HP}) = \text{HP} + 50$$
 
 当能力函数的输入是一个连续空间的元素，且其效果需要通过"累积"来计算时，其作用模式是连续的。
 
-> **连续型能力函数的定义**
->
-> 若能力函数 $F$ 的输入空间是一个连续域 $\Omega$，并且总效果由定义在 $\Omega$ 上的**效果密度函数** $f(\omega)$ 积分得到，则称 $F$ 为**连续型能力函数**。其总效果为：
-> $$\mathcal{Y} = F(\Omega) = \int_{\Omega} f(\omega) \, \mathrm{d}\omega$$
-> 其中 $\omega$ 是域 $\Omega$ 上的微元，$f: \Omega \to \mathbb{R}$ 是密度函数，它本身可以看作一个局部的、点上的能力函数。
+\begin{definition}[连续型能力函数的定义]
+若能力函数 $F$ 的输入空间是一个连续域 $\Omega$，并且总效果由定义在 $\Omega$ 上的**效果密度函数** $f(\omega)$ 积分得到，则称 $F$ 为**连续型能力函数**。其总效果为：
+$$\mathcal{Y} = F(\Omega) = \int_{\Omega} f(\omega) \, \mathrm{d}\omega$$
+其中 $\omega$ 是域 $\Omega$ 上的微元，$f: \Omega \to \mathbb{R}$ 是密度函数，它本身可以看作一个局部的、点上的能力函数。
+\end{definition}
+
+从形式上看，连续型能力函数与离散型能力函数的表达式并无区别，都是 $\mathcal{Y}=F(\mathcal{X})$。但其计算方式和应用场景有本质区别：离散型能力函数可以直接对每个离散输入进行函数求值，适用于单体或有限目标的能力作用；连续型能力函数虽然表达式相同，但无法直接进行求值，而是通过积分对连续域内的效果密度进行累积，适用于范围性、区域性或时间段性的能力作用。
 
 **示例：范围火球术**
 
@@ -72,17 +74,17 @@ $$F_{\text{fireball}}(\Omega) = 100\pi (1 - \mathrm{e}^{-R^2})$$
 
 **符咒（Spell）** 是世界观中一种特殊的能力函数算子，它通过改变能力函数本身的映射规则来创造新的能力。
 
-> **符咒的定义**
->
-> 设 $\mathscr{F}$ 为某世界观下所有能力函数构成的集合。一个**符咒** $\mathcal{O}$ 是一个从能力函数集到其自身的映射：
-> $$\mathcal{O}: \mathscr{F} \to \mathscr{F}$$
-> 它将一个能力函数 $F \in \mathscr{F}$ 映射为另一个新的能力函数 $\mathcal{O}F \in \mathscr{F}$。
->
-> 对于任意作用对象 $x \in \mathcal{X}_F$，新能力函数的效果由下式确定：
-> $$(\mathcal{O}F)(x)$$
-> 符咒 $\mathcal{O}$ 改变了能力的作用规则，而不仅仅是其输出值。
+\begin{definition}[符咒的定义]
+设 $\mathscr{F}$ 为某世界观下所有能力函数构成的集合。一个**符咒** $\mathcal{O}$ 是一个从能力函数集到其自身的映射：
+$$\mathcal{O}: \mathscr{F} \to \mathscr{F}$$
+它将一个能力函数 $F \in \mathscr{F}$ 映射为另一个新的能力函数 $\mathcal{O}F \in \mathscr{F}$。
 
-常见的符咒类型包括：
+对于任意作用对象 $x \in \mathcal{X}_F$，新能力函数的效果由下式确定：
+$$(\mathcal{O}F)(x)$$
+符咒 $\mathcal{O}$ 改变了能力的作用规则，而不仅仅是其输出值。
+\end{definition}
+
+符咒与简单函数复合的关键区别在于：符咒操作的是函数本身这一映射规则，而非具体的输入输出值。常见的符咒类型包括：
 
 - **线性强化符咒** $\mathcal{E}_k$：重新定义能力函数的输出为原输出的 $k$ 倍。
   $$(\mathcal{E}_k F)(x) = k \cdot F(x)$$
@@ -103,15 +105,18 @@ $$(\mathcal{O}_2 \mathcal{O}_1)F = \mathcal{O}_2(\mathcal{O}_1 F)$$
 
 ### 向量微分符咒的概念
 
-> **向量微分符咒的定义**
->
-> 在三维空间中，向量微分符咒 $\nabla$ 定义为：
-> $$\nabla = \left(\frac{\partial}{\partial x}, \frac{\partial}{\partial y}, \frac{\partial}{\partial z}\right)$$
-> 该符咒可以作用于标量能力函数 $\varphi$ 或向量能力函数 $\mathbf{F}=(F_x,F_y,F_z)$，产生不同效果：
->
-> - **梯度符咒**：$\nabla\varphi = \left(\frac{\partial\varphi}{\partial x}, \frac{\partial\varphi}{\partial y}, \frac{\partial\varphi}{\partial z}\right)$
-> - **散度符咒**：$\nabla\cdot\mathbf{F} = \frac{\partial F_x}{\partial x} + \frac{\partial F_y}{\partial y} + \frac{\partial F_z}{\partial z}$
-> - **旋度符咒**：$\nabla\times\mathbf{F} = \left(\frac{\partial F_z}{\partial y} - \frac{\partial F_y}{\partial z}, \frac{\partial F_x}{\partial z} - \frac{\partial F_z}{\partial x}, \frac{\partial F_y}{\partial x} - \frac{\partial F_x}{\partial y}\right)$
+\begin{definition}[向量微分符咒的定义]
+在三维空间中，向量微分符咒 $\nabla$ 定义为：
+$$\nabla = \left(\frac{\partial}{\partial x}, \frac{\partial}{\partial y}, \frac{\partial}{\partial z}\right)$$
+该符咒可以作用于标量能力函数 $\varphi$ 或向量能力函数 $\mathbf{F}=(F_x,F_y,F_z)$，产生不同效果：
+
+- **梯度符咒**：$\nabla\varphi = \left(\frac{\partial\varphi}{\partial x}, \frac{\partial\varphi}{\partial y}, \frac{\partial\varphi}{\partial z}\right)$
+- **散度符咒**：$\nabla\cdot\mathbf{F} = \frac{\partial F_x}{\partial x} + \frac{\partial F_y}{\partial y} + \frac{\partial F_z}{\partial z}$
+- **旋度符咒**：$\nabla\times\mathbf{F} = \left(\frac{\partial F_z}{\partial y} - \frac{\partial F_y}{\partial z}, \frac{\partial F_x}{\partial z} - \frac{\partial F_z}{\partial x}, \frac{\partial F_y}{\partial x} - \frac{\partial F_x}{\partial y}\right)$
+\end{definition}
+
+> 而在二维平面上，$\nabla$ 符咒可以类似地定义为：
+> $$\nabla_{\text{2D}} = \left(\frac{\partial}{\partial x}, \frac{\partial}{\partial y}\right),\quad \nabla_{\text{2D}}\times \bm{F}=\frac{\partial F_y}{\partial x} - \frac{\partial F_x}{\partial y}$$
 
 当一个连续性能力函数作用的时候，会形成一个场。这个场又称作**能力场（Ability Field）**。
 
@@ -119,19 +124,19 @@ $$(\mathcal{O}_2 \mathcal{O}_1)F = \mathcal{O}_2(\mathcal{O}_1 F)$$
 
 向量微分符咒的主要效果就是**作用域的升维**。
 
-> **高斯符咒公式**
->
-> 当 $\nabla$ 符咒与闭合曲面积分组合时，可实现作用域从曲面域到空间域的变化：
-> $$\oiint_{\partial V} \mathbf{F}\cdot\mathrm{d}\mathbf{S}=\iiint_V (\nabla\cdot\mathbf{F}) \,\mathrm{d}V$$
+\begin{theorem}[高斯符咒公式]
+当 $\nabla$ 符咒与闭合曲面积分组合时，可实现作用域从曲面域到空间域的变化：
+$$\oiint_{\partial V} \mathbf{F}\cdot\mathrm{d}\mathbf{S}=\iiint_V (\nabla\cdot\mathbf{F}) \,\mathrm{d}V$$
+\end{theorem}
 
-> **格林符咒公式**
->
-> 在二维平面上，$\nabla_{\text{2D}}$ 符咒与闭合曲线积分组合：
-> $$\oint_C (L\,\mathrm{d}x + M\,\mathrm{d}y) = \iint_D \left(\frac{\partial M}{\partial x} - \frac{\partial L}{\partial y}\right) \mathrm{d}x\,\mathrm{d}y$$
+\begin{theorem}[格林符咒公式]
+在二维平面上，$\nabla_{\text{2D}}$ 符咒与闭合曲线积分组合：
+$$\oint_C (L\,\mathrm{d}x + M\,\mathrm{d}y) = \iint_D \left(\frac{\partial M}{\partial x} - \frac{\partial L}{\partial y}\right) \mathrm{d}x\,\mathrm{d}y$$
+\end{theorem}
 
-> **斯托克斯符咒公式**
->
-> 对于空间曲线，$\nabla$ 符咒与闭合曲线积分组合：
-> $$\oint_C \mathbf{F}\cdot\mathrm{d}\mathbf{r} = \iint_S (\nabla\times\mathbf{F})\cdot\mathrm{d}\mathbf{S}$$
+\begin{theorem}[斯托克斯符咒公式]
+对于空间曲线，$\nabla$ 符咒与闭合曲线积分组合：
+$$\oint_C \mathbf{F}\cdot\mathrm{d}\mathbf{r} = \iint_S (\nabla\times\mathbf{F})\cdot\mathrm{d}\mathbf{S}$$
+\end{theorem}
 
 这些公式展示了向量微分符咒如何借助闭合积分实现作用域的升维——从曲线到曲面，从曲面到体积。

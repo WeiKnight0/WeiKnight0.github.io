@@ -8,6 +8,7 @@ import remarkMath from 'remark-math';
 import remarkCodeLanguageMarker from './src/utils/remark-code-language-marker.mjs';
 import remarkNoteLinks from './src/utils/remark-note-links.mjs';
 import remarkOcNames from './src/utils/remark-oc-names.mjs';
+import remarkEnv from './src/utils/remark-env.mjs';
 
 // https://astro.build/config
 export default defineConfig({
@@ -15,7 +16,7 @@ export default defineConfig({
   site: 'https://weiknight0.github.io/', // Use to generate your sitemap and canonical URLs in your final build.
   trailingSlash: 'ignore', // Allow both slash and non-slash URLs
   markdown: {
-    remarkPlugins: [remarkMath, remarkOcNames, remarkNoteLinks, remarkCodeLanguageMarker],
+    remarkPlugins: [remarkMath, remarkOcNames, remarkEnv, remarkNoteLinks, remarkCodeLanguageMarker],
     rehypePlugins: [rehypeKatex],
     shikiConfig: {
       // Choose from Shiki's built-in themes (or add your own)

@@ -32,3 +32,5 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+*.tex

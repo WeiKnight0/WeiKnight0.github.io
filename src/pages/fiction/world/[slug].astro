@@ -33,4 +33,68 @@ const { Content } = await item.render();
     content: none !important;
     display: none !important;
   }
+
+  .world-prose :global(.env) {
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    margin: 1.25rem 0;
+    border-left-width: 4px;
+    border-left-style: solid;
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  .world-prose :global(.env .env-title) {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    font-size: 1.05em;
+  }
+
+  .world-prose :global(.env.definition) {
+    border-left-color: #60a5fa;
+    background: rgba(59, 130, 246, 0.06);
+  }
+  .world-prose :global(.env.definition .env-title) { color: #93c5fd; }
+
+  .world-prose :global(.env.theorem) {
+    border-left-color: #fbbf24;
+    background: rgba(251, 191, 36, 0.06);
+  }
+  .world-prose :global(.env.theorem .env-title) { color: #fde68a; }
+
+  .world-prose :global(.env.proof) {
+    border-left-color: #9ca3af;
+    background: rgba(156, 163, 175, 0.06);
+    font-style: italic;
+  }
+  .world-prose :global(.env.proof .env-title) { color: #d1d5db; }
+
+  .world-prose :global(.env.example) {
+    border-left-color: #34d399;
+    background: rgba(52, 211, 153, 0.06);
+  }
+  .world-prose :global(.env.example .env-title) { color: #6ee7b7; }
+
+  .world-prose :global(.env.remark) {
+    border-left-color: #c084fc;
+    background: rgba(192, 132, 252, 0.06);
+  }
+  .world-prose :global(.env.remark .env-title) { color: #d8b4fe; }
+
+  .world-prose :global(.env.axiom) {
+    border-left-color: #f87171;
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .world-prose :global(.env.axiom .env-title) { color: #fca5a5; }
+
+  .world-prose :global(.env.corollary) {
+    border-left-color: #fb923c;
+    background: rgba(251, 146, 60, 0.06);
+  }
+  .world-prose :global(.env.corollary .env-title) { color: #fed7aa; }
+
+  .world-prose :global(.env.lemma) {
+    border-left-color: #a78bfa;
+    background: rgba(167, 139, 250, 0.06);
+  }
+  .world-prose :global(.env.lemma .env-title) { color: #c4b5fd; }
 </style>
