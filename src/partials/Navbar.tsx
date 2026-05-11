@@ -4,6 +4,7 @@ import {
   getLanguagePath,
   getLocalizedPath,
   i18n,
+  localeLabels,
   locales,
 } from '@/utils/i18n';
 import { Profile } from '@/utils/Profile';
@@ -23,11 +24,6 @@ const fictionLinks = [
   { href: '/fiction/novels/', label: 'Stories' },
   { href: '/fiction/commissions/', label: 'Commissions' },
 ];
-
-const languageLabels: Record<Locale, string> = {
-  en: 'English',
-  'zh-cn': '简体中文',
-};
 
 const dropdownScript = `
 (() => {
@@ -158,7 +154,7 @@ const LanguageGroup = ({
           data-target-locale={targetLocale}
           className="rounded-xl px-3 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white aria-[current=page]:bg-white/10 aria-[current=page]:text-white"
         >
-          {languageLabels[targetLocale]}
+          {localeLabels[targetLocale]}
         </a>
       ))}
     </div>
@@ -194,7 +190,7 @@ const MobileLanguageGroup = ({
           data-target-locale={targetLocale}
           className="rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-white/10 aria-[current=page]:bg-white/10 aria-[current=page]:text-white"
         >
-          {languageLabels[targetLocale]}
+          {localeLabels[targetLocale]}
         </a>
       ))}
     </div>

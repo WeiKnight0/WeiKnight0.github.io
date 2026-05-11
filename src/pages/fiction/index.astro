@@ -12,46 +12,60 @@ import FictionPage from '@/templates/FictionPage.astro';
     >
       <div>
         <p
-          class='mb-6 text-sm font-black uppercase tracking-[0.28em] md:text-base text-fiction-gold'
+          data-page-i18n='fiction.kicker'
+          class='mb-6 text-sm font-black uppercase tracking-[0.28em] text-fiction-gold md:text-base'
         >
           Nijigen / story archive
         </p>
         <h1
+          data-page-i18n='fiction.heading'
           class='font-fiction text-5xl font-black leading-[0.92] tracking-[-0.05em] text-fiction-ink md:text-7xl'
         >
           Where characters breathe, worlds branch, and stories wait.
         </h1>
-        <p class='mt-8 max-w-3xl text-lg leading-8 text-fuchsia-100/70'>
-          Original characters, worldbuilding, stories, and commissioned artwork &mdash;
-          arranged like an archive launcher.
+        <p
+          data-page-i18n='fiction.description'
+          class='mt-8 max-w-3xl text-lg leading-8 text-fuchsia-100/70'
+        >
+          Original characters, worldbuilding, stories, and commissioned artwork
+          &mdash; arranged like an archive launcher.
         </p>
       </div>
       <div
         class='rounded-[2rem] border border-fiction-gold/30 bg-white/5 p-6 shadow-2xl shadow-black/30'
       >
         <p
-          class='text-sm font-black uppercase tracking-[0.22em] md:text-base text-fiction-gold'
+          data-page-i18n='fiction.menu'
+          class='text-sm font-black uppercase tracking-[0.22em] text-fiction-gold md:text-base'
         >
           Archive menu
         </p>
         <div class='mt-6 grid gap-3'>
           <a
             class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
+            data-page-href='oc'
+            data-page-i18n='fiction.ocs'
             href='/fiction/oc/'
             >OCs
           </a>
           <a
             class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
+            data-page-href='world'
+            data-page-i18n='fiction.world'
             href='/fiction/world/'
             >Worldbuilding
           </a>
           <a
             class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
+            data-page-href='novels'
+            data-page-i18n='fiction.stories'
             href='/fiction/novels/'
             >Stories
           </a>
           <a
             class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
+            data-page-href='commissions'
+            data-page-i18n='fiction.commissions'
             href='/fiction/commissions/'
             >Commissions
           </a>

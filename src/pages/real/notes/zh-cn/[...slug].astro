@@ -21,7 +21,7 @@ const description = note.data.description ?? note.data.title;
 const notePath = getNotePath(note.id);
 const pathParts = notePath.split('/');
 const parentSlug = pathParts.slice(0, -1).join('/');
-const backHref = parentSlug ? `/zh-cn/real/notes/${parentSlug}/` : '/zh-cn/real/notes/';
+const backHref = parentSlug ? `/real/notes/zh-cn/${parentSlug}/` : '/real/notes/zh-cn/';
 const backLabel = parentSlug ? 'Parent Directory' : 'Notes Directory';
 ---
 

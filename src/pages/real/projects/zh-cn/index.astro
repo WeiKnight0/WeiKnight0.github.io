@@ -27,7 +27,7 @@ const projects = (await getCollection('projects')).sort(
     <div class='mt-14 grid gap-5 md:grid-cols-3'>
       {projects.map((project) => (
         <a
-          href={`/zh-cn/real/projects/${project.slug}/`}
+          href={`/real/projects/zh-cn/${project.slug}/`}
           class="rounded-3xl border border-white/10 bg-white/[0.04] p-7 transition hover:border-cyan-300/40 hover:bg-white/[0.07]"
         >
           <h2 class="text-2xl font-black leading-tight text-white">{project.data.title}</h2>

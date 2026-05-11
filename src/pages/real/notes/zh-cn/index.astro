@@ -32,7 +32,7 @@ const subjectNames = Object.keys(subjects).sort((a, b) =>
   <ul>
     {subjectNames.map((subject) => (
       <li>
-        <a href={`/zh-cn/real/notes/${subject}/`}>{formatSubjectName(subject)}</a>
+        <a href={`/real/notes/zh-cn/${subject}/`}>{formatSubjectName(subject)}</a>
       </li>
     ))}
   </ul>
@@ -41,7 +41,7 @@ const subjectNames = Object.keys(subjects).sort((a, b) =>
   <ul>
     {topLevelNotes.map((note) => (
       <li>
-        <a href={`/zh-cn/real/notes/${getNotePath(note.id)}/`}>{note.data.title}</a>
+        <a href={`/real/notes/zh-cn/${getNotePath(note.id)}/`}>{note.data.title}</a>
       </li>
     ))}
   </ul>

@@ -1,6 +1,15 @@
 ---
+import {
+  type Locale,
+  defaultLocale,
+  getAbsoluteUrl,
+  getAlternateLocalePaths,
+  getLocaleFromPath,
+  getLocalizedPath,
+  htmlLangs,
+  locales,
+} from '@/utils/i18n';
 import { Profile } from '@/utils/Profile';
-import { defaultLocale, type Locale } from '@/utils/i18n';
 
 export interface Props {
   title: string;
@@ -20,39 +29,61 @@ const {
   date,
   tags = [],
   lang,
-  locale = defaultLocale,
+  locale: explicitLocale,
   backHref = '/real/notes/',
   backLabel = 'Return to Notes',
   showBackLink = true,
 } = Astro.props as Props;
 
-const dateFormatter = new Intl.DateTimeFormat(locale === 'zh-cn' ? 'zh-CN' : 'en', {
-  dateStyle: 'long',
-});
+const locale =
+  explicitLocale ?? getLocaleFromPath(Astro.url.pathname) ?? defaultLocale;
+const alternatePaths = getAlternateLocalePaths(Astro.url.pathname);
+const canonicalPath = alternatePaths[locale];
 
-const languageLabel =
-  lang === 'en'
-    ? 'Language: English'
-    : lang === 'zh-cn'
-      ? 'Language: 简体中文'
-      : lang === 'zh-tw'
-        ? 'Language: 繁體中文'
-        : lang === 'zh-hk'
-          ? 'Language: 繁體中文(香港)'
-           : 'Language: Other Language';
+const dateFormatter = new Intl.DateTimeFormat(
+  locale === 'zh-cn' ? 'zh-CN' : 'en',
+  {
+    dateStyle: 'long',
+  }
+);
 
-const homeHref = locale === 'zh-cn' ? '/zh-cn/' : '/';
+const noteLanguageLabels: Record<string, string> = {
+  en: 'Language: English',
+  'zh-cn': 'Language: 简体中文',
+  'zh-tw': 'Language: 繁體中文',
+  'zh-hk': 'Language: 繁體中文(香港)',
+};
+const languageLabel = lang
+  ? noteLanguageLabels[lang] ?? 'Language: Other Language'
+  : 'Language: Other Language';
+
+const homeHref = getLocalizedPath('/', locale);
 const homeLabel = 'Return to HomePage';
-const realHref = locale === 'zh-cn' ? '/zh-cn/real/' : '/real/';
+const realHref = getLocalizedPath('/real/', locale);
 const realLabel = 'Return to Real';
+const noteLocalePrefix =
+  locale === 'zh-cn' ? '/real/notes/zh-cn' : '/real/notes';
 ---
 
-<html lang={locale === 'zh-cn' ? 'zh-CN' : 'en'}>
+<html lang={htmlLangs[locale]}>
   <head>
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
     <title>{title} | Notes | My Homepage</title>
     <meta name='description' content={description} />
+    <link rel='canonical' href={getAbsoluteUrl(Astro.site, canonicalPath)} />
+    {locales.map((alternateLocale) => (
+      <link
+        rel="alternate"
+        hreflang={htmlLangs[alternateLocale]}
+        href={getAbsoluteUrl(Astro.site, alternatePaths[alternateLocale])}
+      />
+    ))}
+    <link
+      rel='alternate'
+      hreflang='x-default'
+      href={getAbsoluteUrl(Astro.site, alternatePaths.en)}
+    />
     <link rel='icon' href='/favicon.ico' />
     <link
       rel='stylesheet'
@@ -86,8 +117,8 @@ const realLabel = 'Return to Real';
         </div>
         <nav class='navbar-actions' aria-label='Notes navigation'>
           {showBackLink && (
-            <a class='nav-link' href={backHref} title={backLabel}>
-              <i class='fas fa-level-up-alt'></i>
+            <a class="nav-link" href={backHref} title={backLabel}>
+              <i class="fas fa-level-up-alt" />
               <span>{backLabel}</span>
             </a>
           )}
@@ -105,12 +136,16 @@ const realLabel = 'Return to Real';
         <div class='chapter-meta'>
           <span class='chapter-date'>
             <i class='far fa-calendar-alt'></i>
-            <time datetime={date.toISOString()}>{dateFormatter.format(date)}</time>
+            <time datetime={date.toISOString()}
+              >{dateFormatter.format(date)}
+            </time>
           </span>
           <span class='chapter-lang'>{languageLabel}</span>
           {tags.length > 0 && (
-            <div class='chapter-tags'>
-              {tags.map((tag) => <span class='tag'>{tag}</span>)}
+            <div class="chapter-tags">
+              {tags.map((tag) => (
+                <span class="tag">{tag}</span>
+              ))}
             </div>
           )}
         </div>
@@ -120,7 +155,7 @@ const realLabel = 'Return to Real';
     <main class='content-section'>
       <article class='chapter-content'>
         <div class='note-body'>
-        <slot />
+          <slot></slot>
         </div>
       </article>
       <div class='note-tools'>
@@ -139,13 +174,19 @@ const realLabel = 'Return to Real';
       <div class='footer-content'>
         <p>© 2025 WeiKnight. All Rights Reserved.</p>
         <div class='footer-links'>
-          <a href={`${locale === 'zh-cn' ? '/zh-cn' : ''}/real/notes/about/`} target='_blank'>About</a>
-          <a href={`${locale === 'zh-cn' ? '/zh-cn' : ''}/real/notes/terms/`} target='_blank'>Terms of Use</a>
-          <a href={`${locale === 'zh-cn' ? '/zh-cn' : ''}/real/notes/privacy/`} target='_blank'>Privacy Policy</a>
+          <a href={`${noteLocalePrefix}/about/`} target='_blank'>About</a>
+          <a href={`${noteLocalePrefix}/terms/`} target='_blank'
+            >Terms of Use
+          </a>
+          <a href={`${noteLocalePrefix}/privacy/`} target='_blank'
+            >Privacy Policy
+          </a>
         </div>
       </div>
     </footer>
 
-    <script src='/js/note.js' is:inline></script>
+    <script src='/js/note.js' is:inline>
+
+    </script>
   </body>
 </html>

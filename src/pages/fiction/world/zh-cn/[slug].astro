@@ -4,8 +4,8 @@ import { getCollection } from 'astro:content';
 import FictionPage from '@/templates/FictionPage.astro';
 
 export async function getStaticPaths() {
-  const items = (await getCollection('world')).filter(
-    (item) => item.slug.startsWith('zh-cn/')
+  const items = (await getCollection('world')).filter((item) =>
+    item.slug.startsWith('zh-cn/')
   );
 
   return items.map((item) => ({
@@ -25,7 +25,7 @@ const { Content } = await item.render();
 >
   <article class='mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:px-8'>
     <a
-      href='/zh-cn/fiction/world/'
+      href='/fiction/world/zh-cn/'
       class='text-base font-bold text-fiction-gold transition hover:text-fiction-ink'
       >← 返回世界观</a
     >

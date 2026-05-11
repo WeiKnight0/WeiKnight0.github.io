@@ -1,10 +1,20 @@
 ---
+import 'katex/dist/katex.min.css';
+
+import ClientI18n from '@/partials/ClientI18n.astro';
 import { Footer } from '@/partials/Footer';
-import HomeI18n from '@/partials/HomeI18n.astro';
 import { Navbar } from '@/partials/Navbar';
 import { AppConfig } from '@/utils/AppConfig';
-import { defaultLocale, type Locale } from '@/utils/i18n';
-import 'katex/dist/katex.min.css';
+import {
+  type Locale,
+  defaultLocale,
+  getAbsoluteUrl,
+  getAlternateLocalePaths,
+  getLocaleFromPath,
+  hasDistinctLocalePaths,
+  htmlLangs,
+  locales,
+} from '@/utils/i18n';
 
 export interface Props {
   head: {
@@ -18,17 +28,37 @@ export interface Props {
 const {
   head: { title, description },
   theme = 'home',
-  locale = defaultLocale,
+  locale: explicitLocale,
 } = Astro.props as Props;
+
+const locale =
+  explicitLocale ?? getLocaleFromPath(Astro.url.pathname) ?? defaultLocale;
+const alternatePaths = getAlternateLocalePaths(Astro.url.pathname);
+const canonicalPath = alternatePaths[locale];
+const hasAlternates = hasDistinctLocalePaths(Astro.url.pathname);
 ---
 
-<html lang={locale === 'zh-cn' ? 'zh-CN' : 'en'}>
+<html lang={htmlLangs[locale]}>
   <head>
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
     <title>{title}</title>
     <meta name='description' content={description} />
     <meta name='author' content={AppConfig.author} />
+    <link rel='canonical' href={getAbsoluteUrl(Astro.site, canonicalPath)} />
+    {hasAlternates &&
+      locales.map((alternateLocale) => (
+        <link
+          rel="alternate"
+          hreflang={htmlLangs[alternateLocale]}
+          href={getAbsoluteUrl(Astro.site, alternatePaths[alternateLocale])}
+        />
+      ))}
+    <link
+      rel='alternate'
+      hreflang='x-default'
+      href={getAbsoluteUrl(Astro.site, alternatePaths.en)}
+    />
 
     <link rel='alternate' type='application/rss+xml' href='/rss.xml' />
     <link rel='icon' type='image/x-icon' href='/favicon.ico' />
@@ -44,6 +74,6 @@ const {
 
     <Footer locale={locale} />
 
-    {theme === 'home' && <HomeI18n />}
+    <ClientI18n />
   </body>
 </html>

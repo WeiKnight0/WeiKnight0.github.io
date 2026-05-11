@@ -1,0 +1,392 @@
+<script>
+  const siteI18n = {
+    en: {
+      htmlLang: 'en',
+      nav: {
+        home: 'Home',
+        real: 'Real',
+        fiction: 'Fiction',
+        language: 'Language',
+      },
+      footer: {
+        builtWith: 'Built with Astro, React and Tailwind CSS.',
+        designedFor: 'Designed for real-world portfolio and fictional archive.',
+      },
+      pages: {
+        '/': {
+          title: 'WEIKNIGHT | Homepage',
+          description:
+            'Personal homepage for real-world portfolio and fictional archives.',
+          text: {
+            'hero.subtitle':
+              'Between <span class="font-readable-mono text-cyan-300">code archives</span> and <span class="font-fiction text-fuchsia-300">fictional worlds</span>, one who travels both paths.',
+            'hero.real': 'Enter Real',
+            'hero.fiction': 'Enter Fiction',
+            'about.eyebrow': 'About me',
+            'about.description':
+              'A Wolf Programmer from China. Based in Nanjing, Jiangsu Province, China. Currently studying at Southeast University, China.',
+            'real.eyebrow': 'A / Real side',
+            'real.title': 'Projects, resume, and learning notes',
+            'real.description':
+              'Where ideas become systems, shipped projects, and technical writing.',
+            'real.tags': 'Resume,Projects,Notes,Blogs',
+            'fiction.eyebrow': 'B / Fiction side',
+            'fiction.title': 'Characters, worlds, and story archives',
+            'fiction.description':
+              'Original characters, worldbuilding, stories, and commissioned artwork.',
+            'fiction.tags': 'OC,World,Story,Gallery',
+          },
+          links: {
+            home: '/',
+            real: '/real/',
+            fiction: '/fiction/',
+          },
+        },
+        '/real/': {
+          title: 'Real | My Homepage',
+          description: 'Portfolio, resume, projects, notes, and blogs.',
+          text: {
+            'real.kicker': 'Sanjigen / real-world interface',
+            'real.heading': 'Code, systems, and the work that ships.',
+            'real.description':
+              'A Wolf Programmer from China. The sanjigen side holds profile, resume, projects, study notes, and technical writing.',
+            'real.github': 'View GitHub',
+            'real.sections': 'Sections',
+            'real.resume': 'Resume',
+            'real.projects': 'Projects',
+            'real.notes': 'Notes',
+            'real.blogs': 'Blogs',
+            'real.featured': 'Featured repositories',
+          },
+          links: {
+            resume: '/real/resume/',
+            projects: '/real/projects/',
+            notes: '/real/notes/',
+            blogs: '/real/blog/',
+          },
+        },
+        '/real/blog/': {
+          title: 'Blogs | My Homepage',
+          description: 'Blog posts and long-term records.',
+          text: {
+            'blog.kicker': 'Blogs',
+            'blog.heading': 'Blogs',
+            'blog.tags': 'Browse tags',
+          },
+          links: {
+            tags: '/real/blog/tags/',
+            post: '/real/blog/',
+          },
+        },
+        '/fiction/': {
+          title: 'Fiction | My Homepage',
+          description:
+            'Original characters, worldbuilding, stories, and commissions.',
+          text: {
+            'fiction.kicker': 'Nijigen / story archive',
+            'fiction.heading':
+              'Where characters breathe, worlds branch, and stories wait.',
+            'fiction.description':
+              'Original characters, worldbuilding, stories, and commissioned artwork - arranged like an archive launcher.',
+            'fiction.menu': 'Archive menu',
+            'fiction.ocs': 'OCs',
+            'fiction.world': 'Worldbuilding',
+            'fiction.stories': 'Stories',
+            'fiction.commissions': 'Commissions',
+          },
+          links: {
+            oc: '/fiction/oc/',
+            world: '/fiction/world/',
+            novels: '/fiction/novels/',
+            commissions: '/fiction/commissions/',
+          },
+        },
+        '/fiction/novels/': {
+          title: 'Stories | My Homepage',
+          description: 'Stories and narrative chapters.',
+          text: {
+            'novels.kicker': 'Stories',
+            'novels.heading': 'Stories',
+            'novels.chapter': 'Chapter',
+          },
+          links: {
+            chapter: '/fiction/novels/',
+          },
+        },
+        '/fiction/commissions/': {
+          title: 'Commissions | My Homepage',
+          description: 'Commission gallery.',
+          text: {
+            'commissions.kicker': 'Commissions',
+            'commissions.heading': 'Commissions',
+            'commissions.description':
+              'A direct gallery for commissioned artwork. Add images to <code class="rounded bg-black/20 px-2 py-1 text-fiction-gold">public/fiction/commissions/</code> to show them here.',
+            'commissions.empty':
+              'No commission images yet. Put image files in <code class="rounded bg-black/20 px-2 py-1 text-fiction-gold">public/fiction/commissions/</code>.',
+          },
+          links: {},
+        },
+      },
+    },
+    'zh-cn': {
+      htmlLang: 'zh-CN',
+      nav: {
+        home: '首页',
+        real: '三次元',
+        fiction: '二次元',
+        language: '语言',
+      },
+      footer: {
+        builtWith: '使用 Astro、React 与 Tailwind CSS 构建。',
+        designedFor: '为现实作品集与幻想档案而设计。',
+      },
+      pages: {
+        '/': {
+          title: 'WEIKNIGHT | 个人主页',
+          description: 'WEIKNIGHT 的个人主页，记录现实技术与幻想档案。',
+          text: {
+            'hero.subtitle':
+              '在 <span class="font-readable-mono text-cyan-300">代码档案</span> 与 <span class="font-fiction text-fuchsia-300">幻想世界</span> 之间往返的旅人。',
+            'hero.real': '进入现实侧',
+            'hero.fiction': '进入幻想侧',
+            'about.eyebrow': '关于我',
+            'about.description':
+              '来自中国的狼程序员。现居中国江苏南京，就读于中国东南大学。',
+            'real.eyebrow': 'A / 现实侧',
+            'real.title': '项目、简历与学习笔记',
+            'real.description': '让想法变成系统、作品与可交付的技术痕迹。',
+            'real.tags': '简历,项目,笔记,博客',
+            'fiction.eyebrow': 'B / 幻想侧',
+            'fiction.title': '角色、世界观与故事档案',
+            'fiction.description': '原创角色、世界观设定、故事章节与委托图像。',
+            'fiction.tags': 'OC,世界观,故事,画廊',
+          },
+          links: {
+            home: '/',
+            real: '/real/',
+            fiction: '/fiction/',
+          },
+        },
+        '/real/': {
+          title: '现实侧 | 个人主页',
+          description: '作品集、简历、项目、笔记与博客。',
+          text: {
+            'real.kicker': '三次元 / 现实界面',
+            'real.heading': '代码、系统与正在落地的作品。',
+            'real.description':
+              '来自中国的狼程序员。这里记录那些离开脑内剧场、落到现实世界的部分：简历、项目、笔记与技术文章。',
+            'real.github': '查看 GitHub',
+            'real.sections': '分区',
+            'real.resume': '简历',
+            'real.projects': '项目',
+            'real.notes': '笔记',
+            'real.blogs': '博客',
+            'real.featured': '精选仓库',
+          },
+          links: {
+            resume: '/real/resume/zh-cn/',
+            projects: '/real/projects/zh-cn/',
+            notes: '/real/notes/zh-cn/',
+            blogs: '/real/blog/',
+          },
+        },
+        '/real/blog/': {
+          title: '博客 | 个人主页',
+          description: '博客文章与长期记录。',
+          text: {
+            'blog.kicker': 'Blog',
+            'blog.heading': '博客',
+            'blog.tags': '浏览标签',
+          },
+          links: {
+            tags: '/real/blog/tags/',
+            post: '/real/blog/',
+          },
+        },
+        '/fiction/': {
+          title: '幻想侧 | 个人主页',
+          description: '原创角色、世界观、故事与委托作品档案。',
+          text: {
+            'fiction.kicker': '二次元 / 物语档案',
+            'fiction.heading': '角色在此呼吸，世界在此分岔，故事在此等待。',
+            'fiction.description':
+              '原创角色、世界观、故事章节与委托图像，以档案的方式陈列。',
+            'fiction.menu': '档案菜单',
+            'fiction.ocs': 'OCs',
+            'fiction.world': '世界观',
+            'fiction.stories': '故事',
+            'fiction.commissions': '委托作品',
+          },
+          links: {
+            oc: '/fiction/oc/zh-cn/',
+            world: '/fiction/world/zh-cn/',
+            novels: '/fiction/novels/',
+            commissions: '/fiction/commissions/',
+          },
+        },
+        '/fiction/novels/': {
+          title: '故事 | 个人主页',
+          description: '故事与剧情章节。',
+          text: {
+            'novels.kicker': 'Stories',
+            'novels.heading': '故事',
+            'novels.chapter': '第',
+          },
+          links: {
+            chapter: '/fiction/novels/',
+          },
+        },
+        '/fiction/commissions/': {
+          title: '委托作品 | 个人主页',
+          description: '委托图像画廊。',
+          text: {
+            'commissions.kicker': 'Commissions',
+            'commissions.heading': '委托作品',
+            'commissions.description':
+              '这里直接展示委托图片。把图片放到 <code class="rounded bg-black/20 px-2 py-1 text-fiction-gold">public/fiction/commissions/</code> 后会自动显示在这里。',
+            'commissions.empty':
+              '还没有委托图片。请把图片文件放到 <code class="rounded bg-black/20 px-2 py-1 text-fiction-gold">public/fiction/commissions/</code>。',
+          },
+          links: {},
+        },
+      },
+    },
+  };
+
+  const storageKey = 'site-locale';
+  const clientPaths = new Set(Object.keys(siteI18n.en.pages));
+  const normalizePath = (path) => {
+    const pathOnly = path.split(/[?#]/)[0] || '/';
+    const withLeadingSlash = pathOnly.startsWith('/')
+      ? pathOnly
+      : `/${pathOnly}`;
+    return withLeadingSlash.endsWith('/')
+      ? withLeadingSlash
+      : `${withLeadingSlash}/`;
+  };
+  const getPageConfig = (locale) =>
+    siteI18n[locale]?.pages[normalizePath(window.location.pathname)];
+  const getStoredLocale = () => {
+    const storedLocale = localStorage.getItem(storageKey);
+    return storedLocale === 'zh-cn' ? 'zh-cn' : 'en';
+  };
+  const renderTags = (element, tags) => {
+    element.replaceChildren(
+      ...tags.split(',').map((tag) => {
+        const item = document.createElement('span');
+        item.className = element.dataset.tagClass || '';
+        item.textContent = tag;
+        return item;
+      })
+    );
+  };
+  const renderChapterPrefix = (element, value) => {
+    const order = element.getAttribute('data-page-i18n-order');
+    element.textContent =
+      value === '第' ? `${value} ${order} 章` : `${value} ${order}`;
+  };
+  const setHrefPrefix = (element, prefix) => {
+    const slug = element.getAttribute('data-page-href-slug') || '';
+    element.setAttribute('href', `${prefix}${slug}`);
+  };
+  const applyLocale = (locale) => {
+    const dictionary = siteI18n[locale];
+    const page = getPageConfig(locale);
+    if (!dictionary || !page) return;
+
+    document.documentElement.lang = dictionary.htmlLang;
+    document.title = page.title;
+
+    const description = document.querySelector('meta[name="description"]');
+    if (description) description.setAttribute('content', page.description);
+
+    document
+      .querySelectorAll('[data-home-i18n], [data-page-i18n]')
+      .forEach((element) => {
+        const key =
+          element.getAttribute('data-page-i18n') ||
+          element.getAttribute('data-home-i18n');
+        const value =
+          page.text[key] || dictionary.nav[key?.replace('nav.', '')];
+        if (!key || !value) return;
+
+        if (
+          element.hasAttribute('data-page-i18n-html') ||
+          element.hasAttribute('data-home-i18n-html')
+        ) {
+          element.innerHTML = value;
+          return;
+        }
+
+        if (
+          element.hasAttribute('data-page-i18n-tags') ||
+          element.hasAttribute('data-home-i18n-tags')
+        ) {
+          renderTags(element, value);
+          return;
+        }
+
+        if (element.hasAttribute('data-page-i18n-order')) {
+          renderChapterPrefix(element, value);
+          return;
+        }
+
+        element.textContent = value;
+      });
+
+    document.querySelectorAll('[data-footer-i18n]').forEach((element) => {
+      const key = element.getAttribute('data-footer-i18n');
+      const value = dictionary.footer[key];
+      if (value) element.textContent = value;
+    });
+
+    document
+      .querySelectorAll('[data-home-link], [data-page-href]')
+      .forEach((element) => {
+        const key =
+          element.getAttribute('data-page-href') ||
+          element.getAttribute('data-home-link');
+        const href = page.links[key];
+        if (href) element.setAttribute('href', href);
+      });
+
+    document.querySelectorAll('[data-page-href-prefix]').forEach((element) => {
+      const key = element.getAttribute('data-page-href-prefix');
+      const href = page.links[key];
+      if (href) setHrefPrefix(element, href);
+    });
+
+    document.querySelectorAll('[data-language-link]').forEach((element) => {
+      const targetLocale = element.getAttribute('data-target-locale');
+      if (targetLocale === locale) {
+        element.setAttribute('aria-current', 'page');
+        return;
+      }
+      element.removeAttribute('aria-current');
+    });
+  };
+  const setupClientI18n = () => {
+    const pathname = normalizePath(window.location.pathname);
+    if (!clientPaths.has(pathname)) return;
+
+    applyLocale(getStoredLocale());
+
+    document.querySelectorAll('[data-language-link]').forEach((link) => {
+      if (link.dataset.clientI18nReady === 'true') return;
+      link.dataset.clientI18nReady = 'true';
+      link.addEventListener('click', (event) => {
+        if (!clientPaths.has(normalizePath(window.location.pathname))) return;
+
+        const targetLocale = link.getAttribute('data-target-locale');
+        if (!targetLocale || !siteI18n[targetLocale]) return;
+
+        event.preventDefault();
+        localStorage.setItem(storageKey, targetLocale);
+        applyLocale(targetLocale);
+      });
+    });
+  };
+
+  setupClientI18n();
+  document.addEventListener('astro:page-load', setupClientI18n);
+</script>

@@ -9,24 +9,30 @@ import { Profile } from '@/utils/Profile';
 >
   <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
     <p
-      class='mb-6 text-sm font-black uppercase tracking-[0.28em] md:text-base text-cyan-300'
+      data-page-i18n='real.kicker'
+      class='mb-6 text-sm font-black uppercase tracking-[0.28em] text-cyan-300 md:text-base'
     >
       Sanjigen / real-world interface
     </p>
     <div class='grid gap-12 lg:grid-cols-[1fr_360px]'>
       <div>
         <h1
+          data-page-i18n='real.heading'
           class='max-w-5xl text-5xl font-black leading-[0.92] tracking-[-0.06em] text-white md:text-7xl'
         >
           Code, systems, and the work that ships.
         </h1>
-        <p class='mt-8 max-w-3xl text-lg leading-8 text-slate-400'>
+        <p
+          data-page-i18n='real.description'
+          class='mt-8 max-w-3xl text-lg leading-8 text-slate-400'
+        >
           {Profile.tagline}. The sanjigen side holds profile, resume, projects,
           study notes, and technical writing.
         </p>
         <div class='mt-10 flex flex-wrap gap-3'>
           <a
             href={Profile.github}
+            data-page-i18n='real.github'
             class='rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-cyan-200'
             >View GitHub
           </a>
@@ -54,25 +60,38 @@ import { Profile } from '@/utils/Profile';
             </span>
           ))}
         </div>
-        <h2 class='mt-8 text-xl font-black text-white'>Sections</h2>
+        <h2
+          data-page-i18n='real.sections'
+          class='mt-8 text-xl font-black text-white'
+        >
+          Sections
+        </h2>
         <div class='mt-6 grid gap-3 text-sm font-semibold text-slate-300'>
           <a
             class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
+            data-page-href='resume'
+            data-page-i18n='real.resume'
             href='/real/resume/'
             >Resume
           </a>
           <a
             class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
+            data-page-href='projects'
+            data-page-i18n='real.projects'
             href='/real/projects/'
             >Projects
           </a>
           <a
             class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
+            data-page-href='notes'
+            data-page-i18n='real.notes'
             href='/real/notes/'
             >Notes
           </a>
           <a
             class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
+            data-page-href='blogs'
+            data-page-i18n='real.blogs'
             href='/real/blog/'
             >Blogs
           </a>
@@ -83,7 +102,8 @@ import { Profile } from '@/utils/Profile';
 
   <section class='mx-auto max-w-7xl px-5 pb-24 lg:px-8'>
     <p
-      class='mb-6 text-sm font-black uppercase tracking-[0.28em] md:text-base text-cyan-300'
+      data-page-i18n='real.featured'
+      class='mb-6 text-sm font-black uppercase tracking-[0.28em] text-cyan-300 md:text-base'
     >
       Featured repositories
     </p>

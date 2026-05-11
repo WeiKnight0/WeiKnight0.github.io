@@ -16,7 +16,7 @@ export default defineConfig({
   site: 'https://weiknight0.github.io/', // Use to generate your sitemap and canonical URLs in your final build.
   trailingSlash: 'ignore', // Allow both slash and non-slash URLs
   markdown: {
-    remarkPlugins: [remarkMath, remarkOcNames, remarkEnv, remarkNoteLinks, remarkCodeLanguageMarker],
+    remarkPlugins: [remarkEnv, remarkMath, remarkOcNames, remarkNoteLinks, remarkCodeLanguageMarker],
     rehypePlugins: [rehypeKatex],
     shikiConfig: {
       // Choose from Shiki's built-in themes (or add your own)
