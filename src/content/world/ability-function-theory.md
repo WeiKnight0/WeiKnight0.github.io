@@ -2,6 +2,8 @@
 title: 能力函数理论
 description: 角色能力的数学抽象，涵盖能力函数定义、符咒与向量微分符咒。
 order: 2
+lang: zh-cn
+category: theory
 ---
 
 能力函数是二次元世界中角色能力的数学抽象，是理解和设计角色能力的基础。

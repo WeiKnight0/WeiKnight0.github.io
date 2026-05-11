@@ -45,6 +45,11 @@ export const collections = {
   }),
   notes: defineCollection({ schema: noteItem }),
   blog: defineCollection({ schema: datedItem }),
-  world: defineCollection({ schema: orderedItem }),
+  world: defineCollection({
+    schema: orderedItem.extend({
+      lang: z.enum(['zh-cn', 'en']).default('zh-cn'),
+      category: z.enum(['theory', 'setting']),
+    }),
+  }),
   novels: defineCollection({ schema: orderedItem }),
 };
