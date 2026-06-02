@@ -61,61 +61,31 @@ const LinkGroup = ({
   label,
   labelKey,
   links,
+  themeClass,
 }: {
   label: string;
   labelKey: string;
   links: typeof realLinks;
+  themeClass: string;
 }) => (
   <details
     className="group relative"
     data-dropdown
     data-dropdown-group="desktop-nav-dropdown"
   >
-    <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white">
+    <summary className={`flex cursor-pointer list-none items-center gap-2 px-4 py-2 text-sm font-semibold transition-colors ${themeClass}`}>
       <span data-home-i18n={labelKey}>{label}</span>
-      <span className="text-xs text-slate-500 transition group-open:rotate-180">
+      <span className="text-xs transition-transform group-open:rotate-180 opacity-50">
         ⌄
       </span>
     </summary>
-    <div className="nav-dropdown-panel absolute right-0 top-12 z-30 grid w-48 gap-1 rounded-2xl border border-white/10 bg-slate-950/95 p-2 shadow-2xl shadow-black/40 backdrop-blur">
+    <div className="nav-dropdown-panel absolute left-0 top-full mt-2 z-30 grid w-48 gap-1 border border-white/10 bg-black/90 p-2 shadow-2xl backdrop-blur-md">
       {links.map((link) => (
         <a
           key={link.href}
           href={link.href}
           data-localized-path={link.href}
-          className="rounded-xl px-3 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white"
-        >
-          {link.label}
-        </a>
-      ))}
-    </div>
-  </details>
-);
-
-const MobileGroup = ({
-  label,
-  labelKey,
-  links,
-}: {
-  label: string;
-  labelKey: string;
-  links: typeof realLinks;
-}) => (
-  <details
-    className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 md:hidden"
-    data-dropdown
-    data-dropdown-group="mobile-nav-dropdown"
-  >
-    <summary className="cursor-pointer list-none font-semibold text-white">
-      <span data-home-i18n={labelKey}>{label}</span>
-    </summary>
-    <div className="nav-dropdown-panel mt-3 grid gap-2">
-      {links.map((link) => (
-        <a
-          key={link.href}
-          href={link.href}
-          data-localized-path={link.href}
-          className="rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-white/10"
+          className={`px-3 py-2 text-sm transition-colors ${themeClass}`}
         >
           {link.label}
         </a>
@@ -140,13 +110,13 @@ const LanguageGroup = ({
     data-dropdown
     data-dropdown-group="desktop-nav-dropdown"
   >
-    <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-sm font-bold text-slate-300 transition hover:bg-white/10 hover:text-white">
+    <summary className="flex cursor-pointer list-none items-center gap-2 border border-white/10 px-3 py-1.5 text-xs font-bold text-white/50 transition hover:bg-white/10 hover:text-white uppercase tracking-widest">
       <span data-home-i18n={labelKey}>{label}</span>
-      <span className="text-xs text-slate-500 transition group-open:rotate-180">
-        ⌄
+      <span className="text-[10px] transition group-open:rotate-180">
+        ▼
       </span>
     </summary>
-    <div className="nav-dropdown-panel absolute right-0 top-12 z-30 grid w-40 gap-1 rounded-2xl border border-white/10 bg-slate-950/95 p-2 shadow-2xl shadow-black/40 backdrop-blur">
+    <div className="nav-dropdown-panel absolute right-0 top-full mt-2 z-30 grid w-32 gap-1 border border-white/10 bg-black/95 p-2 shadow-2xl backdrop-blur-md">
       {locales.map((targetLocale) => (
         <a
           key={targetLocale}
@@ -154,43 +124,7 @@ const LanguageGroup = ({
           aria-current={targetLocale === locale ? 'page' : undefined}
           data-language-link
           data-target-locale={targetLocale}
-          className="rounded-xl px-3 py-2 text-sm text-slate-300 transition hover:bg-white/10 hover:text-white aria-[current=page]:bg-white/10 aria-[current=page]:text-white"
-        >
-          {localeLabels[targetLocale]}
-        </a>
-      ))}
-    </div>
-  </details>
-);
-
-const MobileLanguageGroup = ({
-  label,
-  labelKey,
-  locale,
-  pathname,
-}: {
-  label: string;
-  labelKey: string;
-  locale: Locale;
-  pathname: string;
-}) => (
-  <details
-    className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 md:hidden"
-    data-dropdown
-    data-dropdown-group="mobile-nav-dropdown"
-  >
-    <summary className="cursor-pointer list-none font-semibold text-white">
-      <span data-home-i18n={labelKey}>{label}</span>
-    </summary>
-    <div className="nav-dropdown-panel mt-3 grid gap-2">
-      {locales.map((targetLocale) => (
-        <a
-          key={targetLocale}
-          href={getLanguagePath(pathname, targetLocale)}
-          aria-current={targetLocale === locale ? 'page' : undefined}
-          data-language-link
-          data-target-locale={targetLocale}
-          className="rounded-xl px-3 py-2 text-sm text-slate-300 hover:bg-white/10 aria-[current=page]:bg-white/10 aria-[current=page]:text-white"
+          className="px-3 py-2 text-xs text-white/60 transition hover:bg-white/10 hover:text-white aria-[current=page]:text-white aria-[current=page]:bg-white/5"
         >
           {localeLabels[targetLocale]}
         </a>
@@ -211,43 +145,56 @@ const Navbar = ({ locale, pathname }: { locale: Locale; pathname: string }) => {
   }));
   const homeHref = getLocalizedPath('/', locale);
 
+  const isReal = pathname.includes('/real');
+  const isFiction = pathname.includes('/fiction');
+
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur-lg">
       <nav
-        className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8"
+        className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3"
         aria-label="Primary navigation"
       >
-        <a href={homeHref} className="flex items-center gap-3">
+        <a href={homeHref} className="flex items-center gap-3 opacity-90 hover:opacity-100 transition-opacity">
+          {/* 头像保持原色，不加任何滤镜 */}
           <img
             src={Profile.avatar}
             alt={`${Profile.name} avatar`}
-            className="h-9 w-9 rounded-2xl border border-white/10"
+            className="h-9 w-9 border border-white/20 rounded-md"
           />
-          <span className="text-base font-black tracking-tight text-white">
-            WeiKnight's Homepage
-          </span>
+          <div className="flex flex-col">
+            <span className="text-sm font-bold tracking-tight text-white uppercase">
+              WeiKnight
+            </span>
+            <span className="text-[10px] text-white/40 tracking-widest uppercase font-real-mono">
+              {isReal ? 'System' : isFiction ? 'Archive' : 'Nexus'}
+            </span>
+          </div>
         </a>
 
-        <div className="hidden items-center gap-2 md:flex" data-dropdown-scope>
+        <div className="hidden items-center gap-4 md:flex" data-dropdown-scope>
           <a
             href={homeHref}
             data-home-link="home"
             data-home-i18n="nav.home"
             data-localized-path="/"
-            className="rounded-full px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
+            className="px-4 py-2 text-sm font-semibold text-white/60 transition hover:text-white uppercase tracking-wider"
           >
             {text.home}
           </a>
+          <div className="h-4 w-px bg-white/20"></div>
           <LinkGroup
             label={text.real}
             labelKey="nav.real"
             links={localizedRealLinks}
+            themeClass="font-real-mono text-white/70 hover:text-real-accent hover:bg-real-accent/10"
           />
           <LinkGroup
             label={text.fiction}
             labelKey="nav.fiction"
             links={localizedFictionLinks}
+            themeClass="font-fiction-serif text-white/70 hover:text-fiction-accent hover:bg-fiction-accent/10"
           />
+          <div className="h-4 w-px bg-white/20 ml-2 mr-2"></div>
           <LanguageGroup
             label={text.language}
             labelKey="nav.language"
@@ -256,56 +203,43 @@ const Navbar = ({ locale, pathname }: { locale: Locale; pathname: string }) => {
           />
         </div>
 
+        {/* Mobile menu */}
         <details className="md:hidden">
-          <summary className="cursor-pointer list-none rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white">
+          <summary className="cursor-pointer list-none border border-white/10 px-4 py-2 text-xs font-semibold text-white uppercase tracking-widest">
             Menu
           </summary>
           <div
-            className="absolute inset-x-4 top-16 grid gap-3 rounded-3xl border border-white/10 bg-slate-950/95 p-4 shadow-2xl shadow-black/40 backdrop-blur"
+            className="absolute left-0 right-0 top-full mt-1 border-b border-white/10 bg-black/95 p-4 shadow-2xl backdrop-blur-xl"
             data-dropdown-scope
           >
-            <a
-              href={homeHref}
-              data-home-link="home"
-              data-home-i18n="nav.home"
-              data-localized-path="/"
-              className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10"
-            >
-              {text.home}
-            </a>
-            <MobileGroup
-              label={text.real}
-              labelKey="nav.real"
-              links={localizedRealLinks}
-            />
-            <MobileGroup
-              label={text.fiction}
-              labelKey="nav.fiction"
-              links={localizedFictionLinks}
-            />
-            <MobileLanguageGroup
-              label={text.language}
-              labelKey="nav.language"
-              locale={locale}
-              pathname={pathname}
-            />
+            <div className="grid gap-4">
+              <a href={homeHref} className="text-white/80 font-bold uppercase tracking-widest text-sm py-2">{text.home}</a>
+              <div className="pl-4 border-l border-white/10 grid gap-2">
+                 <div className="text-real-accent text-xs font-real-mono mb-1">REAL_</div>
+                 {localizedRealLinks.map(l => <a key={l.href} href={l.href} className="text-white/60 text-sm font-real-mono py-1">{l.label}</a>)}
+              </div>
+              <div className="pl-4 border-l border-white/10 grid gap-2">
+                 <div className="text-fiction-accent text-xs font-fiction-serif mb-1">FICTION*</div>
+                 {localizedFictionLinks.map(l => <a key={l.href} href={l.href} className="text-white/60 text-sm font-fiction-serif py-1">{l.label}</a>)}
+              </div>
+            </div>
           </div>
         </details>
       </nav>
       <style>{`
       details[open] > .nav-dropdown-panel {
-        animation: nav-dropdown-in 180ms ease-out both;
+        animation: nav-dropdown-in 150ms ease-out forwards;
+        transform-origin: top;
       }
 
       @keyframes nav-dropdown-in {
         from {
           opacity: 0;
-          transform: translateY(-0.4rem) scale(0.98);
+          transform: scaleY(0.95);
         }
-
         to {
           opacity: 1;
-          transform: translateY(0) scale(1);
+          transform: scaleY(1);
         }
       }
     `}</style>
