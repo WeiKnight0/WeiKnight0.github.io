@@ -8,139 +8,165 @@ const { title, description } = AppConfig;
 
 <Base head={{ title, description }} theme='home'>
   <main class="bg-black text-white font-sans selection:bg-white/20">
-    {/* 顶部巨幕区 - 保留并强化日文注音与双轨世界观 */}
-    <section class='relative min-h-[90vh] flex flex-col justify-center overflow-hidden bg-black border-b border-white/10'>
-      {/* 复杂的背景光效 */}
+    {/* 顶部巨幕区 - 强烈的阵营色彩对比与清晰的日文排版 */}
+    <section class='relative min-h-[85vh] flex flex-col justify-center overflow-hidden bg-black border-b border-white/10'>
+      {/* 复杂的背景光效 - 增强饱和度和对比 */}
       <div class='pointer-events-none absolute inset-0'>
         <div class='absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:64px_64px]'></div>
-        <div class='absolute left-[-10%] top-[-10%] w-[50%] h-[50%] bg-real-accent/10 rounded-full blur-[150px] mix-blend-screen'></div>
-        <div class='absolute right-[-10%] bottom-[-10%] w-[50%] h-[50%] bg-fiction-accent/10 rounded-full blur-[150px] mix-blend-screen'></div>
+        
+        {/* Real 侧环境光 (青紫交织) */}
+        <div class='absolute left-[-10%] top-0 w-[60%] h-[100%] bg-real-surface/80 blur-[100px] mix-blend-screen'></div>
+        <div class='absolute left-[5%] top-[10%] w-[30%] h-[40%] bg-real-accent/20 rounded-full blur-[120px] mix-blend-screen'></div>
+        
+        {/* Fiction 侧环境光 (紫红交织) */}
+        <div class='absolute right-[-10%] top-0 w-[60%] h-[100%] bg-fiction-surface/80 blur-[100px] mix-blend-screen'></div>
+        <div class='absolute right-[5%] bottom-[10%] w-[30%] h-[40%] bg-fiction-accent/20 rounded-full blur-[120px] mix-blend-screen'></div>
       </div>
 
-      <div class='relative z-10 mx-auto w-full max-w-7xl px-6 py-20 text-center'>
+      <div class='relative z-10 mx-auto w-full max-w-7xl px-6 py-20 text-center drop-shadow-xl'>
         {/* 中心化身 - 绝对无滤镜 */}
         <div class="mb-12 flex justify-center relative">
-           <div class="absolute inset-0 bg-white/5 blur-2xl rounded-full scale-150"></div>
+           <div class="absolute inset-0 bg-white/10 blur-3xl rounded-full scale-150"></div>
            <img
               src={Profile.avatar}
               alt={`${Profile.name} avatar`}
-              class='relative h-32 w-32 md:h-40 md:w-40 rounded-full border-4 border-white/10 shadow-[0_0_40px_rgba(255,255,255,0.1)]'
+              class='relative h-32 w-32 md:h-40 md:w-40 rounded-full border-[3px] border-white/30 shadow-[0_0_50px_rgba(255,255,255,0.15)] object-cover'
+              style="filter: none !important;"
             />
         </div>
 
-        {/* 主标题 - 日文 Ruby */}
-        <h1 class='font-jp-display max-w-5xl mx-auto text-4xl font-black leading-[1.2] tracking-widest text-white md:text-6xl'>
-          <span class='block text-lg font-bold tracking-[0.3em] text-white/50 md:text-xl mb-6'>
-            ― <ruby>二<rt class="text-[0.5em] tracking-widest text-white/40">ふた</rt></ruby>つの<ruby>世界<rt class="text-[0.5em] tracking-widest text-white/40">せかい</rt></ruby>を<ruby>渡<rt class="text-[0.5em] tracking-widest text-white/40">わた</rt></ruby>る<ruby>者<rt class="text-[0.5em] tracking-widest text-white/40">もの</rt></ruby> ―
+        {/* 主标题 - 专属日文 Ruby 排版 */}
+        <h1 class='max-w-5xl mx-auto text-4xl font-black leading-[1.3] tracking-widest text-white md:text-6xl drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]'>
+          <span class='block font-jp-display-sans text-lg font-bold tracking-[0.3em] text-white/90 md:text-xl mb-6'>
+            ― <ruby>二<rt class="font-jp-display-sans text-[0.5em] tracking-widest text-white/80">ふた</rt></ruby>つの<ruby>世界<rt class="font-jp-display-sans text-[0.5em] tracking-widest text-white/80">せかい</rt></ruby>を<ruby>渡<rt class="font-jp-display-sans text-[0.5em] tracking-widest text-white/80">わた</rt></ruby>る<ruby>者<rt class="font-jp-display-sans text-[0.5em] tracking-widest text-white/80">もの</rt></ruby> ―
           </span>
-          <span class='block bg-gradient-to-r from-real-accent via-white to-fiction-accent bg-clip-text text-transparent'>
-            <ruby>三次元<rt class="text-[0.4em] text-real-accent/80 tracking-widest">さんじげん</rt></ruby> と <ruby>二次元<rt class="text-[0.4em] text-fiction-accent/80 tracking-widest">にじげん</rt></ruby>、<ruby>二<rt class="text-[0.4em] text-white/80 tracking-widest">ふた</rt></ruby>つの<ruby>記録<rt class="text-[0.4em] text-white/80 tracking-widest">アーカイブ</rt></ruby>
+          <span class='block mt-2'>
+            <span class="font-jp-display-sans text-real-accent drop-shadow-[0_0_15px_rgba(0,245,255,0.5)]"><ruby>三次元<rt class="font-jp-display-sans text-[0.4em] tracking-widest text-real-text">さんじげん</rt></ruby></span>
+            <span class="text-white/80 font-real-mono mx-2 tracking-normal drop-shadow-none">与</span>
+            <span class="font-jp-display-serif text-fiction-accent drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]"><ruby>二次元<rt class="font-jp-display-serif text-[0.4em] tracking-widest text-fiction-text">にじげん</rt></ruby></span>
+            <span class="text-white/80 font-real-mono mx-2 tracking-normal drop-shadow-none">、</span>
+            <br class="md:hidden" />
+            <span class="font-jp-display-sans text-white/90 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]"><ruby>二<rt class="font-jp-display-sans text-[0.4em] tracking-widest text-white/70">ふた</rt></ruby>つの<ruby>記録<rt class="font-jp-display-sans text-[0.4em] tracking-widest text-white/70">アーカイブ</rt></ruby></span>
           </span>
         </h1>
 
         {/* 个人简介区 */}
-        <div class="mt-16 max-w-2xl mx-auto">
-          <h2 class="text-3xl font-black mb-4">{Profile.name}</h2>
-          <p class="text-white/60 text-lg leading-relaxed mb-8">{Profile.tagline}</p>
+        <div class="mt-16 max-w-2xl mx-auto bg-black/40 backdrop-blur-md border border-white/10 p-8 rounded-2xl shadow-2xl">
+          <h2 class="text-3xl font-black mb-4 text-white drop-shadow-md">{Profile.name}</h2>
+          
+          {/* 中二感日文 Tagline */}
+          <p class="font-jp-display-serif text-white/90 text-lg md:text-xl leading-relaxed mb-8 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] tracking-wider">
+            論理の三次元と夢幻の二次元、その境界を駆ける狼プログラマー。
+          </p>
           
           <div class="flex flex-wrap justify-center gap-3 mb-8">
             {Profile.techStack.map((tech) => (
-              <span class='px-4 py-1.5 border border-white/20 bg-white/5 text-xs font-real-mono uppercase tracking-widest text-white/80'>
+              <span class='px-4 py-1.5 border border-white/20 bg-black/50 text-xs font-real-mono uppercase tracking-widest text-white/90 shadow-inner'>
                 {tech}
               </span>
             ))}
           </div>
 
-          <div class="flex justify-center gap-6 font-real-mono text-sm uppercase tracking-widest">
-            <a href={Profile.github} class="text-real-accent hover:text-white transition-colors">GitHub_</a>
-            <a href={Profile.bilibili} class="text-fiction-accent hover:text-white transition-colors">Bilibili*</a>
+          <div class="flex justify-center gap-8 font-real-mono text-sm uppercase tracking-widest">
+            <a href={Profile.github} class="text-real-accent hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(0,245,255,0.4)]">GitHub_</a>
+            <a href={Profile.bilibili} class="text-fiction-accent hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(255,215,0,0.4)]">Bilibili*</a>
           </div>
         </div>
       </div>
     </section>
 
-    {/* 高密度信息面板区 (Bento Box 风格) */}
+    {/* 高密度信息面板区 (Bento Box 风格) - 增强对比 */}
     <section class='mx-auto max-w-7xl px-6 py-24'>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         
         {/* --- REAL 面板 --- */}
-        <div class="border border-white/10 bg-[#050A0F] relative overflow-hidden group">
-          <div class="absolute inset-0 bg-[linear-gradient(rgba(0,229,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(0,229,255,0.05)_1px,transparent_1px)] bg-[size:16px_16px] opacity-20"></div>
+        <div class="border border-real-accent/30 bg-real-surface relative overflow-hidden group shadow-[0_0_30px_rgba(0,245,255,0.05)] rounded-xl">
+          <div class="absolute inset-0 bg-[linear-gradient(rgba(0,245,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(0,245,255,0.1)_1px,transparent_1px)] bg-[size:24px_24px] opacity-30"></div>
+          <div class="absolute top-0 right-0 w-64 h-64 bg-real-accentSecondary/10 blur-[80px] rounded-full"></div>
           
-          <div class="relative z-10 p-8 md:p-12">
-            <div class="flex items-center justify-between mb-8 border-b border-real-accent/20 pb-4">
-               <h3 class="font-real-mono text-2xl font-black text-white"><span class="text-real-accent mr-2">A/</span>REAL_SIDE</h3>
-               <span class="text-xs font-real-mono text-real-accent uppercase tracking-widest px-2 py-1 bg-real-accent/10 border border-real-accent/30">System.out</span>
+          <div class="relative z-10 p-8 md:p-10 flex flex-col h-full">
+            <div class="flex items-center justify-between mb-8 border-b border-real-accent/40 pb-4">
+               <h3 class="font-real-mono text-3xl font-black text-real-text drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"><span class="text-real-accent mr-2">A/</span>REAL_SIDE</h3>
+               <span class="text-xs font-real-mono text-real-accent uppercase tracking-widest px-3 py-1.5 bg-real-accent/15 border border-real-accent/50 shadow-[0_0_10px_rgba(0,245,255,0.2)]">System.out</span>
             </div>
             
-            <p class="text-white/60 text-sm mb-10 font-real-mono leading-relaxed">
+            <p class="text-real-text text-base mb-10 font-real-mono leading-relaxed bg-black/30 p-4 rounded-lg border border-white/5 shadow-inner">
               Engineering records, project architectures, and technical logs. The mechanical reality where ideas are built into systems.
             </p>
 
             {/* 精选项目预览 */}
-            <div class="mb-10">
-               <h4 class="text-xs font-real-mono text-white/40 uppercase tracking-[0.2em] mb-4">Featured_Deployments</h4>
+            <div class="mb-10 flex-grow">
+               <h4 class="text-xs font-real-mono text-real-accent uppercase tracking-[0.2em] mb-4 drop-shadow-[0_0_5px_rgba(0,245,255,0.3)]">Featured_Deployments</h4>
                <div class="space-y-4">
                   {Profile.repos.slice(0, 3).map(repo => (
-                    <a href={repo.href} class="block p-4 border border-white/5 bg-white/[0.02] hover:border-real-accent/50 hover:bg-real-accent/5 transition-all">
-                       <div class="font-real-mono font-bold text-real-accent mb-1">{repo.name}</div>
-                       <div class="text-xs text-white/50">{repo.description}</div>
+                    <a href={repo.href} class="block p-5 border border-real-accent/20 bg-real-surfaceHover/80 hover:bg-real-accent/10 hover:border-real-accent/60 transition-all shadow-md">
+                       <div class="font-real-mono font-bold text-real-accent mb-2 text-lg drop-shadow-[0_0_2px_rgba(0,245,255,0.5)]">{repo.name}</div>
+                       <div class="text-sm text-real-text/90 font-real-sans">{repo.description}</div>
                     </a>
                   ))}
                </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 font-real-mono text-sm">
-               <a href="/real/resume/" class="p-4 border border-white/10 text-center hover:bg-real-accent hover:text-black transition-colors font-bold uppercase tracking-widest">Resume</a>
-               <a href="/real/notes/" class="p-4 border border-white/10 text-center hover:bg-real-accent hover:text-black transition-colors font-bold uppercase tracking-widest">Notes</a>
-               <a href="/real/projects/" class="p-4 border border-white/10 text-center hover:bg-real-accent hover:text-black transition-colors font-bold uppercase tracking-widest">Projects</a>
-               <a href="/real/blog/" class="p-4 border border-white/10 text-center hover:bg-real-accent hover:text-black transition-colors font-bold uppercase tracking-widest">Blogs</a>
+            {/* 纯文本链接区 */}
+            <div class="flex flex-wrap justify-center gap-x-8 gap-y-4 font-real-mono text-sm mt-auto pb-8 pt-4">
+               <a href="/real/resume/" class="text-real-text hover:text-real-accent transition-colors font-bold uppercase tracking-widest drop-shadow-[0_0_5px_rgba(0,245,255,0)] hover:drop-shadow-[0_0_5px_rgba(0,245,255,0.5)]">Resume</a>
+               <a href="/real/notes/" class="text-real-text hover:text-real-accent transition-colors font-bold uppercase tracking-widest drop-shadow-[0_0_5px_rgba(0,245,255,0)] hover:drop-shadow-[0_0_5px_rgba(0,245,255,0.5)]">Notes</a>
+               <a href="/real/projects/" class="text-real-text hover:text-real-accent transition-colors font-bold uppercase tracking-widest drop-shadow-[0_0_5px_rgba(0,245,255,0)] hover:drop-shadow-[0_0_5px_rgba(0,245,255,0.5)]">Projects</a>
+               <a href="/real/blog/" class="text-real-text hover:text-real-accent transition-colors font-bold uppercase tracking-widest drop-shadow-[0_0_5px_rgba(0,245,255,0)] hover:drop-shadow-[0_0_5px_rgba(0,245,255,0.5)]">Blogs</a>
             </div>
 
-            <a href="/real/" class="mt-8 block w-full py-4 bg-real-accent/10 text-real-accent border border-real-accent/30 text-center font-real-mono uppercase tracking-[0.2em] text-sm hover:bg-real-accent hover:text-black transition-colors">
+            <a href="/real/" class="block w-full py-5 bg-real-accent/15 text-real-accent border border-real-accent/50 text-center font-real-mono uppercase tracking-[0.2em] text-base hover:bg-real-accent hover:text-black transition-colors font-bold shadow-[0_0_15px_rgba(0,245,255,0.2)]">
               Initialize Real Environment &rarr;
             </a>
           </div>
         </div>
 
         {/* --- FICTION 面板 --- */}
-        <div class="border border-white/10 bg-[#110A14] relative overflow-hidden group">
-          <div class="absolute inset-0 opacity-[0.05] mix-blend-overlay" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
+        <div class="border border-fiction-accent/30 bg-fiction-surface relative overflow-hidden group shadow-[0_0_30px_rgba(255,215,0,0.05)] rounded-xl">
+          <div class="absolute inset-0 opacity-[0.08] mix-blend-overlay" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
+          <div class="absolute bottom-0 left-0 w-64 h-64 bg-fiction-accentSecondary/10 blur-[80px] rounded-full"></div>
           
-          <div class="relative z-10 p-8 md:p-12 h-full flex flex-col">
-            <div class="flex items-center justify-between mb-8 border-b border-fiction-accent/20 pb-4">
-               <h3 class="font-fiction-serif text-2xl font-black text-white italic"><span class="text-fiction-accent mr-2 not-italic">B/</span>FICTION_SIDE</h3>
-               <span class="text-xs font-sans text-fiction-accent uppercase tracking-widest px-2 py-1 bg-fiction-accent/10 border border-fiction-accent/30">Archive.log</span>
+          <div class="relative z-10 p-8 md:p-10 h-full flex flex-col">
+            <div class="flex items-center justify-between mb-8 border-b border-fiction-accent/40 pb-4">
+               <h3 class="font-fiction-serif text-3xl font-black text-fiction-text italic drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"><span class="text-fiction-accent mr-2 not-italic">B/</span>FICTION_SIDE</h3>
+               <span class="text-xs font-real-mono text-fiction-accent uppercase tracking-widest px-3 py-1.5 bg-fiction-accent/15 border border-fiction-accent/50 shadow-[0_0_10px_rgba(255,215,0,0.2)]">Archive.log</span>
             </div>
             
-            <p class="text-white/60 text-sm mb-10 font-fiction-serif leading-relaxed">
+            <p class="text-fiction-text text-base mb-10 font-fiction-serif leading-relaxed bg-black/30 p-4 rounded-lg border border-white/5 shadow-inner">
               Narratives, character entities, and worldbuilding fragments. The creative archive where imagination takes form.
             </p>
 
-            {/* 档案分区预览 */}
+            {/* 档案分区预览 - 无边框纯排版 */}
             <div class="mb-10 flex-grow">
-               <h4 class="text-xs font-sans text-white/40 uppercase tracking-[0.2em] mb-4">Archive_Directories</h4>
-               <div class="grid grid-cols-1 gap-4 font-fiction-serif">
-                  <a href="/fiction/world/" class="p-4 border border-white/5 bg-white/[0.02] hover:border-fiction-accent/50 hover:bg-fiction-accent/5 transition-all flex justify-between items-center">
-                    <span class="text-lg text-white">世界观設定</span>
-                    <span class="text-xs text-fiction-accent font-sans uppercase tracking-widest">Worldbuilding</span>
+               <h4 class="text-xs font-real-mono text-fiction-accent uppercase tracking-[0.2em] mb-6 drop-shadow-[0_0_5px_rgba(255,215,0,0.3)]">Archive_Directories</h4>
+               <div class="flex flex-col gap-6 pl-2">
+                  <a href="/fiction/world/" class="group/item flex justify-between items-end border-b border-white/5 pb-2 hover:border-fiction-accent/30 transition-colors">
+                    <span class="text-xl text-fiction-text font-fiction-serif font-bold group-hover/item:text-fiction-accent transition-colors tracking-widest">世界观設定</span>
+                    <span class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-fiction-accent/80 transition-colors">Worldbuilding</span>
                   </a>
-                  <a href="/fiction/oc/" class="p-4 border border-white/5 bg-white/[0.02] hover:border-fiction-accent/50 hover:bg-fiction-accent/5 transition-all flex justify-between items-center">
-                    <span class="text-lg text-white">人物記録</span>
-                    <span class="text-xs text-fiction-accent font-sans uppercase tracking-widest">Original Characters</span>
+                  <a href="/fiction/oc/" class="group/item flex justify-between items-end border-b border-white/5 pb-2 hover:border-fiction-accent/30 transition-colors">
+                    <span class="text-xl text-fiction-text font-fiction-serif font-bold group-hover/item:text-fiction-accent transition-colors tracking-widest">人物記録</span>
+                    <span class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-fiction-accent/80 transition-colors">Characters</span>
                   </a>
-                  <a href="/fiction/novels/" class="p-4 border border-white/5 bg-white/[0.02] hover:border-fiction-accent/50 hover:bg-fiction-accent/5 transition-all flex justify-between items-center">
-                    <span class="text-lg text-white">物語断片</span>
-                    <span class="text-xs text-fiction-accent font-sans uppercase tracking-widest">Stories</span>
+                  <a href="/fiction/novels/" class="group/item flex justify-between items-end border-b border-white/5 pb-2 hover:border-fiction-accent/30 transition-colors">
+                    <span class="text-xl text-fiction-text font-fiction-serif font-bold group-hover/item:text-fiction-accent transition-colors tracking-widest">物語断片</span>
+                    <span class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-fiction-accent/80 transition-colors">Stories</span>
                   </a>
-                  <a href="/fiction/commissions/" class="p-4 border border-white/5 bg-white/[0.02] hover:border-fiction-accent/50 hover:bg-fiction-accent/5 transition-all flex justify-between items-center">
-                    <span class="text-lg text-white">画廊</span>
-                    <span class="text-xs text-fiction-accent font-sans uppercase tracking-widest">Gallery</span>
+                  <a href="/fiction/commissions/" class="group/item flex justify-between items-end border-b border-white/5 pb-2 hover:border-fiction-accent/30 transition-colors">
+                    <span class="text-xl text-fiction-text font-fiction-serif font-bold group-hover/item:text-fiction-accent transition-colors tracking-widest">画廊</span>
+                    <span class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-fiction-accent/80 transition-colors">Gallery</span>
                   </a>
+               </div>
+               
+               {/* 补齐高度的氛围文本 */}
+               <div class="mt-8 p-4 bg-black/20 border-l-2 border-fiction-accent/30 font-real-mono text-xs text-white/30 space-y-1">
+                 <p>&gt; Sync Rate: <span class="text-fiction-accent/60">98.4%</span></p>
+                 <p>&gt; Accessing deeper memory layers...</p>
+                 <p>&gt; <span class="text-fiction-accentSecondary/60 animate-pulse">Observer ready.</span></p>
                </div>
             </div>
 
-            <a href="/fiction/" class="mt-auto block w-full py-4 bg-fiction-accent/10 text-fiction-accent border border-fiction-accent/30 text-center font-sans uppercase tracking-[0.2em] text-sm hover:bg-fiction-accent hover:text-black transition-colors font-bold">
+            <a href="/fiction/" class="mt-auto block w-full py-5 bg-fiction-accent/15 text-fiction-accent border border-fiction-accent/50 text-center font-real-mono uppercase tracking-[0.2em] text-base hover:bg-fiction-accent hover:text-black transition-colors font-bold shadow-[0_0_15px_rgba(255,215,0,0.2)]">
               Open Story Nexus &rarr;
             </a>
           </div>
