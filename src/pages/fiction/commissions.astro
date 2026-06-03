@@ -10,25 +10,21 @@ const images = getCommissionImages();
   description='Commission gallery.'
 >
   <section class='mx-auto max-w-[92rem] px-4 py-24 sm:px-6 lg:px-8'>
-    <p
-      data-page-i18n='commissions.kicker'
-      class='mb-6 text-base font-black uppercase tracking-[0.28em] text-fiction-gold md:text-lg'
-    >
-      Commissions
-    </p>
-    <h1
-      data-page-i18n='commissions.heading'
-      class='font-fiction text-4xl font-black leading-none tracking-[-0.05em] text-fiction-ink md:text-6xl'
-    >
-      Commissions
-    </h1>
+    <div class='border-b border-fiction-accent/30 pb-6'>
+      <p data-page-i18n='commissions.kicker' class='mb-4 border-l-2 border-fiction-accent pl-4 font-real-mono text-xs font-black uppercase tracking-[0.28em] text-fiction-accent md:text-sm'>
+        Commissions
+      </p>
+      <h1 data-page-i18n='commissions.heading' class='font-fiction-serif text-4xl font-black leading-none tracking-wide text-fiction-text md:text-6xl drop-shadow-[0_2px_10px_rgba(0,0,0,0.75)]'>
+        Commissions
+      </h1>
+    </div>
     <p
       data-page-i18n='commissions.description'
       data-page-i18n-html
-      class='mt-6 max-w-3xl text-base leading-7 text-fuchsia-100/80'
+      class='mt-8 max-w-3xl border border-white/5 bg-black/30 p-5 font-fiction-serif text-base leading-7 text-fiction-text/75'
     >
       A direct gallery for commissioned artwork. Add images to <code
-        class='rounded bg-black/20 px-2 py-1 text-fiction-gold'
+        class='bg-black/30 px-2 py-1 text-fiction-accent'
         >public/fiction/commissions/
       </code> to show them here.
     </p>
@@ -37,7 +33,7 @@ const images = getCommissionImages();
         {images.map((image) => (
           <a
             href={image.src}
-            class="mb-5 block break-inside-avoid overflow-hidden rounded-[2rem] border border-fiction-gold/30 bg-black/20 transition hover:border-fiction-gold/70"
+            class="mb-5 block break-inside-avoid overflow-hidden border border-fiction-accent/30 bg-fiction-surface/80 transition hover:border-fiction-accent/70"
             target="_blank"
           >
             <img
@@ -46,7 +42,7 @@ const images = getCommissionImages();
               loading="lazy"
               class="w-full object-cover transition duration-500 hover:scale-[1.02]"
             />
-            <div class="px-5 py-4 text-sm font-bold text-fuchsia-100/80">
+            <div class="px-5 py-4 font-real-mono text-sm font-bold text-fiction-text/75">
               {image.title}
             </div>
           </a>
@@ -56,10 +52,10 @@ const images = getCommissionImages();
       <div
         data-page-i18n="commissions.empty"
         data-page-i18n-html
-        class="mt-14 rounded-[2rem] border border-dashed border-fiction-gold/40 bg-black/20 p-8 text-base leading-7 text-fuchsia-100/80"
+        class="mt-14 border border-dashed border-fiction-accent/40 bg-fiction-surface/70 p-8 font-fiction-serif text-base leading-7 text-fiction-text/75"
       >
         No commission images yet. Put image files in{' '}
-        <code class="rounded bg-black/20 px-2 py-1 text-fiction-gold">
+        <code class="bg-black/30 px-2 py-1 text-fiction-accent">
           public/fiction/commissions/
         </code>
         .

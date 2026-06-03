@@ -8,66 +8,79 @@ import FictionPage from '@/templates/FictionPage.astro';
 >
   <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
     <div
-      class='grid min-h-[620px] items-center gap-12 lg:grid-cols-[1fr_420px]'
+      class='grid min-h-[620px] items-start gap-16 lg:grid-cols-[1fr_420px]'
     >
-      <div>
+      <div class="pt-10">
         <p
           data-page-i18n='fiction.kicker'
-          class='mb-6 text-sm font-black uppercase tracking-[0.28em] text-fiction-gold md:text-base'
+          class='mb-8 text-sm font-real-mono uppercase tracking-[0.3em] text-fiction-accent md:text-base border-l-2 border-fiction-accent pl-4'
         >
           Nijigen / story archive
         </p>
         <h1
           data-page-i18n='fiction.heading'
-          class='font-fiction text-5xl font-black leading-[0.92] tracking-[-0.05em] text-fiction-ink md:text-7xl'
+          class='font-fiction-serif text-5xl font-black leading-[1.1] tracking-wide text-fiction-text md:text-6xl lg:text-7xl drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]'
         >
           Where characters breathe, worlds branch, and stories wait.
         </h1>
         <p
           data-page-i18n='fiction.description'
-          class='mt-8 max-w-3xl text-lg leading-8 text-fuchsia-100/70'
+          class='mt-10 max-w-2xl text-lg leading-loose text-white/70 font-fiction-serif bg-black/30 p-6 border border-white/5 shadow-inner'
         >
           Original characters, worldbuilding, stories, and commissioned artwork
           &mdash; arranged like an archive launcher.
         </p>
+        
+        <div class="mt-16 text-center opacity-40">
+           <span class="inline-block w-1 h-1 rounded-full bg-fiction-accent mx-2 animate-pulse-slow"></span>
+           <span class="inline-block w-1.5 h-1.5 rounded-full bg-fiction-accent mx-2 animate-pulse-slow" style="animation-delay: 1s"></span>
+           <span class="inline-block w-1 h-1 rounded-full bg-fiction-accent mx-2 animate-pulse-slow" style="animation-delay: 2s"></span>
+        </div>
       </div>
+      
+      {/* 魔法卷轴风格菜单 */}
       <div
-        class='rounded-[2rem] border border-fiction-gold/30 bg-white/5 p-6 shadow-2xl shadow-black/30'
+        class='relative border border-fiction-accent/30 bg-fiction-surface/90 p-10 shadow-[0_0_40px_rgba(255,215,0,0.05)] backdrop-blur-sm'
       >
+        <div class="absolute inset-0 border-[4px] border-double border-white/5 pointer-events-none m-2"></div>
         <p
           data-page-i18n='fiction.menu'
-          class='text-sm font-black uppercase tracking-[0.22em] text-fiction-gold md:text-base'
+          class='text-center text-sm font-fiction-serif font-bold uppercase tracking-[0.3em] text-fiction-accent mb-8 pb-4 border-b border-fiction-accent/20'
         >
           Archive menu
         </p>
-        <div class='mt-6 grid gap-3'>
+        <div class='mt-6 flex flex-col gap-6 font-fiction-serif'>
           <a
-            class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
+            class='group flex justify-between items-end border-b border-white/10 pb-2 hover:border-fiction-accent/50 transition-colors'
             data-page-href='oc'
-            data-page-i18n='fiction.ocs'
             href='/fiction/oc/'
-            >OCs
+            >
+            <span class="text-2xl text-fiction-text group-hover:text-fiction-accent transition-colors" data-page-i18n='fiction.ocs'>OCs</span>
+            <span class="text-xs font-real-mono text-white/30 uppercase tracking-widest group-hover:text-fiction-accent/60">Entities</span>
           </a>
           <a
-            class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
+            class='group flex justify-between items-end border-b border-white/10 pb-2 hover:border-fiction-accent/50 transition-colors'
             data-page-href='world'
-            data-page-i18n='fiction.world'
             href='/fiction/world/'
-            >Worldbuilding
+            >
+            <span class="text-2xl text-fiction-text group-hover:text-fiction-accent transition-colors" data-page-i18n='fiction.world'>Worldbuilding</span>
+            <span class="text-xs font-real-mono text-white/30 uppercase tracking-widest group-hover:text-fiction-accent/60">Lore</span>
           </a>
           <a
-            class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
+            class='group flex justify-between items-end border-b border-white/10 pb-2 hover:border-fiction-accent/50 transition-colors'
             data-page-href='novels'
-            data-page-i18n='fiction.stories'
             href='/fiction/novels/'
-            >Stories
+            >
+            <span class="text-2xl text-fiction-text group-hover:text-fiction-accent transition-colors" data-page-i18n='fiction.stories'>Stories</span>
+            <span class="text-xs font-real-mono text-white/30 uppercase tracking-widest group-hover:text-fiction-accent/60">Chronicles</span>
           </a>
           <a
-            class='rounded-2xl border border-fiction-gold/20 bg-black/20 px-4 py-3 font-bold text-fiction-ink hover:bg-fiction-gold/10'
+            class='group flex justify-between items-end border-b border-white/10 pb-2 hover:border-fiction-accent/50 transition-colors'
             data-page-href='commissions'
-            data-page-i18n='fiction.commissions'
             href='/fiction/commissions/'
-            >Commissions
+            >
+            <span class="text-2xl text-fiction-text group-hover:text-fiction-accent transition-colors" data-page-i18n='fiction.commissions'>Commissions</span>
+            <span class="text-xs font-real-mono text-white/30 uppercase tracking-widest group-hover:text-fiction-accent/60">Gallery</span>
           </a>
         </div>
       </div>

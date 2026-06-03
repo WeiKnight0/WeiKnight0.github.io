@@ -13,37 +13,33 @@ const chapters = (await getCollection('novels')).sort(
   description='Stories and narrative chapters.'
 >
   <section class='mx-auto max-w-[92rem] px-4 py-24 sm:px-6 lg:px-8'>
-    <p
-      data-page-i18n='novels.kicker'
-      class='mb-6 text-base font-black uppercase tracking-[0.28em] text-fiction-gold md:text-lg'
-    >
-      Stories
-    </p>
-    <h1
-      data-page-i18n='novels.heading'
-      class='font-fiction text-4xl font-black leading-none tracking-[-0.05em] text-fiction-ink md:text-6xl'
-    >
-      Stories
-    </h1>
+    <div class='border-b border-fiction-accent/30 pb-6'>
+      <p data-page-i18n='novels.kicker' class='mb-4 border-l-2 border-fiction-accent pl-4 font-real-mono text-xs font-black uppercase tracking-[0.28em] text-fiction-accent md:text-sm'>
+        Stories
+      </p>
+      <h1 data-page-i18n='novels.heading' class='font-fiction-serif text-4xl font-black leading-none tracking-wide text-fiction-text md:text-6xl drop-shadow-[0_2px_10px_rgba(0,0,0,0.75)]'>
+        Stories
+      </h1>
+    </div>
     <div class='mt-14 grid gap-5'>
       {chapters.map((chapter) => (
         <a
           href={`/fiction/novels/${chapter.slug}/`}
           data-page-href-prefix="chapter"
           data-page-href-slug={`${chapter.slug}/`}
-          class="rounded-[2rem] border border-fiction-gold/30 bg-black/20 p-7 transition hover:bg-fiction-gold/10"
+          class="group border border-fiction-accent/25 bg-fiction-surface/80 p-7 shadow-md transition hover:border-fiction-accent/60 hover:bg-fiction-accent/10"
         >
           <p
             data-page-i18n="novels.chapter"
             data-page-i18n-order={chapter.data.order}
-            class="text-base font-bold text-fiction-gold"
+            class="font-fiction-serif text-sm font-bold tracking-widest text-fiction-accent"
           >
             Chapter {chapter.data.order}
           </p>
-          <h2 class="mt-2 font-fiction text-3xl font-black text-fiction-ink">
+          <h2 class="mt-3 font-fiction-serif text-3xl font-black text-fiction-text transition group-hover:text-fiction-accent">
             {chapter.data.title}
           </h2>
-          <p class="mt-4 text-base leading-7 text-fuchsia-100/80">
+          <p class="mt-4 font-fiction-serif text-base leading-7 text-fiction-text/75">
             {chapter.data.description}
           </p>
         </a>

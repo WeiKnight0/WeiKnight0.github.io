@@ -8,92 +8,95 @@ import { Profile } from '@/utils/Profile';
   description='Portfolio, resume, projects, notes, and blogs.'
 >
   <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
-    <p
-      data-page-i18n='real.kicker'
-      class='mb-6 text-sm font-black uppercase tracking-[0.28em] text-cyan-300 md:text-base'
-    >
-      Sanjigen / real-world interface
-    </p>
+    <div class='mb-12 border-b border-real-accent/30 pb-6'>
+      <p
+        data-page-i18n='real.kicker'
+        class='mb-4 text-xs font-real-mono text-real-accent uppercase tracking-widest flex items-center gap-2'
+      >
+        <span class="inline-block w-2 h-2 bg-real-accent animate-pulse"></span>
+        Sanjigen / real-world interface
+      </p>
+      <h1
+        data-page-i18n='real.heading'
+        class='max-w-5xl text-5xl font-black leading-tight tracking-tight text-real-text md:text-6xl drop-shadow-[0_0_15px_rgba(0,245,255,0.2)]'
+      >
+        Code, systems, and the work that ships.
+      </h1>
+    </div>
+
     <div class='grid gap-12 lg:grid-cols-[1fr_360px]'>
       <div>
-        <h1
-          data-page-i18n='real.heading'
-          class='max-w-5xl text-5xl font-black leading-[0.92] tracking-[-0.06em] text-white md:text-7xl'
-        >
-          Code, systems, and the work that ships.
-        </h1>
-        <p
-          data-page-i18n='real.description'
-          class='mt-8 max-w-3xl text-lg leading-8 text-slate-400'
-        >
-          {Profile.tagline}. The sanjigen side holds profile, resume, projects,
-          study notes, and technical writing.
-        </p>
-        <div class='mt-10 flex flex-wrap gap-3'>
+        <div class="bg-black/40 border border-white/5 p-6 rounded-md shadow-inner mb-10">
+          <p
+            data-page-i18n='real.description'
+            class='text-base leading-relaxed text-real-text/80 font-real-mono'
+          >
+            {Profile.tagline}. The sanjigen side holds profile, resume, projects,
+            study notes, and technical writing.
+          </p>
+        </div>
+        
+        <div class='flex flex-wrap gap-4 font-real-mono text-sm uppercase tracking-widest'>
           <a
             href={Profile.github}
             data-page-i18n='real.github'
-            class='rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-cyan-200'
+            class='px-6 py-3 bg-real-accent/10 border border-real-accent/50 text-real-accent hover:bg-real-accent hover:text-black transition-colors font-bold shadow-[0_0_10px_rgba(0,245,255,0.2)]'
             >View GitHub
-          </a>
-          <a
-            href={Profile.bilibili}
-            class='rounded-full border border-white/10 px-5 py-3 text-sm font-black text-white transition hover:bg-white/10'
-            >Bilibili
           </a>
         </div>
       </div>
-      <div class='rounded-3xl border border-white/10 bg-white/[0.04] p-6'>
-        <img
-          src={Profile.avatar}
-          alt={`${Profile.name} GitHub avatar`}
-          class='mb-6 h-20 w-20 rounded-3xl border border-white/10'
-        />
-        <h2 class='text-xl font-black text-white'>{Profile.name}</h2>
-        <p class='mt-2 text-sm leading-6 text-slate-400'>
-          {Profile.school}<br />{Profile.location}
+
+      {/* 右侧控制台面板 */}
+      <div class='border border-real-accent/20 bg-real-surfaceHover/50 p-6 rounded-sm shadow-[0_0_20px_rgba(0,0,0,0.5)]'>
+        <div class="flex items-center gap-4 border-b border-white/10 pb-4 mb-6">
+          <img
+            src={Profile.avatar}
+            alt={`${Profile.name} GitHub avatar`}
+            class='h-16 w-16 border border-real-accent/30 p-1 rounded-sm'
+            style="filter: none !important;"
+          />
+          <div>
+            <h2 class='text-xl font-black text-real-text font-real-mono'>{Profile.name}</h2>
+            <p class='text-xs text-real-accent mt-1 tracking-widest uppercase'>Active User</p>
+          </div>
+        </div>
+        
+        <p class='text-xs leading-relaxed text-white/50 font-real-mono mb-6'>
+          LOC: {Profile.location}<br />
+          ORG: {Profile.school}
         </p>
-        <div class='mt-6 flex flex-wrap gap-2'>
+
+        <div class='mt-6 flex flex-wrap gap-2 mb-8'>
           {Profile.techStack.map((tech) => (
-            <span class="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-slate-300">
+            <span class="border border-white/10 bg-black/50 px-2 py-1 text-[10px] font-real-mono uppercase tracking-wider text-white/70">
               {tech}
             </span>
           ))}
         </div>
+
         <h2
           data-page-i18n='real.sections'
-          class='mt-8 text-xl font-black text-white'
+          class='text-xs font-real-mono text-real-accent tracking-[0.2em] uppercase mb-4 drop-shadow-[0_0_5px_rgba(0,245,255,0.3)]'
         >
-          Sections
+          Directories
         </h2>
-        <div class='mt-6 grid gap-3 text-sm font-semibold text-slate-300'>
-          <a
-            class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
-            data-page-href='resume'
-            data-page-i18n='real.resume'
-            href='/real/resume/'
-            >Resume
+        
+        <div class='flex flex-col gap-2 text-sm font-real-mono'>
+          <a class='group flex items-center border border-white/5 bg-black/30 p-3 hover:border-real-accent/40 hover:bg-real-accent/5 transition-all' data-page-href='resume' href='/real/resume/'>
+            <span class="text-real-accent opacity-0 group-hover:opacity-100 transition-opacity mr-2">&gt;</span>
+            <span class="text-white/80 group-hover:text-real-text" data-page-i18n='real.resume'>Resume</span>
           </a>
-          <a
-            class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
-            data-page-href='projects'
-            data-page-i18n='real.projects'
-            href='/real/projects/'
-            >Projects
+          <a class='group flex items-center border border-white/5 bg-black/30 p-3 hover:border-real-accent/40 hover:bg-real-accent/5 transition-all' data-page-href='projects' href='/real/projects/'>
+            <span class="text-real-accent opacity-0 group-hover:opacity-100 transition-opacity mr-2">&gt;</span>
+            <span class="text-white/80 group-hover:text-real-text" data-page-i18n='real.projects'>Projects</span>
           </a>
-          <a
-            class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
-            data-page-href='notes'
-            data-page-i18n='real.notes'
-            href='/real/notes/'
-            >Notes
+          <a class='group flex items-center border border-white/5 bg-black/30 p-3 hover:border-real-accent/40 hover:bg-real-accent/5 transition-all' data-page-href='notes' href='/real/notes/'>
+            <span class="text-real-accent opacity-0 group-hover:opacity-100 transition-opacity mr-2">&gt;</span>
+            <span class="text-white/80 group-hover:text-real-text" data-page-i18n='real.notes'>Notes</span>
           </a>
-          <a
-            class='rounded-2xl bg-white/5 px-4 py-3 hover:bg-white/10'
-            data-page-href='blogs'
-            data-page-i18n='real.blogs'
-            href='/real/blog/'
-            >Blogs
+          <a class='group flex items-center border border-white/5 bg-black/30 p-3 hover:border-real-accent/40 hover:bg-real-accent/5 transition-all' data-page-href='blogs' href='/real/blog/'>
+            <span class="text-real-accent opacity-0 group-hover:opacity-100 transition-opacity mr-2">&gt;</span>
+            <span class="text-white/80 group-hover:text-real-text" data-page-i18n='real.blogs'>Blogs</span>
           </a>
         </div>
       </div>
@@ -101,20 +104,20 @@ import { Profile } from '@/utils/Profile';
   </section>
 
   <section class='mx-auto max-w-7xl px-5 pb-24 lg:px-8'>
-    <p
-      data-page-i18n='real.featured'
-      class='mb-6 text-sm font-black uppercase tracking-[0.28em] text-cyan-300 md:text-base'
-    >
-      Featured repositories
-    </p>
-    <div class='grid gap-5 md:grid-cols-3'>
+    <div class="flex items-center gap-4 mb-8">
+      <h2 class="text-xl font-real-mono font-black text-real-text">SYS.REPOS</h2>
+      <div class="h-px flex-1 bg-gradient-to-r from-real-accent/30 to-transparent"></div>
+    </div>
+    
+    <div class='grid gap-6 md:grid-cols-3'>
       {Profile.repos.map((repo) => (
         <a
           href={repo.href}
-          class="rounded-3xl border border-white/10 bg-white/[0.04] p-7 transition hover:border-cyan-300/40 hover:bg-white/[0.07]"
+          class="group block border border-white/10 bg-real-surface p-6 hover:border-real-accent/50 hover:bg-real-accent/5 transition-all shadow-md relative overflow-hidden"
         >
-          <h2 class="text-2xl font-black text-white">{repo.name}</h2>
-          <p class="mt-4 leading-7 text-slate-400">{repo.description}</p>
+          <div class="absolute top-0 left-0 w-1 h-full bg-real-accent scale-y-0 group-hover:scale-y-100 transition-transform origin-top"></div>
+          <h2 class="text-lg font-real-mono font-bold text-real-text mb-3 group-hover:text-real-accent transition-colors drop-shadow-sm">{repo.name}</h2>
+          <p class="text-sm leading-relaxed text-white/60 font-real-sans">{repo.description}</p>
         </a>
       ))}
     </div>

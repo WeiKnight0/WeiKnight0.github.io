@@ -42,7 +42,7 @@ const { title, description } = AppConfig;
           </span>
           <span class='block mt-2'>
             <span class="font-jp-display-sans text-real-accent drop-shadow-[0_0_15px_rgba(0,245,255,0.5)]"><ruby>三次元<rt class="font-jp-display-sans text-[0.4em] tracking-widest text-real-text">さんじげん</rt></ruby></span>
-            <span class="text-white/80 font-real-mono mx-2 tracking-normal drop-shadow-none">与</span>
+            <span class="font-jp-display-sans text-white/80 mx-2 tracking-normal drop-shadow-none">と</span>
             <span class="font-jp-display-serif text-fiction-accent drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]"><ruby>二次元<rt class="font-jp-display-serif text-[0.4em] tracking-widest text-fiction-text">にじげん</rt></ruby></span>
             <span class="text-white/80 font-real-mono mx-2 tracking-normal drop-shadow-none">、</span>
             <br class="md:hidden" />
@@ -51,12 +51,12 @@ const { title, description } = AppConfig;
         </h1>
 
         {/* 个人简介区 */}
-        <div class="mt-16 max-w-2xl mx-auto bg-black/40 backdrop-blur-md border border-white/10 p-8 rounded-2xl shadow-2xl">
+        <div class="mt-16 max-w-3xl mx-auto bg-black/40 backdrop-blur-md border border-white/10 p-8 rounded-2xl shadow-2xl">
           <h2 class="text-3xl font-black mb-4 text-white drop-shadow-md">{Profile.name}</h2>
           
           {/* 中二感日文 Tagline */}
-          <p class="font-jp-display-serif text-white/90 text-lg md:text-xl leading-relaxed mb-8 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] tracking-wider">
-            論理の三次元と夢幻の二次元、その境界を駆ける狼プログラマー。
+          <p class="mx-auto mb-8 max-w-2xl font-jp-display-serif text-lg leading-relaxed tracking-wide text-white/90 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] md:whitespace-nowrap md:text-xl">
+            論理の三次元と異能の二次元、その境界を駆ける狼プログラマー。
           </p>
           
           <div class="flex flex-wrap justify-center gap-3 mb-8">
@@ -69,7 +69,6 @@ const { title, description } = AppConfig;
 
           <div class="flex justify-center gap-8 font-real-mono text-sm uppercase tracking-widest">
             <a href={Profile.github} class="text-real-accent hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(0,245,255,0.4)]">GitHub_</a>
-            <a href={Profile.bilibili} class="text-fiction-accent hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(255,215,0,0.4)]">Bilibili*</a>
           </div>
         </div>
       </div>
@@ -85,37 +84,45 @@ const { title, description } = AppConfig;
           <div class="absolute top-0 right-0 w-64 h-64 bg-real-accentSecondary/10 blur-[80px] rounded-full"></div>
           
           <div class="relative z-10 p-8 md:p-10 flex flex-col h-full">
-            <div class="flex items-center justify-between mb-8 border-b border-real-accent/40 pb-4">
-               <h3 class="font-real-mono text-3xl font-black text-real-text drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"><span class="text-real-accent mr-2">A/</span>REAL_SIDE</h3>
-               <span class="text-xs font-real-mono text-real-accent uppercase tracking-widest px-3 py-1.5 bg-real-accent/15 border border-real-accent/50 shadow-[0_0_10px_rgba(0,245,255,0.2)]">System.out</span>
+            <div class="flex items-center justify-between mb-8">
+               <h3 class="font-real-mono text-3xl font-black text-real-text drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"><span class="text-real-accent mr-2">A/</span><span data-home-i18n="home.real.sideTitle">REAL SIDE</span></h3>
+               <span data-home-i18n="home.real.badge" class="text-xs font-real-mono text-real-accent uppercase tracking-widest px-3 py-1.5 bg-real-accent/15 border border-real-accent/50 shadow-[0_0_10px_rgba(0,245,255,0.2)]">System.out</span>
             </div>
             
-            <p class="text-real-text text-base mb-10 font-real-mono leading-relaxed bg-black/30 p-4 rounded-lg border border-white/5 shadow-inner">
+            <p data-home-i18n="home.real.description" class="text-real-text text-base mb-10 font-real-mono leading-relaxed bg-black/30 p-4 rounded-lg border border-white/5 shadow-inner">
               Engineering records, project architectures, and technical logs. The mechanical reality where ideas are built into systems.
             </p>
 
-            {/* 精选项目预览 */}
+            {/* 现实侧目录预览 */}
             <div class="mb-10 flex-grow">
-               <h4 class="text-xs font-real-mono text-real-accent uppercase tracking-[0.2em] mb-4 drop-shadow-[0_0_5px_rgba(0,245,255,0.3)]">Featured_Deployments</h4>
-               <div class="space-y-4">
-                  {Profile.repos.slice(0, 3).map(repo => (
-                    <a href={repo.href} class="block p-5 border border-real-accent/20 bg-real-surfaceHover/80 hover:bg-real-accent/10 hover:border-real-accent/60 transition-all shadow-md">
-                       <div class="font-real-mono font-bold text-real-accent mb-2 text-lg drop-shadow-[0_0_2px_rgba(0,245,255,0.5)]">{repo.name}</div>
-                       <div class="text-sm text-real-text/90 font-real-sans">{repo.description}</div>
-                    </a>
-                  ))}
+               <h4 data-home-i18n="home.real.directories" class="text-xs font-real-mono text-real-accent uppercase tracking-[0.2em] mb-6 drop-shadow-[0_0_5px_rgba(0,245,255,0.3)]">System Directories</h4>
+               <div class="flex flex-col gap-6 pl-2">
+                  <a href="/real/resume/" class="group/item flex justify-between items-end border-b border-white/5 pb-2 hover:border-real-accent/30 transition-colors">
+                    <span data-home-i18n="home.real.resumeLabel" class="text-xl text-real-text font-zh font-bold group-hover/item:text-real-accent transition-colors tracking-widest">Resume</span>
+                    <span data-home-i18n="home.real.resumeSub" class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-real-accent/80 transition-colors">Profile</span>
+                  </a>
+                  <a href="/real/projects/" class="group/item flex justify-between items-end border-b border-white/5 pb-2 hover:border-real-accent/30 transition-colors">
+                    <span data-home-i18n="home.real.projectsLabel" class="text-xl text-real-text font-zh font-bold group-hover/item:text-real-accent transition-colors tracking-widest">Projects</span>
+                    <span data-home-i18n="home.real.projectsSub" class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-real-accent/80 transition-colors">Deployments</span>
+                  </a>
+                  <a href="/real/notes/" class="group/item flex justify-between items-end border-b border-white/5 pb-2 hover:border-real-accent/30 transition-colors">
+                    <span data-home-i18n="home.real.notesLabel" class="text-xl text-real-text font-zh font-bold group-hover/item:text-real-accent transition-colors tracking-widest">Notes</span>
+                    <span data-home-i18n="home.real.notesSub" class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-real-accent/80 transition-colors">Study Logs</span>
+                  </a>
+                  <a href="/real/blog/" class="group/item flex justify-between items-end border-b border-white/5 pb-2 hover:border-real-accent/30 transition-colors">
+                    <span data-home-i18n="home.real.blogsLabel" class="text-xl text-real-text font-zh font-bold group-hover/item:text-real-accent transition-colors tracking-widest">Blogs</span>
+                    <span data-home-i18n="home.real.blogsSub" class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-real-accent/80 transition-colors">Long Records</span>
+                  </a>
+               </div>
+               
+               <div class="mt-8 p-4 bg-black/20 border-l-2 border-real-accent/30 font-real-mono text-xs text-white/30 space-y-1">
+                 <p>&gt; <span data-home-i18n="home.real.compile">Compile Status:</span> <span class="text-real-accent/60">stable</span></p>
+                 <p>&gt; <span data-home-i18n="home.real.mount">Local records mounted...</span></p>
+                 <p>&gt; <span data-home-i18n="home.real.ready" class="text-real-accentSecondary/60 animate-pulse">Engineer ready.</span></p>
                </div>
             </div>
 
-            {/* 纯文本链接区 */}
-            <div class="flex flex-wrap justify-center gap-x-8 gap-y-4 font-real-mono text-sm mt-auto pb-8 pt-4">
-               <a href="/real/resume/" class="text-real-text hover:text-real-accent transition-colors font-bold uppercase tracking-widest drop-shadow-[0_0_5px_rgba(0,245,255,0)] hover:drop-shadow-[0_0_5px_rgba(0,245,255,0.5)]">Resume</a>
-               <a href="/real/notes/" class="text-real-text hover:text-real-accent transition-colors font-bold uppercase tracking-widest drop-shadow-[0_0_5px_rgba(0,245,255,0)] hover:drop-shadow-[0_0_5px_rgba(0,245,255,0.5)]">Notes</a>
-               <a href="/real/projects/" class="text-real-text hover:text-real-accent transition-colors font-bold uppercase tracking-widest drop-shadow-[0_0_5px_rgba(0,245,255,0)] hover:drop-shadow-[0_0_5px_rgba(0,245,255,0.5)]">Projects</a>
-               <a href="/real/blog/" class="text-real-text hover:text-real-accent transition-colors font-bold uppercase tracking-widest drop-shadow-[0_0_5px_rgba(0,245,255,0)] hover:drop-shadow-[0_0_5px_rgba(0,245,255,0.5)]">Blogs</a>
-            </div>
-
-            <a href="/real/" class="block w-full py-5 bg-real-accent/15 text-real-accent border border-real-accent/50 text-center font-real-mono uppercase tracking-[0.2em] text-base hover:bg-real-accent hover:text-black transition-colors font-bold shadow-[0_0_15px_rgba(0,245,255,0.2)]">
+            <a href="/real/" data-home-i18n="home.real.cta" class="block w-full py-5 bg-real-accent/15 text-real-accent border border-real-accent/50 text-center font-real-mono uppercase tracking-[0.2em] text-base hover:bg-real-accent hover:text-black transition-colors font-bold shadow-[0_0_15px_rgba(0,245,255,0.2)]">
               Initialize Real Environment &rarr;
             </a>
           </div>
@@ -127,46 +134,46 @@ const { title, description } = AppConfig;
           <div class="absolute bottom-0 left-0 w-64 h-64 bg-fiction-accentSecondary/10 blur-[80px] rounded-full"></div>
           
           <div class="relative z-10 p-8 md:p-10 h-full flex flex-col">
-            <div class="flex items-center justify-between mb-8 border-b border-fiction-accent/40 pb-4">
-               <h3 class="font-fiction-serif text-3xl font-black text-fiction-text italic drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"><span class="text-fiction-accent mr-2 not-italic">B/</span>FICTION_SIDE</h3>
-               <span class="text-xs font-real-mono text-fiction-accent uppercase tracking-widest px-3 py-1.5 bg-fiction-accent/15 border border-fiction-accent/50 shadow-[0_0_10px_rgba(255,215,0,0.2)]">Archive.log</span>
+            <div class="flex items-center justify-between mb-8">
+               <h3 class="font-fiction-serif text-3xl font-black text-fiction-text italic drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"><span class="text-fiction-accent mr-2 not-italic">B/</span><span data-home-i18n="home.fiction.sideTitle">FICTION SIDE</span></h3>
+               <span data-home-i18n="home.fiction.badge" class="text-xs font-real-mono text-fiction-accent uppercase tracking-widest px-3 py-1.5 bg-fiction-accent/15 border border-fiction-accent/50 shadow-[0_0_10px_rgba(255,215,0,0.2)]">Archive.log</span>
             </div>
             
-            <p class="text-fiction-text text-base mb-10 font-fiction-serif leading-relaxed bg-black/30 p-4 rounded-lg border border-white/5 shadow-inner">
+            <p data-home-i18n="home.fiction.description" class="text-fiction-text text-base mb-10 font-fiction-serif leading-relaxed bg-black/30 p-4 rounded-lg border border-white/5 shadow-inner">
               Narratives, character entities, and worldbuilding fragments. The creative archive where imagination takes form.
             </p>
 
             {/* 档案分区预览 - 无边框纯排版 */}
             <div class="mb-10 flex-grow">
-               <h4 class="text-xs font-real-mono text-fiction-accent uppercase tracking-[0.2em] mb-6 drop-shadow-[0_0_5px_rgba(255,215,0,0.3)]">Archive_Directories</h4>
+               <h4 data-home-i18n="home.fiction.directories" class="text-xs font-real-mono text-fiction-accent uppercase tracking-[0.2em] mb-6 drop-shadow-[0_0_5px_rgba(255,215,0,0.3)]">Archive Directories</h4>
                <div class="flex flex-col gap-6 pl-2">
                   <a href="/fiction/world/" class="group/item flex justify-between items-end border-b border-white/5 pb-2 hover:border-fiction-accent/30 transition-colors">
-                    <span class="text-xl text-fiction-text font-fiction-serif font-bold group-hover/item:text-fiction-accent transition-colors tracking-widest">世界观設定</span>
-                    <span class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-fiction-accent/80 transition-colors">Worldbuilding</span>
+                    <span data-home-i18n="home.fiction.world" class="text-xl text-fiction-text font-zh font-bold group-hover/item:text-fiction-accent transition-colors tracking-widest">Worldbuilding</span>
+                    <span data-home-i18n="home.fiction.worldSub" class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-fiction-accent/80 transition-colors">Worldbuilding</span>
                   </a>
                   <a href="/fiction/oc/" class="group/item flex justify-between items-end border-b border-white/5 pb-2 hover:border-fiction-accent/30 transition-colors">
-                    <span class="text-xl text-fiction-text font-fiction-serif font-bold group-hover/item:text-fiction-accent transition-colors tracking-widest">人物記録</span>
-                    <span class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-fiction-accent/80 transition-colors">Characters</span>
+                    <span data-home-i18n="home.fiction.characters" class="text-xl text-fiction-text font-zh font-bold group-hover/item:text-fiction-accent transition-colors tracking-widest">Characters</span>
+                    <span data-home-i18n="home.fiction.charactersSub" class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-fiction-accent/80 transition-colors">Characters</span>
                   </a>
                   <a href="/fiction/novels/" class="group/item flex justify-between items-end border-b border-white/5 pb-2 hover:border-fiction-accent/30 transition-colors">
-                    <span class="text-xl text-fiction-text font-fiction-serif font-bold group-hover/item:text-fiction-accent transition-colors tracking-widest">物語断片</span>
-                    <span class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-fiction-accent/80 transition-colors">Stories</span>
+                    <span data-home-i18n="home.fiction.stories" class="text-xl text-fiction-text font-zh font-bold group-hover/item:text-fiction-accent transition-colors tracking-widest">Stories</span>
+                    <span data-home-i18n="home.fiction.storiesSub" class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-fiction-accent/80 transition-colors">Stories</span>
                   </a>
                   <a href="/fiction/commissions/" class="group/item flex justify-between items-end border-b border-white/5 pb-2 hover:border-fiction-accent/30 transition-colors">
-                    <span class="text-xl text-fiction-text font-fiction-serif font-bold group-hover/item:text-fiction-accent transition-colors tracking-widest">画廊</span>
-                    <span class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-fiction-accent/80 transition-colors">Gallery</span>
+                    <span data-home-i18n="home.fiction.gallery" class="text-xl text-fiction-text font-zh font-bold group-hover/item:text-fiction-accent transition-colors tracking-widest">Gallery</span>
+                    <span data-home-i18n="home.fiction.gallerySub" class="text-xs text-white/40 font-real-mono uppercase tracking-widest group-hover/item:text-fiction-accent/80 transition-colors">Gallery</span>
                   </a>
                </div>
                
                {/* 补齐高度的氛围文本 */}
                <div class="mt-8 p-4 bg-black/20 border-l-2 border-fiction-accent/30 font-real-mono text-xs text-white/30 space-y-1">
-                 <p>&gt; Sync Rate: <span class="text-fiction-accent/60">98.4%</span></p>
-                 <p>&gt; Accessing deeper memory layers...</p>
-                 <p>&gt; <span class="text-fiction-accentSecondary/60 animate-pulse">Observer ready.</span></p>
+                 <p>&gt; <span data-home-i18n="home.fiction.sync">Sync Rate:</span> <span class="text-fiction-accent/60">98.4%</span></p>
+                 <p>&gt; <span data-home-i18n="home.fiction.memory">Accessing deeper memory layers...</span></p>
+                 <p>&gt; <span data-home-i18n="home.fiction.observer" class="text-fiction-accentSecondary/60 animate-pulse">Observer ready.</span></p>
                </div>
             </div>
 
-            <a href="/fiction/" class="mt-auto block w-full py-5 bg-fiction-accent/15 text-fiction-accent border border-fiction-accent/50 text-center font-real-mono uppercase tracking-[0.2em] text-base hover:bg-fiction-accent hover:text-black transition-colors font-bold shadow-[0_0_15px_rgba(255,215,0,0.2)]">
+            <a href="/fiction/" data-home-i18n="home.fiction.cta" class="mt-auto block w-full py-5 bg-fiction-accent/15 text-fiction-accent border border-fiction-accent/50 text-center font-real-mono uppercase tracking-[0.2em] text-base hover:bg-fiction-accent hover:text-black transition-colors font-bold shadow-[0_0_15px_rgba(255,215,0,0.2)]">
               Open Story Nexus &rarr;
             </a>
           </div>

@@ -9,21 +9,21 @@ const sections = ['Profile', 'Skills', 'Education / Experience', 'Highlights'];
   description='Resume, skills, experience, and contact information.'
 >
   <section class='mx-auto max-w-7xl px-5 py-24 lg:px-8'>
-    <p class='mb-6 text-sm font-black uppercase tracking-[0.28em] md:text-base text-cyan-300'>
-      Resume
+    <p class='mb-4 text-xs font-real-mono font-black uppercase tracking-[0.28em] md:text-sm text-real-accent'>
+      /real/resume
     </p>
-    <h1 class='text-5xl font-black leading-none tracking-[-0.06em] text-white md:text-7xl'>
+    <h1 class='font-real-mono text-5xl font-black leading-none tracking-tight text-real-text md:text-7xl drop-shadow-[0_0_14px_rgba(0,245,255,0.18)]'>
       Resume
     </h1>
-    <p class='mt-6 max-w-3xl text-lg leading-8 text-slate-400'>
+    <p class='mt-6 max-w-3xl bg-black/30 border border-white/5 p-5 text-base leading-8 text-real-text/80 font-real-sans'>
       A resume skeleton for profile, skills, education, experience, projects,
       and contact information. Replace these sections with real content later.
     </p>
     <div class='mt-14 grid gap-5 md:grid-cols-2'>
       {sections.map((item) => (
-        <article class="rounded-3xl border border-white/10 bg-white/[0.04] p-7">
-          <h2 class="text-2xl font-black text-white">{item}</h2>
-          <p class="mt-4 leading-7 text-slate-400">
+        <article class="border border-white/10 bg-real-surface p-7 shadow-md hover:border-real-accent/40 transition-colors">
+          <h2 class="font-real-mono text-2xl font-black text-real-accent">{item}</h2>
+          <p class="mt-4 leading-7 text-real-text/70 font-real-sans">
             Waiting for real content.
           </p>
         </article>

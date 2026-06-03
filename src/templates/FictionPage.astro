@@ -13,8 +13,16 @@ const { title, description, locale = defaultLocale } = Astro.props as Props;
 
 <Base head={{ title, description }} theme='fiction' locale={locale}>
   <main
-    class='min-h-screen bg-[radial-gradient(circle_at_20%_0%,rgba(143,47,75,0.36),transparent_28rem),radial-gradient(circle_at_85%_10%,rgba(216,183,106,0.24),transparent_24rem),linear-gradient(135deg,#120917,#22132e_48%,#100812)] font-fiction text-fiction-ink'
+    class='relative min-h-screen overflow-hidden bg-fiction-bg font-fiction-serif text-fiction-text selection:bg-fiction-accent/30 selection:text-fiction-text'
   >
-    <slot></slot>
+    <div class='pointer-events-none fixed inset-0 z-0'>
+      <div class="absolute inset-0 opacity-[0.06] mix-blend-overlay" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.75%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
+      <div class='absolute inset-0 bg-[radial-gradient(circle_at_16%_6%,rgba(255,51,102,0.18),transparent_30rem),radial-gradient(circle_at_86%_18%,rgba(255,215,0,0.16),transparent_26rem),radial-gradient(circle_at_50%_100%,rgba(167,139,250,0.12),transparent_34rem)]'></div>
+      <div class='absolute left-[10%] top-[18%] h-1 w-1 rounded-full bg-fiction-accent/60 shadow-[0_0_14px_3px_rgba(255,215,0,0.28)] animate-pulse-slow'></div>
+      <div class='absolute right-[18%] top-[40%] h-1.5 w-1.5 rounded-full bg-fiction-accentSecondary/45 shadow-[0_0_18px_4px_rgba(255,51,102,0.25)] animate-float'></div>
+    </div>
+    <div class='relative z-10'>
+      <slot></slot>
+    </div>
   </main>
 </Base>

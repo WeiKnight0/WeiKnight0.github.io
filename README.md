@@ -54,7 +54,7 @@ The workflow file is:
 .github/workflows/deploy.yml
 ```
 
-Deployment runs automatically when you push to `master`.
+Deployment runs automatically when you push to `main`.
 
 The production site URL is configured in `astro.config.mjs`:
 

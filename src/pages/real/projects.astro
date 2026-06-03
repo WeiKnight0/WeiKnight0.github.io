@@ -13,25 +13,29 @@ const projects = (await getCollection('projects')).sort(
   description='Project and portfolio entries.'
 >
   <section class='mx-auto max-w-[92rem] px-4 py-24 sm:px-6 lg:px-8'>
-    <p class='mb-6 text-base font-black uppercase tracking-[0.28em] text-cyan-300 md:text-lg'>
-      Projects
-    </p>
-    <h1 class='text-4xl font-black leading-none tracking-[-0.05em] text-white md:text-6xl'>
-      Projects
-    </h1>
+    <div class='border-b border-real-accent/30 pb-6'>
+      <p class='mb-4 flex items-center gap-2 text-xs font-real-mono font-black uppercase tracking-[0.28em] text-real-accent md:text-sm'>
+        <span class='h-2 w-2 animate-pulse bg-real-accent'></span>
+        /real/projects
+      </p>
+      <h1 class='font-real-mono text-4xl font-black leading-none tracking-tight text-real-text md:text-6xl drop-shadow-[0_0_14px_rgba(0,245,255,0.18)]'>
+        Projects
+      </h1>
+    </div>
     <div class='mt-14 grid gap-5 md:grid-cols-3'>
       {projects.map((project) => (
         <a
           href={`/real/projects/${project.slug}/`}
-          class="rounded-3xl border border-white/10 bg-white/[0.04] p-7 transition hover:border-cyan-300/40 hover:bg-white/[0.07]"
+          class="group relative overflow-hidden border border-white/10 bg-real-surface p-7 shadow-md transition hover:border-real-accent/60 hover:bg-real-accent/5"
         >
-          <h2 class="text-2xl font-black leading-tight text-white">{project.data.title}</h2>
-          <p class="mt-4 text-base leading-7 text-slate-300">
+          <div class='absolute left-0 top-0 h-full w-1 origin-top scale-y-0 bg-real-accent transition-transform group-hover:scale-y-100'></div>
+          <h2 class="font-real-mono text-2xl font-black leading-tight text-real-text transition group-hover:text-real-accent">{project.data.title}</h2>
+          <p class="mt-4 text-base leading-7 text-real-text/75 font-real-sans">
             {project.data.description}
           </p>
           <div class="mt-6 flex flex-wrap gap-2">
             {project.data.tags.map((tag) => (
-              <span class="rounded-full border border-white/10 px-3 py-1 text-sm font-bold text-slate-300">
+              <span class="border border-real-accent/20 bg-black/30 px-3 py-1 text-xs font-real-mono font-bold uppercase tracking-wider text-real-accent/80">
                 {tag}
               </span>
             ))}

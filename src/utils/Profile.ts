@@ -5,9 +5,8 @@ export const Profile = {
   location: 'Nanjing, Jiangsu Province, China',
   school: 'Southeast University, China',
   github: 'https://github.com/WeiKnight0',
-  bilibili: 'https://space.bilibili.com/',
   avatar: 'https://avatars.githubusercontent.com/u/84631479?v=4',
-  techStack: ['Astro', 'React', 'TypeScript', 'Tailwind CSS'],
+  techStack: ['C/C++', 'Python', 'Java'],
   repos: [
     {
       name: 'Homepage',
